@@ -1,0 +1,235 @@
+# ========================================
+# 📤 ダウンロードフォルダ振り分けサンプル
+# ========================================
+#
+# 【このサンプルについて】
+# ダウンロードフォルダから拡張子やファイル名パターンに基づいて
+# 各種フォルダへファイルを自動振り分けする設定例です。
+#
+# 【使い方】
+# 1. このファイルを configs/my_downloads.yaml にコピー
+# 2. target_directory を自分のダウンロードフォルダに変更
+# 3. 各ルールの dest を自分の環境に合わせて変更
+# 4. 不要なルールは enabled: false で無効化
+#
+# ========================================
+
+meta:
+  name: "ダウンロード振り分け"
+  icon: "📤"
+  mode: "Sort"
+  description: "ダウンロードフォルダから各種フォルダへ振り分け"
+
+# =====================================
+# 基本設定
+# =====================================
+settings:
+  # 処理対象のディレクトリ
+  # Windowsの例: "C:\\Users\\username\\Downloads"
+  # Linuxの例: "/home/username/Downloads"
+  # Macの例: "/Users/username/Downloads"
+  target_directory: "C:\\Users\\username\\Downloads"
+
+  # ログを記録するか
+  enable_logging: true
+
+  # 実行前に確認プロンプトを表示するか
+  confirm_before_execute: true
+
+  # ドライラン（プレビューのみ、実際には実行しない）をデフォルトで有効化
+  dry_run_default: true
+
+  # プレビュー表示設定
+  preview:
+    mode: "head"      # head: 先頭のみ / tail: 末尾のみ / both: 両端 / all: 全件
+    count: 5          # 表示件数（modeがhead/tail/bothの場合）
+
+  # ログ設定
+  logging:
+    log_success: true              # 成功したファイル操作もログに記録
+    log_directory: "logs"          # ログ保存先（相対パス: プロジェクトルートからの相対）
+
+# =====================================
+# 移動ルール
+# =====================================
+# 【重要】上から順に評価され、最初にマッチしたルールのみが適用されます
+# 【注意】より具体的なルールを上に、汎用的なルールを下に配置してください
+#
+# 例: "*screenshot*.png" を "*.png" より上に書く
+#
+move_rules:
+  # -------------------------------
+  # 画像ファイル（パターン別）
+  # -------------------------------
+  # スクリーンショットは専用フォルダへ
+  - pattern: "*screenshot*"
+    dest: "C:\\Users\\username\\Pictures\\Screenshots"
+    description: "スクリーンショット"
+    enabled: true
+
+  - pattern: "*ss_202*"
+    dest: "C:\\Users\\username\\Pictures\\Screenshots"
+    description: "スクショ（年月パターン）"
+    enabled: true
+
+  # 一般的な画像ファイル
+  - pattern: "*.png"
+    dest: "C:\\Users\\username\\Pictures\\Unsorted"
+    description: "PNG画像"
+    enabled: true
+
+  - pattern: "*.jpg"
+    dest: "C:\\Users\\username\\Pictures\\Unsorted"
+    description: "JPG画像"
+    enabled: true
+
+  - pattern: "*.jpeg"
+    dest: "C:\\Users\\username\\Pictures\\Unsorted"
+    description: "JPEG画像"
+    enabled: true
+
+  - pattern: "*.gif"
+    dest: "C:\\Users\\username\\Pictures\\Unsorted"
+    description: "GIF画像"
+    enabled: true
+
+  - pattern: "*.webp"
+    dest: "C:\\Users\\username\\Pictures\\Unsorted"
+    description: "WebP画像"
+    enabled: true
+
+  # -------------------------------
+  # 動画ファイル
+  # -------------------------------
+  - pattern: "*.mp4"
+    dest: "C:\\Users\\username\\Videos\\Unsorted"
+    description: "MP4動画"
+    enabled: true
+
+  - pattern: "*.mkv"
+    dest: "C:\\Users\\username\\Videos\\Unsorted"
+    description: "MKV動画"
+    enabled: true
+
+  - pattern: "*.avi"
+    dest: "C:\\Users\\username\\Videos\\Unsorted"
+    description: "AVI動画"
+    enabled: true
+
+  - pattern: "*.mov"
+    dest: "C:\\Users\\username\\Videos\\Unsorted"
+    description: "MOV動画"
+    enabled: true
+
+  - pattern: "*.webm"
+    dest: "C:\\Users\\username\\Videos\\Unsorted"
+    description: "WebM動画"
+    enabled: true
+
+  # -------------------------------
+  # ドキュメントファイル
+  # -------------------------------
+  - pattern: "*.pdf"
+    dest: "C:\\Users\\username\\Documents\\PDFs"
+    description: "PDFファイル"
+    enabled: true
+
+  - pattern: "*.docx"
+    dest: "C:\\Users\\username\\Documents\\Word"
+    description: "Word文書"
+    enabled: true
+
+  - pattern: "*.doc"
+    dest: "C:\\Users\\username\\Documents\\Word"
+    description: "Word文書（旧形式）"
+    enabled: true
+
+  - pattern: "*.xlsx"
+    dest: "C:\\Users\\username\\Documents\\Excel"
+    description: "Excelファイル"
+    enabled: true
+
+  - pattern: "*.xls"
+    dest: "C:\\Users\\username\\Documents\\Excel"
+    description: "Excelファイル（旧形式）"
+    enabled: true
+
+  - pattern: "*.pptx"
+    dest: "C:\\Users\\username\\Documents\\PowerPoint"
+    description: "PowerPointファイル"
+    enabled: true
+
+  - pattern: "*.txt"
+    dest: "C:\\Users\\username\\Documents\\TextFiles"
+    description: "テキストファイル"
+    enabled: true
+
+  # -------------------------------
+  # アーカイブファイル
+  # -------------------------------
+  - pattern: "*.zip"
+    dest: "C:\\Users\\username\\Documents\\Archives"
+    description: "ZIPファイル"
+    enabled: true
+
+  - pattern: "*.rar"
+    dest: "C:\\Users\\username\\Documents\\Archives"
+    description: "RARファイル"
+    enabled: true
+
+  - pattern: "*.7z"
+    dest: "C:\\Users\\username\\Documents\\Archives"
+    description: "7zファイル"
+    enabled: true
+
+  # -------------------------------
+  # プログラム・インストーラー
+  # -------------------------------
+  - pattern: "*.exe"
+    dest: "C:\\Users\\username\\Downloads\\Installers"
+    description: "実行ファイル"
+    enabled: true
+
+  - pattern: "*.msi"
+    dest: "C:\\Users\\username\\Downloads\\Installers"
+    description: "MSIインストーラー"
+    enabled: true
+
+  # -------------------------------
+  # 音声ファイル
+  # -------------------------------
+  - pattern: "*.mp3"
+    dest: "C:\\Users\\username\\Music\\Unsorted"
+    description: "MP3音声"
+    enabled: true
+
+  - pattern: "*.wav"
+    dest: "C:\\Users\\username\\Music\\Unsorted"
+    description: "WAV音声"
+    enabled: true
+
+  - pattern: "*.flac"
+    dest: "C:\\Users\\username\\Music\\Unsorted"
+    description: "FLAC音声"
+    enabled: true
+
+# =====================================
+# 除外パターン
+# =====================================
+# これらのファイルは移動対象から除外されます
+#
+exclusions:
+  # ファイル名での除外（完全一致）
+  exact_names:
+    - "desktop.ini"      # Windowsシステムファイル
+    - "Thumbs.db"        # Windowsサムネイルキャッシュ
+    - ".DS_Store"        # macOSメタデータ
+
+  # パターンでの除外（ワイルドカード可）
+  patterns:
+    - "*.tmp"            # 一時ファイル
+    - "*.temp"           # 一時ファイル
+    - "*.bak"            # バックアップファイル
+    - "~*"               # Officeの一時ファイル
+    - "*.crdownload"     # Chrome未完了ダウンロード
+    - "*.part"           # 未完了ダウンロード

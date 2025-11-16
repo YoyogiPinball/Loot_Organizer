@@ -1,0 +1,254 @@
+2025-11-15 00:40:47 [INFO] FileFlow開始 (ドライランモード)
+2025-11-15 00:40:47 [INFO] --- 🗑️  ステップ1: 特定文字列を含むファイルの削除 ---
+2025-11-15 00:40:47 [INFO] 削除対象のファイルなし
+2025-11-15 00:40:47 [INFO] --- ✨ ステップ2: ファイル名のクリーンアップ ---
+2025-11-15 00:40:47 [INFO] 名前変更対象なし
+2025-11-15 00:40:47 [INFO] --- 📋 ステップ3: ファイル振り分け ---
+2025-11-15 00:40:47 [INFO] 該当ファイルなし: *r=5*
+2025-11-15 00:40:47 [INFO] 該当ファイルなし: *t=V*
+2025-11-15 00:40:47 [INFO] 該当ファイルなし: *t=pic*
+2025-11-15 00:40:47 [INFO] 該当ファイルなし: *t=774*
+2025-11-15 00:40:47 [INFO] 該当ファイルなし: *t=ReAct*
+2025-11-15 00:40:47 [INFO] 処理完了 - 統計: {'deleted': 0, 'renamed': 0, 'copied': 0, 'moved': 0, 'errors': 0}
+2025-11-15 00:40:51 [INFO] FileFlow開始 (実行モード)
+2025-11-15 00:40:51 [INFO] --- 🗑️  ステップ1: 特定文字列を含むファイルの削除 ---
+2025-11-15 00:40:51 [INFO] 削除対象のファイルなし
+2025-11-15 00:40:51 [INFO] --- ✨ ステップ2: ファイル名のクリーンアップ ---
+2025-11-15 00:40:51 [INFO] 名前変更対象なし
+2025-11-15 00:40:51 [INFO] --- 📋 ステップ3: ファイル振り分け ---
+2025-11-15 00:40:51 [INFO] 該当ファイルなし: *r=5*
+2025-11-15 00:40:51 [INFO] 該当ファイルなし: *t=V*
+2025-11-15 00:40:51 [INFO] 該当ファイルなし: *t=pic*
+2025-11-15 00:40:51 [INFO] 該当ファイルなし: *t=774*
+2025-11-15 00:40:51 [INFO] 該当ファイルなし: *t=ReAct*
+2025-11-15 00:40:51 [INFO] 処理完了 - 統計: {'deleted': 0, 'renamed': 0, 'copied': 0, 'moved': 0, 'errors': 0}
+2025-11-15 20:58:47 [INFO] FileFlow開始 (ドライランモード)
+2025-11-15 20:58:47 [INFO] --- 🗑️  ステップ1: 特定文字列を含むファイルの削除 ---
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 削除予定: D:\ikoooou\_SYNC\tmptmptmptmp\7nnn_n2-20251114-1989306127020954026-01 {zpi$r=1}.jpg
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 削除予定: D:\ikoooou\_SYNC\tmptmptmptmp\ANIMA_MIKO-20251111-1988078736269599009-01 {zpi$r=1}.jpg
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 削除予定: D:\ikoooou\_SYNC\tmptmptmptmp\bnkmb359-20241212-1867153070507037013-01 {zpi$r=1}.jpg
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 削除予定: D:\ikoooou\_SYNC\tmptmptmptmp\deca_purio-20251113-1988918763551359052-01 {zpi$r=1}.jpg
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 削除予定: D:\ikoooou\_SYNC\tmptmptmptmp\dfghjbvcdd-20250925-1971210279943012615-02 {zpi$r=1}.jpg
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 削除予定: D:\ikoooou\_SYNC\tmptmptmptmp\ejaejae93-20251110-1987665476466667964-01 {zpi$r=1}.jpg
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 削除予定: D:\ikoooou\_SYNC\tmptmptmptmp\ETT01024-20251115-1989460121056153799-01 {zpi$r=1}.jpg
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 削除予定: D:\ikoooou\_SYNC\tmptmptmptmp\gotcha0303-20250707-1942179337501122963-01 {zpi$r=1}.jpg
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 削除予定: D:\ikoooou\_SYNC\tmptmptmptmp\gotcha0303-20250707-1942179337501122963-02 {zpi$r=1}.jpg
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 削除予定: D:\ikoooou\_SYNC\tmptmptmptmp\gotcha0303-20250707-1942179337501122963-03 {zpi$r=1}.jpg
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 削除予定: D:\ikoooou\_SYNC\tmptmptmptmp\hananoki_maru-20251113-1988886602299420937-01 {zpi$r=1}.jpg
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 削除予定: D:\ikoooou\_SYNC\tmptmptmptmp\hitorilily-20251110-1987684167489143172-01 {zpi$r=1}.jpg
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 削除予定: D:\ikoooou\_SYNC\tmptmptmptmp\Iou_pot_ryre-20251114-1989158342858580380-01 {zpi$r=1}.jpg
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 削除予定: D:\ikoooou\_SYNC\tmptmptmptmp\Iou_pot_ryre-20251114-1989158342858580380-02 {zpi$r=1}.jpg
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 削除予定: D:\ikoooou\_SYNC\tmptmptmptmp\Iou_pot_ryre-20251114-1989158342858580380-03 {zpi$r=1}.jpg
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 削除予定: D:\ikoooou\_SYNC\tmptmptmptmp\kevinlim39-20251114-1989197601267466251-01 {zpi$r=1}.jpg
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 削除予定: D:\ikoooou\_SYNC\tmptmptmptmp\Ko_uNiii-20251110-1987716880539537413-01 {zpi$r=1}.jpg
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 削除予定: D:\ikoooou\_SYNC\tmptmptmptmp\kusomiso-20251114-1989249569805496407-01 {zpi$r=1}.jpg
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 削除予定: D:\ikoooou\_SYNC\tmptmptmptmp\MirukuSeki3-20251113-1988934451108479232-01 {zpi$r=1}.jpg
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 削除予定: D:\ikoooou\_SYNC\tmptmptmptmp\Mochiusa_cocoa-20251114-1989106006735958457-01 {zpi$r=1}.jpg
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 削除予定: D:\ikoooou\_SYNC\tmptmptmptmp\Nananichi_Yuhi-20251114-1989287198873829805-01 {zpi$r=1}.jpg
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 削除予定: D:\ikoooou\_SYNC\tmptmptmptmp\Oopartzy-20251110-1987670615634198737-01 {zpi$r=1}.jpg
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 削除予定: D:\ikoooou\_SYNC\tmptmptmptmp\osu_atou_osatou-20251113-1988894611633287550-01 {zpi$r=1}.jpg
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 削除予定: D:\ikoooou\_SYNC\tmptmptmptmp\pononozo-20251114-1989282485163987134-01 {zpi$r=1}.jpg
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 削除予定: D:\ikoooou\_SYNC\tmptmptmptmp\Ratto7R-20251110-1987868856468332999-01 {zpi$r=1}.jpg
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 削除予定: D:\ikoooou\_SYNC\tmptmptmptmp\Ratto7R-20251110-1987869587866849387-01 {zpi$r=1}.jpg
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 削除予定: D:\ikoooou\_SYNC\tmptmptmptmp\Ratto7R-20251110-1987869587866849387-02 {zpi$r=1}.jpg
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 削除予定: D:\ikoooou\_SYNC\tmptmptmptmp\Ratto7R-20251110-1987869587866849387-03 {zpi$r=1}.jpg
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 削除予定: D:\ikoooou\_SYNC\tmptmptmptmp\Ratto7R-20251110-1987869587866849387-04 {zpi$r=1}.jpg
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 削除予定: D:\ikoooou\_SYNC\tmptmptmptmp\Ratto7R-20251110-1987870665484190024-02 {zpi$r=1}.jpg
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 削除予定: D:\ikoooou\_SYNC\tmptmptmptmp\Ratto7R-20251110-1987870665484190024-03 {zpi$r=1}.jpg
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 削除予定: D:\ikoooou\_SYNC\tmptmptmptmp\Ratto7R-20251110-1987870665484190024-04 {zpi$r=1}.jpg
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 削除予定: D:\ikoooou\_SYNC\tmptmptmptmp\Ratto7R-20251110-1987872106651271448-01 {zpi$r=1}.jpg
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 削除予定: D:\ikoooou\_SYNC\tmptmptmptmp\Ratto7R-20251110-1987872106651271448-02 {zpi$r=1}.jpg
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 削除予定: D:\ikoooou\_SYNC\tmptmptmptmp\Ratto7R-20251110-1987872106651271448-03 {zpi$r=1}.jpg
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 削除予定: D:\ikoooou\_SYNC\tmptmptmptmp\Ratto7R-20251110-1987872106651271448-04 {zpi$r=1}.jpg
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 削除予定: D:\ikoooou\_SYNC\tmptmptmptmp\Ratto7R-20251110-1987872632956678616-01 {zpi$r=1}.jpg
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 削除予定: D:\ikoooou\_SYNC\tmptmptmptmp\Ratto7R-20251110-1987872632956678616-03 {zpi$r=1}.jpg
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 削除予定: D:\ikoooou\_SYNC\tmptmptmptmp\Ratto7R-20251110-1987872632956678616-04 {zpi$r=1}.jpg
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 削除予定: D:\ikoooou\_SYNC\tmptmptmptmp\Ratto7R-20251110-1987873042874417640-01 {zpi$r=1}.jpg
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 削除予定: D:\ikoooou\_SYNC\tmptmptmptmp\Ratto7R-20251110-1987873042874417640-02 {zpi$r=1}.jpg
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 削除予定: D:\ikoooou\_SYNC\tmptmptmptmp\Ratto7R-20251110-1987873042874417640-03 {zpi$r=1}.jpg
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 削除予定: D:\ikoooou\_SYNC\tmptmptmptmp\Ratto7R-20251110-1987873042874417640-04 {zpi$r=1}.jpg
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 削除予定: D:\ikoooou\_SYNC\tmptmptmptmp\redjet00-20251115-1989403405396353149-01 {zpi$r=1}.jpg
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 削除予定: D:\ikoooou\_SYNC\tmptmptmptmp\San_Haruka_-20251112-1988518027604729992-01 {zpi$r=1}.jpg
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 削除予定: D:\ikoooou\_SYNC\tmptmptmptmp\stArlight_go5-20251113-1988734531772596395-01 {zpi$r=1}.jpg
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 削除予定: D:\ikoooou\_SYNC\tmptmptmptmp\yumepillows-20251108-1986983135318581489-01 {zpi$r=1}.jpg
+2025-11-15 20:58:47 [INFO] --- ✨ ステップ2: ファイル名のクリーンアップ ---
+2025-11-15 20:58:47 [INFO] 名前変更対象なし
+2025-11-15 20:58:47 [INFO] --- 📋 ステップ3: ファイル振り分け ---
+2025-11-15 20:58:47 [INFO] [DRY-RUN] コピー予定: D:\ikoooou\_SYNC\tmptmptmptmp\hinorinr-20251017-1979115722635714997-02 {zpi$r=5}.jpg -> D:\ikoooou\_SYNC\r5
+2025-11-15 20:58:47 [INFO] [DRY-RUN] コピー予定: D:\ikoooou\_SYNC\tmptmptmptmp\hinorinr-20251115-1989571390576402706-01 {zpi$r=5}.jpg -> D:\ikoooou\_SYNC\r5
+2025-11-15 20:58:47 [INFO] [DRY-RUN] コピー予定: D:\ikoooou\_SYNC\tmptmptmptmp\kv_perle {zpi$r=5}.webp -> D:\ikoooou\_SYNC\r5
+2025-11-15 20:58:47 [INFO] [DRY-RUN] コピー予定: D:\ikoooou\_SYNC\tmptmptmptmp\matriks_16-20251114-1989317403474571770-01 {zpi$r=5}.jpg -> D:\ikoooou\_SYNC\r5
+2025-11-15 20:58:47 [INFO] [DRY-RUN] コピー予定: D:\ikoooou\_SYNC\tmptmptmptmp\nano_kozuya-20251111-1988008755381104824-01 {zpi$r=5}.jpg -> D:\ikoooou\_SYNC\r5
+2025-11-15 20:58:47 [INFO] [DRY-RUN] コピー予定: D:\ikoooou\_SYNC\tmptmptmptmp\nano_kozuya-20251112-1988441636313891075-01 {zpi$r=5}.jpg -> D:\ikoooou\_SYNC\r5
+2025-11-15 20:58:47 [INFO] [DRY-RUN] コピー予定: D:\ikoooou\_SYNC\tmptmptmptmp\stand_perle {zpi$r=5}.webp -> D:\ikoooou\_SYNC\r5
+2025-11-15 20:58:47 [INFO] [DRY-RUN] コピー予定: D:\ikoooou\_SYNC\tmptmptmptmp\white_neige-20251112-1988545759948767243-01 {zpi$r=5}.jpg -> D:\ikoooou\_SYNC\r5
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 移動予定: D:\ikoooou\_SYNC\tmptmptmptmp\ekibyou_dayo-20251111-1988258070854856731-01 {zpi$t=V}.jpg -> D:\ikoooou\_SYNC\V
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 移動予定: D:\ikoooou\_SYNC\tmptmptmptmp\furuno132nw-20251114-1989309779647279516-01 {zpi$t=V}.jpg -> D:\ikoooou\_SYNC\V
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 移動予定: D:\ikoooou\_SYNC\tmptmptmptmp\gisyuled-20251114-1989288596097176052-01 {zpi$t=V}.jpg -> D:\ikoooou\_SYNC\V
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 移動予定: D:\ikoooou\_SYNC\tmptmptmptmp\Iou_pot_ryre-20251110-1987878989336383604-01 {zpi$t=V}.jpg -> D:\ikoooou\_SYNC\V
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 移動予定: D:\ikoooou\_SYNC\tmptmptmptmp\Iou_pot_ryre-20251110-1987878989336383604-02 {zpi$t=V}.jpg -> D:\ikoooou\_SYNC\V
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 移動予定: D:\ikoooou\_SYNC\tmptmptmptmp\Rabi - 無題 (137412901)  {zpi$t=V}.png -> D:\ikoooou\_SYNC\V
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 移動予定: D:\ikoooou\_SYNC\tmptmptmptmp\ギシュレッド - rksiってかわいいんですよね (129559432)  {zpi$t=V}.png -> D:\ikoooou\_SYNC\V
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 移動予定: D:\ikoooou\_SYNC\tmptmptmptmp\ギシュレッド - 帰りの電車でゲー〇るの３人に出会って... (120028781)  {zpi$t=V}.png -> D:\ikoooou\_SYNC\V
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 移動予定: D:\ikoooou\_SYNC\tmptmptmptmp\天ぱる（趣味アカ） - LiLYPSE × グラビア (137345579) p1 {zpi$t=V}.png -> D:\ikoooou\_SYNC\V
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 移動予定: D:\ikoooou\_SYNC\tmptmptmptmp\天ぱる（趣味アカ） - LiLYPSE × グラビア (137345579) p2 {zpi$t=V}.png -> D:\ikoooou\_SYNC\V
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 移動予定: D:\ikoooou\_SYNC\tmptmptmptmp\天ぱる（趣味アカ） - LiLYPSE × グラビア (137345579) p3 {zpi$t=V}.png -> D:\ikoooou\_SYNC\V
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 移動予定: D:\ikoooou\_SYNC\tmptmptmptmp\244__-20251111-1988248997090521368-01 {zpi$t=pic}.jpg -> D:\ikoooou\_SYNC\pic
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 移動予定: D:\ikoooou\_SYNC\tmptmptmptmp\asameshi1024-20251114-1989273853617676644-01 {zpi$t=pic}.jpg -> D:\ikoooou\_SYNC\pic
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 移動予定: D:\ikoooou\_SYNC\tmptmptmptmp\asdkd123-20251110-1987822306471879025-01 {zpi$t=pic}.jpg -> D:\ikoooou\_SYNC\pic
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 移動予定: D:\ikoooou\_SYNC\tmptmptmptmp\futu11223344-20251011-1976832594856886366-01 {zpi$t=pic}.jpg -> D:\ikoooou\_SYNC\pic
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 移動予定: D:\ikoooou\_SYNC\tmptmptmptmp\hikari - PAさん (ぼっち・ざ・ろっく!) (137315886) p04 {zpi$t=pic}.jpg -> D:\ikoooou\_SYNC\pic
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 移動予定: D:\ikoooou\_SYNC\tmptmptmptmp\hikari - PAさん (ぼっち・ざ・ろっく!) (137315886) p05 {zpi$t=pic}.jpg -> D:\ikoooou\_SYNC\pic
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 移動予定: D:\ikoooou\_SYNC\tmptmptmptmp\hikari - PAさん (ぼっち・ざ・ろっく!) (137315886) p10 {zpi$t=pic}.jpg -> D:\ikoooou\_SYNC\pic
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 移動予定: D:\ikoooou\_SYNC\tmptmptmptmp\ims_823-20251114-1989337750060032063-01 {zpi$t=pic}.png -> D:\ikoooou\_SYNC\pic
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 移動予定: D:\ikoooou\_SYNC\tmptmptmptmp\K1nomilk-20251108-1987067835039015103-01 {zpi$t=pic}.jpg -> D:\ikoooou\_SYNC\pic
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 移動予定: D:\ikoooou\_SYNC\tmptmptmptmp\katsuragi710ka-20251114-1989282304657969265-01 {zpi$t=pic}.jpg -> D:\ikoooou\_SYNC\pic
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 移動予定: D:\ikoooou\_SYNC\tmptmptmptmp\kon_ypaaaa-20251111-1988206429615124982-01 {zpi$r=2;t=pic}.jpg -> D:\ikoooou\_SYNC\pic
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 移動予定: D:\ikoooou\_SYNC\tmptmptmptmp\Lemonade_Cat_-20251114-1989294237826027826-01 {zpi$t=pic}.jpg -> D:\ikoooou\_SYNC\pic
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 移動予定: D:\ikoooou\_SYNC\tmptmptmptmp\mNk_DiSuKyamaDa-20251110-1987806331814986140-01 {zpi$t=pic}.jpg -> D:\ikoooou\_SYNC\pic
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 移動予定: D:\ikoooou\_SYNC\tmptmptmptmp\nanawo852-20251111-1988241252253683991-01 {zpi$t=pic}.jpg -> D:\ikoooou\_SYNC\pic
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 移動予定: D:\ikoooou\_SYNC\tmptmptmptmp\NIHAO6069-20251002-1973681441910534331-01 {zpi$t=pic}.jpg -> D:\ikoooou\_SYNC\pic
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 移動予定: D:\ikoooou\_SYNC\tmptmptmptmp\piccione_works7-20250923-1970435672088682809-01 {zpi$t=pic}.jpg -> D:\ikoooou\_SYNC\pic
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 移動予定: D:\ikoooou\_SYNC\tmptmptmptmp\pononozo-20251114-1989282485163987134-02 {zpi$t=pic}.jpg -> D:\ikoooou\_SYNC\pic
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 移動予定: D:\ikoooou\_SYNC\tmptmptmptmp\pononozo-20251114-1989282485163987134-03 {zpi$t=pic}.jpg -> D:\ikoooou\_SYNC\pic
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 移動予定: D:\ikoooou\_SYNC\tmptmptmptmp\prprKIRIN-20250921-1969707601656222167-01 {zpi$t=pic}.jpg -> D:\ikoooou\_SYNC\pic
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 移動予定: D:\ikoooou\_SYNC\tmptmptmptmp\rikudo6-20251110-1987803028779676107-01 {zpi$t=pic}.jpg -> D:\ikoooou\_SYNC\pic
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 移動予定: D:\ikoooou\_SYNC\tmptmptmptmp\R_E_I_-20251114-1989182797203079341-01 {zpi$t=pic}.jpg -> D:\ikoooou\_SYNC\pic
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 移動予定: D:\ikoooou\_SYNC\tmptmptmptmp\SOS_adult-20251109-1987487543835976046-01 {zpi$t=pic}.jpg -> D:\ikoooou\_SYNC\pic
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 移動予定: D:\ikoooou\_SYNC\tmptmptmptmp\Studiokwsk-20250715-1945045529190179053-01 {zpi$t=pic}.jpg -> D:\ikoooou\_SYNC\pic
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 移動予定: D:\ikoooou\_SYNC\tmptmptmptmp\tika_illust-20251111-1988200509015199985-01 {zpi$t=pic}.jpg -> D:\ikoooou\_SYNC\pic
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 移動予定: D:\ikoooou\_SYNC\tmptmptmptmp\urabiyori-20251111-1988226871117619598-01 {zpi$t=pic}.jpg -> D:\ikoooou\_SYNC\pic
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 移動予定: D:\ikoooou\_SYNC\tmptmptmptmp\yuta_3510-20251112-1988614077732773892-01 {zpi$t=pic}.jpg -> D:\ikoooou\_SYNC\pic
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 移動予定: D:\ikoooou\_SYNC\tmptmptmptmp\_uwaaaaaaaaa-20251113-1988956696786751606-01 {zpi$t=pic}.jpg -> D:\ikoooou\_SYNC\pic
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 移動予定: D:\ikoooou\_SYNC\tmptmptmptmp\_yuki_06-20251113-1988859233228435635-01 {zpi$t=pic}.jpg -> D:\ikoooou\_SYNC\pic
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 移動予定: D:\ikoooou\_SYNC\tmptmptmptmp\紅吊うらび - サキュバス莉波😈🩷💞 (136839680) p1 {zpi$t=pic}.jpg -> D:\ikoooou\_SYNC\pic
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 移動予定: D:\ikoooou\_SYNC\tmptmptmptmp\紅吊うらび - サキュバス莉波😈🩷💞 (136839680) p2 {zpi$t=pic}.jpg -> D:\ikoooou\_SYNC\pic
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 移動予定: D:\ikoooou\_SYNC\tmptmptmptmp\膝小僧 - 【リクエスト】 プリンセスコネクト ユイとえっち (137415654) p01 {zpi$t=pic}.jpg -> D:\ikoooou\_SYNC\pic
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 移動予定: D:\ikoooou\_SYNC\tmptmptmptmp\膝小僧 - 【リクエスト】 プリンセスコネクト ユイとえっち (137415654) p02 {zpi$t=pic}.jpg -> D:\ikoooou\_SYNC\pic
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 移動予定: D:\ikoooou\_SYNC\tmptmptmptmp\膝小僧 - 【リクエスト】 プリンセスコネクト ユイとえっち (137415654) p12 {zpi$t=pic}.jpg -> D:\ikoooou\_SYNC\pic
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 移動予定: D:\ikoooou\_SYNC\tmptmptmptmp\膝小僧 - 【リクエスト】 プリンセスコネクト ユイとえっち (137415654) p24 {zpi$t=pic}.jpg -> D:\ikoooou\_SYNC\pic
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 移動予定: D:\ikoooou\_SYNC\tmptmptmptmp\膝小僧 - 【リクエスト】 プリンセスコネクト ユイとえっち (137415654) p29 {zpi$t=pic}.jpg -> D:\ikoooou\_SYNC\pic
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 移動予定: D:\ikoooou\_SYNC\tmptmptmptmp\膝小僧 - 【リクエスト】 プリンセスコネクト ユイとえっち (137415654) p42 {zpi$t=pic}.jpg -> D:\ikoooou\_SYNC\pic
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 移動予定: D:\ikoooou\_SYNC\tmptmptmptmp\膝小僧 - 【リクエスト】 プリンセスコネクト ユイとえっち (137415654) p45 {zpi$t=pic}.jpg -> D:\ikoooou\_SYNC\pic
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 移動予定: D:\ikoooou\_SYNC\tmptmptmptmp\膝小僧 - 【リクエスト】 プリンセスコネクト ユイとえっち (137415654) p46 {zpi$t=pic}.jpg -> D:\ikoooou\_SYNC\pic
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 移動予定: D:\ikoooou\_SYNC\tmptmptmptmp\TMTJM888-20251115-1989562195857047565-01 {zpi$t=774}.jpg -> D:\ikoooou\Develop\774_shortcut
+2025-11-15 20:58:47 [INFO] 該当ファイルなし: *t=ReAct*
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 移動予定: D:\ikoooou\_SYNC\tmptmptmptmp\akasiaLL-20251114-1989293412680655035-01 {zpi$t=あしなが}.jpg -> D:\ikoooou\あしなが
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 移動予定: D:\ikoooou\_SYNC\tmptmptmptmp\J_KMOR-20251114-1989216666212036985-01 {zpi$t=あしなが}.png -> D:\ikoooou\あしなが
+2025-11-15 20:58:47 [INFO] [DRY-RUN] 移動予定: D:\ikoooou\_SYNC\tmptmptmptmp\nagimachi_sou-20251113-1988936536612827605-01 {zpi$t=あしなが}.jpg -> D:\ikoooou\あしなが
+2025-11-15 20:58:47 [INFO] 処理完了 - 統計: {'deleted': 0, 'renamed': 0, 'copied': 0, 'moved': 0, 'errors': 0}
+2025-11-15 20:59:09 [INFO] FileFlow開始 (実行モード)
+2025-11-15 20:59:09 [INFO] --- 🗑️  ステップ1: 特定文字列を含むファイルの削除 ---
+2025-11-15 20:59:09 [INFO] 削除: D:\ikoooou\_SYNC\tmptmptmptmp\7nnn_n2-20251114-1989306127020954026-01 {zpi$r=1}.jpg
+2025-11-15 20:59:09 [INFO] 削除: D:\ikoooou\_SYNC\tmptmptmptmp\ANIMA_MIKO-20251111-1988078736269599009-01 {zpi$r=1}.jpg
+2025-11-15 20:59:09 [INFO] 削除: D:\ikoooou\_SYNC\tmptmptmptmp\bnkmb359-20241212-1867153070507037013-01 {zpi$r=1}.jpg
+2025-11-15 20:59:09 [INFO] 削除: D:\ikoooou\_SYNC\tmptmptmptmp\deca_purio-20251113-1988918763551359052-01 {zpi$r=1}.jpg
+2025-11-15 20:59:09 [INFO] 削除: D:\ikoooou\_SYNC\tmptmptmptmp\dfghjbvcdd-20250925-1971210279943012615-02 {zpi$r=1}.jpg
+2025-11-15 20:59:09 [INFO] 削除: D:\ikoooou\_SYNC\tmptmptmptmp\ejaejae93-20251110-1987665476466667964-01 {zpi$r=1}.jpg
+2025-11-15 20:59:09 [INFO] 削除: D:\ikoooou\_SYNC\tmptmptmptmp\ETT01024-20251115-1989460121056153799-01 {zpi$r=1}.jpg
+2025-11-15 20:59:09 [INFO] 削除: D:\ikoooou\_SYNC\tmptmptmptmp\gotcha0303-20250707-1942179337501122963-01 {zpi$r=1}.jpg
+2025-11-15 20:59:09 [INFO] 削除: D:\ikoooou\_SYNC\tmptmptmptmp\gotcha0303-20250707-1942179337501122963-02 {zpi$r=1}.jpg
+2025-11-15 20:59:09 [INFO] 削除: D:\ikoooou\_SYNC\tmptmptmptmp\gotcha0303-20250707-1942179337501122963-03 {zpi$r=1}.jpg
+2025-11-15 20:59:09 [INFO] 削除: D:\ikoooou\_SYNC\tmptmptmptmp\hananoki_maru-20251113-1988886602299420937-01 {zpi$r=1}.jpg
+2025-11-15 20:59:09 [INFO] 削除: D:\ikoooou\_SYNC\tmptmptmptmp\hitorilily-20251110-1987684167489143172-01 {zpi$r=1}.jpg
+2025-11-15 20:59:09 [INFO] 削除: D:\ikoooou\_SYNC\tmptmptmptmp\Iou_pot_ryre-20251114-1989158342858580380-01 {zpi$r=1}.jpg
+2025-11-15 20:59:09 [INFO] 削除: D:\ikoooou\_SYNC\tmptmptmptmp\Iou_pot_ryre-20251114-1989158342858580380-02 {zpi$r=1}.jpg
+2025-11-15 20:59:09 [INFO] 削除: D:\ikoooou\_SYNC\tmptmptmptmp\Iou_pot_ryre-20251114-1989158342858580380-03 {zpi$r=1}.jpg
+2025-11-15 20:59:09 [INFO] 削除: D:\ikoooou\_SYNC\tmptmptmptmp\kevinlim39-20251114-1989197601267466251-01 {zpi$r=1}.jpg
+2025-11-15 20:59:09 [INFO] 削除: D:\ikoooou\_SYNC\tmptmptmptmp\Ko_uNiii-20251110-1987716880539537413-01 {zpi$r=1}.jpg
+2025-11-15 20:59:09 [INFO] 削除: D:\ikoooou\_SYNC\tmptmptmptmp\kusomiso-20251114-1989249569805496407-01 {zpi$r=1}.jpg
+2025-11-15 20:59:09 [INFO] 削除: D:\ikoooou\_SYNC\tmptmptmptmp\MirukuSeki3-20251113-1988934451108479232-01 {zpi$r=1}.jpg
+2025-11-15 20:59:09 [INFO] 削除: D:\ikoooou\_SYNC\tmptmptmptmp\Mochiusa_cocoa-20251114-1989106006735958457-01 {zpi$r=1}.jpg
+2025-11-15 20:59:09 [INFO] 削除: D:\ikoooou\_SYNC\tmptmptmptmp\Nananichi_Yuhi-20251114-1989287198873829805-01 {zpi$r=1}.jpg
+2025-11-15 20:59:09 [INFO] 削除: D:\ikoooou\_SYNC\tmptmptmptmp\Oopartzy-20251110-1987670615634198737-01 {zpi$r=1}.jpg
+2025-11-15 20:59:09 [INFO] 削除: D:\ikoooou\_SYNC\tmptmptmptmp\osu_atou_osatou-20251113-1988894611633287550-01 {zpi$r=1}.jpg
+2025-11-15 20:59:09 [INFO] 削除: D:\ikoooou\_SYNC\tmptmptmptmp\pononozo-20251114-1989282485163987134-01 {zpi$r=1}.jpg
+2025-11-15 20:59:09 [INFO] 削除: D:\ikoooou\_SYNC\tmptmptmptmp\Ratto7R-20251110-1987868856468332999-01 {zpi$r=1}.jpg
+2025-11-15 20:59:09 [INFO] 削除: D:\ikoooou\_SYNC\tmptmptmptmp\Ratto7R-20251110-1987869587866849387-01 {zpi$r=1}.jpg
+2025-11-15 20:59:09 [INFO] 削除: D:\ikoooou\_SYNC\tmptmptmptmp\Ratto7R-20251110-1987869587866849387-02 {zpi$r=1}.jpg
+2025-11-15 20:59:09 [INFO] 削除: D:\ikoooou\_SYNC\tmptmptmptmp\Ratto7R-20251110-1987869587866849387-03 {zpi$r=1}.jpg
+2025-11-15 20:59:09 [INFO] 削除: D:\ikoooou\_SYNC\tmptmptmptmp\Ratto7R-20251110-1987869587866849387-04 {zpi$r=1}.jpg
+2025-11-15 20:59:09 [INFO] 削除: D:\ikoooou\_SYNC\tmptmptmptmp\Ratto7R-20251110-1987870665484190024-02 {zpi$r=1}.jpg
+2025-11-15 20:59:09 [INFO] 削除: D:\ikoooou\_SYNC\tmptmptmptmp\Ratto7R-20251110-1987870665484190024-03 {zpi$r=1}.jpg
+2025-11-15 20:59:09 [INFO] 削除: D:\ikoooou\_SYNC\tmptmptmptmp\Ratto7R-20251110-1987870665484190024-04 {zpi$r=1}.jpg
+2025-11-15 20:59:09 [INFO] 削除: D:\ikoooou\_SYNC\tmptmptmptmp\Ratto7R-20251110-1987872106651271448-01 {zpi$r=1}.jpg
+2025-11-15 20:59:09 [INFO] 削除: D:\ikoooou\_SYNC\tmptmptmptmp\Ratto7R-20251110-1987872106651271448-02 {zpi$r=1}.jpg
+2025-11-15 20:59:09 [INFO] 削除: D:\ikoooou\_SYNC\tmptmptmptmp\Ratto7R-20251110-1987872106651271448-03 {zpi$r=1}.jpg
+2025-11-15 20:59:09 [INFO] 削除: D:\ikoooou\_SYNC\tmptmptmptmp\Ratto7R-20251110-1987872106651271448-04 {zpi$r=1}.jpg
+2025-11-15 20:59:09 [INFO] 削除: D:\ikoooou\_SYNC\tmptmptmptmp\Ratto7R-20251110-1987872632956678616-01 {zpi$r=1}.jpg
+2025-11-15 20:59:09 [INFO] 削除: D:\ikoooou\_SYNC\tmptmptmptmp\Ratto7R-20251110-1987872632956678616-03 {zpi$r=1}.jpg
+2025-11-15 20:59:09 [INFO] 削除: D:\ikoooou\_SYNC\tmptmptmptmp\Ratto7R-20251110-1987872632956678616-04 {zpi$r=1}.jpg
+2025-11-15 20:59:09 [INFO] 削除: D:\ikoooou\_SYNC\tmptmptmptmp\Ratto7R-20251110-1987873042874417640-01 {zpi$r=1}.jpg
+2025-11-15 20:59:09 [INFO] 削除: D:\ikoooou\_SYNC\tmptmptmptmp\Ratto7R-20251110-1987873042874417640-02 {zpi$r=1}.jpg
+2025-11-15 20:59:09 [INFO] 削除: D:\ikoooou\_SYNC\tmptmptmptmp\Ratto7R-20251110-1987873042874417640-03 {zpi$r=1}.jpg
+2025-11-15 20:59:09 [INFO] 削除: D:\ikoooou\_SYNC\tmptmptmptmp\Ratto7R-20251110-1987873042874417640-04 {zpi$r=1}.jpg
+2025-11-15 20:59:09 [INFO] 削除: D:\ikoooou\_SYNC\tmptmptmptmp\redjet00-20251115-1989403405396353149-01 {zpi$r=1}.jpg
+2025-11-15 20:59:09 [INFO] 削除: D:\ikoooou\_SYNC\tmptmptmptmp\San_Haruka_-20251112-1988518027604729992-01 {zpi$r=1}.jpg
+2025-11-15 20:59:09 [INFO] 削除: D:\ikoooou\_SYNC\tmptmptmptmp\stArlight_go5-20251113-1988734531772596395-01 {zpi$r=1}.jpg
+2025-11-15 20:59:09 [INFO] 削除: D:\ikoooou\_SYNC\tmptmptmptmp\yumepillows-20251108-1986983135318581489-01 {zpi$r=1}.jpg
+2025-11-15 20:59:09 [INFO] --- ✨ ステップ2: ファイル名のクリーンアップ ---
+2025-11-15 20:59:09 [INFO] 名前変更対象なし
+2025-11-15 20:59:09 [INFO] --- 📋 ステップ3: ファイル振り分け ---
+2025-11-15 20:59:09 [INFO] コピー: D:\ikoooou\_SYNC\tmptmptmptmp\hinorinr-20251017-1979115722635714997-02 {zpi$r=5}.jpg -> D:\ikoooou\_SYNC\r5
+2025-11-15 20:59:09 [INFO] コピー: D:\ikoooou\_SYNC\tmptmptmptmp\hinorinr-20251115-1989571390576402706-01 {zpi$r=5}.jpg -> D:\ikoooou\_SYNC\r5
+2025-11-15 20:59:09 [INFO] コピー: D:\ikoooou\_SYNC\tmptmptmptmp\kv_perle {zpi$r=5}.webp -> D:\ikoooou\_SYNC\r5
+2025-11-15 20:59:09 [INFO] コピー: D:\ikoooou\_SYNC\tmptmptmptmp\matriks_16-20251114-1989317403474571770-01 {zpi$r=5}.jpg -> D:\ikoooou\_SYNC\r5
+2025-11-15 20:59:09 [INFO] コピー: D:\ikoooou\_SYNC\tmptmptmptmp\nano_kozuya-20251111-1988008755381104824-01 {zpi$r=5}.jpg -> D:\ikoooou\_SYNC\r5
+2025-11-15 20:59:09 [INFO] コピー: D:\ikoooou\_SYNC\tmptmptmptmp\nano_kozuya-20251112-1988441636313891075-01 {zpi$r=5}.jpg -> D:\ikoooou\_SYNC\r5
+2025-11-15 20:59:09 [INFO] コピー: D:\ikoooou\_SYNC\tmptmptmptmp\stand_perle {zpi$r=5}.webp -> D:\ikoooou\_SYNC\r5
+2025-11-15 20:59:09 [INFO] コピー: D:\ikoooou\_SYNC\tmptmptmptmp\white_neige-20251112-1988545759948767243-01 {zpi$r=5}.jpg -> D:\ikoooou\_SYNC\r5
+2025-11-15 20:59:09 [INFO] 移動: D:\ikoooou\_SYNC\tmptmptmptmp\ekibyou_dayo-20251111-1988258070854856731-01 {zpi$t=V}.jpg -> D:\ikoooou\_SYNC\V
+2025-11-15 20:59:09 [INFO] 移動: D:\ikoooou\_SYNC\tmptmptmptmp\furuno132nw-20251114-1989309779647279516-01 {zpi$t=V}.jpg -> D:\ikoooou\_SYNC\V
+2025-11-15 20:59:09 [INFO] 移動: D:\ikoooou\_SYNC\tmptmptmptmp\gisyuled-20251114-1989288596097176052-01 {zpi$t=V}.jpg -> D:\ikoooou\_SYNC\V
+2025-11-15 20:59:09 [INFO] 移動: D:\ikoooou\_SYNC\tmptmptmptmp\Iou_pot_ryre-20251110-1987878989336383604-01 {zpi$t=V}.jpg -> D:\ikoooou\_SYNC\V
+2025-11-15 20:59:09 [INFO] 移動: D:\ikoooou\_SYNC\tmptmptmptmp\Iou_pot_ryre-20251110-1987878989336383604-02 {zpi$t=V}.jpg -> D:\ikoooou\_SYNC\V
+2025-11-15 20:59:09 [INFO] 移動: D:\ikoooou\_SYNC\tmptmptmptmp\Rabi - 無題 (137412901)  {zpi$t=V}.png -> D:\ikoooou\_SYNC\V
+2025-11-15 20:59:09 [INFO] 移動: D:\ikoooou\_SYNC\tmptmptmptmp\ギシュレッド - rksiってかわいいんですよね (129559432)  {zpi$t=V}.png -> D:\ikoooou\_SYNC\V
+2025-11-15 20:59:09 [INFO] 移動: D:\ikoooou\_SYNC\tmptmptmptmp\ギシュレッド - 帰りの電車でゲー〇るの３人に出会って... (120028781)  {zpi$t=V}.png -> D:\ikoooou\_SYNC\V
+2025-11-15 20:59:09 [INFO] 移動: D:\ikoooou\_SYNC\tmptmptmptmp\天ぱる（趣味アカ） - LiLYPSE × グラビア (137345579) p1 {zpi$t=V}.png -> D:\ikoooou\_SYNC\V
+2025-11-15 20:59:09 [INFO] 移動: D:\ikoooou\_SYNC\tmptmptmptmp\天ぱる（趣味アカ） - LiLYPSE × グラビア (137345579) p2 {zpi$t=V}.png -> D:\ikoooou\_SYNC\V
+2025-11-15 20:59:09 [INFO] 移動: D:\ikoooou\_SYNC\tmptmptmptmp\天ぱる（趣味アカ） - LiLYPSE × グラビア (137345579) p3 {zpi$t=V}.png -> D:\ikoooou\_SYNC\V
+2025-11-15 20:59:09 [INFO] 移動: D:\ikoooou\_SYNC\tmptmptmptmp\244__-20251111-1988248997090521368-01 {zpi$t=pic}.jpg -> D:\ikoooou\_SYNC\pic
+2025-11-15 20:59:09 [INFO] 移動: D:\ikoooou\_SYNC\tmptmptmptmp\asameshi1024-20251114-1989273853617676644-01 {zpi$t=pic}.jpg -> D:\ikoooou\_SYNC\pic
+2025-11-15 20:59:09 [INFO] 移動: D:\ikoooou\_SYNC\tmptmptmptmp\asdkd123-20251110-1987822306471879025-01 {zpi$t=pic}.jpg -> D:\ikoooou\_SYNC\pic
+2025-11-15 20:59:09 [INFO] 移動: D:\ikoooou\_SYNC\tmptmptmptmp\futu11223344-20251011-1976832594856886366-01 {zpi$t=pic}.jpg -> D:\ikoooou\_SYNC\pic
+2025-11-15 20:59:09 [INFO] 移動: D:\ikoooou\_SYNC\tmptmptmptmp\hikari - PAさん (ぼっち・ざ・ろっく!) (137315886) p04 {zpi$t=pic}.jpg -> D:\ikoooou\_SYNC\pic
+2025-11-15 20:59:09 [INFO] 移動: D:\ikoooou\_SYNC\tmptmptmptmp\hikari - PAさん (ぼっち・ざ・ろっく!) (137315886) p05 {zpi$t=pic}.jpg -> D:\ikoooou\_SYNC\pic
+2025-11-15 20:59:09 [INFO] 移動: D:\ikoooou\_SYNC\tmptmptmptmp\hikari - PAさん (ぼっち・ざ・ろっく!) (137315886) p10 {zpi$t=pic}.jpg -> D:\ikoooou\_SYNC\pic
+2025-11-15 20:59:09 [INFO] 移動: D:\ikoooou\_SYNC\tmptmptmptmp\ims_823-20251114-1989337750060032063-01 {zpi$t=pic}.png -> D:\ikoooou\_SYNC\pic
+2025-11-15 20:59:09 [INFO] 移動: D:\ikoooou\_SYNC\tmptmptmptmp\K1nomilk-20251108-1987067835039015103-01 {zpi$t=pic}.jpg -> D:\ikoooou\_SYNC\pic
+2025-11-15 20:59:09 [INFO] 移動: D:\ikoooou\_SYNC\tmptmptmptmp\katsuragi710ka-20251114-1989282304657969265-01 {zpi$t=pic}.jpg -> D:\ikoooou\_SYNC\pic
+2025-11-15 20:59:09 [INFO] 移動: D:\ikoooou\_SYNC\tmptmptmptmp\kon_ypaaaa-20251111-1988206429615124982-01 {zpi$r=2;t=pic}.jpg -> D:\ikoooou\_SYNC\pic
+2025-11-15 20:59:09 [INFO] 移動: D:\ikoooou\_SYNC\tmptmptmptmp\Lemonade_Cat_-20251114-1989294237826027826-01 {zpi$t=pic}.jpg -> D:\ikoooou\_SYNC\pic
+2025-11-15 20:59:09 [INFO] 移動: D:\ikoooou\_SYNC\tmptmptmptmp\mNk_DiSuKyamaDa-20251110-1987806331814986140-01 {zpi$t=pic}.jpg -> D:\ikoooou\_SYNC\pic
+2025-11-15 20:59:09 [INFO] 移動: D:\ikoooou\_SYNC\tmptmptmptmp\nanawo852-20251111-1988241252253683991-01 {zpi$t=pic}.jpg -> D:\ikoooou\_SYNC\pic
+2025-11-15 20:59:09 [INFO] 移動: D:\ikoooou\_SYNC\tmptmptmptmp\NIHAO6069-20251002-1973681441910534331-01 {zpi$t=pic}.jpg -> D:\ikoooou\_SYNC\pic
+2025-11-15 20:59:09 [INFO] 移動: D:\ikoooou\_SYNC\tmptmptmptmp\piccione_works7-20250923-1970435672088682809-01 {zpi$t=pic}.jpg -> D:\ikoooou\_SYNC\pic
+2025-11-15 20:59:09 [INFO] 移動: D:\ikoooou\_SYNC\tmptmptmptmp\pononozo-20251114-1989282485163987134-02 {zpi$t=pic}.jpg -> D:\ikoooou\_SYNC\pic
+2025-11-15 20:59:09 [INFO] 移動: D:\ikoooou\_SYNC\tmptmptmptmp\pononozo-20251114-1989282485163987134-03 {zpi$t=pic}.jpg -> D:\ikoooou\_SYNC\pic
+2025-11-15 20:59:09 [INFO] 移動: D:\ikoooou\_SYNC\tmptmptmptmp\prprKIRIN-20250921-1969707601656222167-01 {zpi$t=pic}.jpg -> D:\ikoooou\_SYNC\pic
+2025-11-15 20:59:09 [INFO] 移動: D:\ikoooou\_SYNC\tmptmptmptmp\rikudo6-20251110-1987803028779676107-01 {zpi$t=pic}.jpg -> D:\ikoooou\_SYNC\pic
+2025-11-15 20:59:09 [INFO] 移動: D:\ikoooou\_SYNC\tmptmptmptmp\R_E_I_-20251114-1989182797203079341-01 {zpi$t=pic}.jpg -> D:\ikoooou\_SYNC\pic
+2025-11-15 20:59:09 [INFO] 移動: D:\ikoooou\_SYNC\tmptmptmptmp\SOS_adult-20251109-1987487543835976046-01 {zpi$t=pic}.jpg -> D:\ikoooou\_SYNC\pic
+2025-11-15 20:59:09 [INFO] 移動: D:\ikoooou\_SYNC\tmptmptmptmp\Studiokwsk-20250715-1945045529190179053-01 {zpi$t=pic}.jpg -> D:\ikoooou\_SYNC\pic
+2025-11-15 20:59:09 [INFO] 移動: D:\ikoooou\_SYNC\tmptmptmptmp\tika_illust-20251111-1988200509015199985-01 {zpi$t=pic}.jpg -> D:\ikoooou\_SYNC\pic
+2025-11-15 20:59:09 [INFO] 移動: D:\ikoooou\_SYNC\tmptmptmptmp\urabiyori-20251111-1988226871117619598-01 {zpi$t=pic}.jpg -> D:\ikoooou\_SYNC\pic
+2025-11-15 20:59:09 [INFO] 移動: D:\ikoooou\_SYNC\tmptmptmptmp\yuta_3510-20251112-1988614077732773892-01 {zpi$t=pic}.jpg -> D:\ikoooou\_SYNC\pic
+2025-11-15 20:59:09 [INFO] 移動: D:\ikoooou\_SYNC\tmptmptmptmp\_uwaaaaaaaaa-20251113-1988956696786751606-01 {zpi$t=pic}.jpg -> D:\ikoooou\_SYNC\pic
+2025-11-15 20:59:09 [INFO] 移動: D:\ikoooou\_SYNC\tmptmptmptmp\_yuki_06-20251113-1988859233228435635-01 {zpi$t=pic}.jpg -> D:\ikoooou\_SYNC\pic
+2025-11-15 20:59:09 [INFO] 移動: D:\ikoooou\_SYNC\tmptmptmptmp\紅吊うらび - サキュバス莉波😈🩷💞 (136839680) p1 {zpi$t=pic}.jpg -> D:\ikoooou\_SYNC\pic
+2025-11-15 20:59:09 [INFO] 移動: D:\ikoooou\_SYNC\tmptmptmptmp\紅吊うらび - サキュバス莉波😈🩷💞 (136839680) p2 {zpi$t=pic}.jpg -> D:\ikoooou\_SYNC\pic
+2025-11-15 20:59:09 [INFO] 移動: D:\ikoooou\_SYNC\tmptmptmptmp\膝小僧 - 【リクエスト】 プリンセスコネクト ユイとえっち (137415654) p01 {zpi$t=pic}.jpg -> D:\ikoooou\_SYNC\pic
+2025-11-15 20:59:09 [INFO] 移動: D:\ikoooou\_SYNC\tmptmptmptmp\膝小僧 - 【リクエスト】 プリンセスコネクト ユイとえっち (137415654) p02 {zpi$t=pic}.jpg -> D:\ikoooou\_SYNC\pic
+2025-11-15 20:59:09 [INFO] 移動: D:\ikoooou\_SYNC\tmptmptmptmp\膝小僧 - 【リクエスト】 プリンセスコネクト ユイとえっち (137415654) p12 {zpi$t=pic}.jpg -> D:\ikoooou\_SYNC\pic
+2025-11-15 20:59:09 [INFO] 移動: D:\ikoooou\_SYNC\tmptmptmptmp\膝小僧 - 【リクエスト】 プリンセスコネクト ユイとえっち (137415654) p24 {zpi$t=pic}.jpg -> D:\ikoooou\_SYNC\pic
+2025-11-15 20:59:09 [INFO] 移動: D:\ikoooou\_SYNC\tmptmptmptmp\膝小僧 - 【リクエスト】 プリンセスコネクト ユイとえっち (137415654) p29 {zpi$t=pic}.jpg -> D:\ikoooou\_SYNC\pic
+2025-11-15 20:59:09 [INFO] 移動: D:\ikoooou\_SYNC\tmptmptmptmp\膝小僧 - 【リクエスト】 プリンセスコネクト ユイとえっち (137415654) p42 {zpi$t=pic}.jpg -> D:\ikoooou\_SYNC\pic
+2025-11-15 20:59:09 [INFO] 移動: D:\ikoooou\_SYNC\tmptmptmptmp\膝小僧 - 【リクエスト】 プリンセスコネクト ユイとえっち (137415654) p45 {zpi$t=pic}.jpg -> D:\ikoooou\_SYNC\pic
+2025-11-15 20:59:09 [INFO] 移動: D:\ikoooou\_SYNC\tmptmptmptmp\膝小僧 - 【リクエスト】 プリンセスコネクト ユイとえっち (137415654) p46 {zpi$t=pic}.jpg -> D:\ikoooou\_SYNC\pic
+2025-11-15 20:59:09 [INFO] 移動: D:\ikoooou\_SYNC\tmptmptmptmp\TMTJM888-20251115-1989562195857047565-01 {zpi$t=774}.jpg -> D:\ikoooou\Develop\774_shortcut
+2025-11-15 20:59:09 [INFO] 該当ファイルなし: *t=ReAct*
+2025-11-15 20:59:09 [INFO] 移動: D:\ikoooou\_SYNC\tmptmptmptmp\akasiaLL-20251114-1989293412680655035-01 {zpi$t=あしなが}.jpg -> D:\ikoooou\あしなが
+2025-11-15 20:59:09 [INFO] 移動: D:\ikoooou\_SYNC\tmptmptmptmp\J_KMOR-20251114-1989216666212036985-01 {zpi$t=あしなが}.png -> D:\ikoooou\あしなが
+2025-11-15 20:59:09 [INFO] 移動: D:\ikoooou\_SYNC\tmptmptmptmp\nagimachi_sou-20251113-1988936536612827605-01 {zpi$t=あしなが}.jpg -> D:\ikoooou\あしなが
+2025-11-15 20:59:09 [INFO] 処理完了 - 統計: {'deleted': 47, 'renamed': 0, 'copied': 8, 'moved': 53, 'errors': 0}

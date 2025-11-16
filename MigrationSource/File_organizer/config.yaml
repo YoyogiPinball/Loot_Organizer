@@ -1,0 +1,82 @@
+# file_organizer設定ファイル
+
+# 基本設定
+settings:
+  enable_logging: true          # ログ出力のON/OFF
+  confirm_before_execute: true  # 実行前の確認
+  base_path: "C:\\Users\\kingc\\Downloads"     # 作業対象の基準パス（このスクリプトからの相対パス）
+
+# 移動ルール（上から順に優先度高、最初にマッチしたルールを適用）
+move_rules:
+  - pattern: "*screenshot*"
+    dest: "C:\\Users\\kingc\\Pictures\\Greenshot"
+    description: "スクリーンショット関連"
+    enabled: true
+  
+  - pattern: "*Twitch*"
+    dest: "C:\\Users\\kingc\\Pictures\\Greenshot"
+    description: "Twitch関連"
+    enabled: true
+  
+  - pattern: "*ss_2024*"
+    dest: "C:\\Users\\kingc\\Pictures\\Greenshot"
+    description: "2024年スクショ"
+    enabled: true
+  
+  - pattern: "*ss_2025*"
+    dest: "C:\\Users\\kingc\\Pictures\\Greenshot"
+    description: "2025年スクショ"
+    enabled: true
+  
+  - pattern: "*ss_2026*"
+    dest: "C:\\Users\\kingc\\Pictures\\Greenshot"
+    description: "2026年スクショ"
+    enabled: true
+  
+  - pattern: "*.mp4"
+    dest: "D:\\ikoooou\\Develop\\vid"
+    description: "動画ファイル"
+    enabled: true
+  
+  - pattern: "*.jpeg"
+    dest: "D:\\ikoooou\\_SYNC\\tmptmptmptmp"
+    description: "JPEG画像"
+    enabled: true
+  
+  - pattern: "*.jpg"
+    dest: "D:\\ikoooou\\_SYNC\\tmptmptmptmp"
+    description: "JPG画像"
+    enabled: true
+  
+  - pattern: "*.gif"
+    dest: "D:\\ikoooou\\_SYNC\\tmptmptmptmp"
+    description: "GIF画像"
+    enabled: true
+  
+  - pattern: "*.zip"
+    dest: "D:\\ikoooou\\_SYNC\\prv_r5\\e"
+    description: "ZIPファイル"
+    enabled: true
+  
+  - pattern: "*.png"
+    dest: "D:\\ikoooou\\_SYNC\\tmptmptmptmp"
+    description: "PNG画像"
+    enabled: true
+  
+  - pattern: "*.webp"
+    dest: "D:\\ikoooou\\_SYNC\\tmptmptmptmp"
+    description: "WebP画像"
+    enabled: true
+
+# 除外パターン（これらは移動しない）
+exclusions:
+  # ファイル名での除外（完全一致）
+  exact_names:
+    - "desktop.ini"
+    - "Thumbs.db"
+  
+  # パターンでの除外（ワイルドカード可）
+  patterns:
+    - "*.tmp"
+    - "*.bak"
+    - "~*"

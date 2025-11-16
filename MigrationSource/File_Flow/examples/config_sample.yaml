@@ -1,0 +1,68 @@
+# FileFlow サンプル設定ファイル
+# このファイルをコピーして config.yaml として使用してください
+
+# =====================================
+# 基本設定
+# =====================================
+target_directory: "C:\\Users\\YourName\\Downloads"
+
+# =====================================
+# ステップ1: 特定文字列を含むファイルの削除
+# =====================================
+deletion:
+  enabled: true
+  strings:
+    - "Thumbs.db"
+    - ".DS_Store"
+    - "desktop.ini"
+  recursive: true
+
+# =====================================
+# ステップ2: ファイル名のクリーンアップ
+# =====================================
+cleanup:
+  enabled: true
+  recursive: true
+  custom_patterns:
+    - '[【】]'        # 全角カッコを削除
+    - '\[.*?\]'       # 角カッコとその中身を削除
+
+# =====================================
+# ステップ3: ファイル振り分けルール
+# =====================================
+sorting_rules:
+  # 画像ファイルの整理
+  - search: "*.jpg"
+    destination: "C:\\Users\\YourName\\Pictures\\JPG"
+    action: "move"
+    
+  - search: "*.png"
+    destination: "C:\\Users\\YourName\\Pictures\\PNG"
+    action: "move"
+    
+  # ドキュメントの整理
+  - search: "*.pdf"
+    destination: "C:\\Users\\YourName\\Documents\\PDF"
+    action: "move"
+    
+  - search: "*.docx"
+    destination: "C:\\Users\\YourName\\Documents\\Word"
+    action: "move"
+    
+  # スクリーンショットの整理
+  - search: "*screenshot*"
+    destination: "C:\\Users\\YourName\\Pictures\\Screenshots"
+    action: "move"
+    
+  # 重要ファイルのバックアップ（コピー）
+  - search: "*重要*"
+    destination: "C:\\Users\\YourName\\Backup\\Important"
+    action: "copy"
+
+# =====================================
+# 詳細設定
+# =====================================
+advanced:
+  confirm_before_execution: true
+  log_directory: "logs"
+  show_progress: true

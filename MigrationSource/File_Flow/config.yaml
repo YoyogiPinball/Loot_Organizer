@@ -1,0 +1,93 @@
+# FileFlow 設定ファイル
+# このファイルを編集して、ファイル整理のルールをカスタマイズできます
+
+# =====================================
+# 基本設定
+# =====================================
+# 処理対象のディレクトリ（絶対パスまたは相対パス）
+target_directory: "D:\\ikoooou\\_SYNC\\tmptmptmptmp"
+
+# =====================================
+# ステップ1: 特定文字列を含むファイルの削除
+# =====================================
+deletion:
+  # この処理を有効にするか（true/false）
+  enabled: true
+  
+  # 削除対象の文字列リスト
+  # ファイル名にこれらの文字列が含まれていると削除されます
+  strings:
+    - "{zpi$r=1}"
+    # 追加例: - "不要な文字列"
+  
+  # サブフォルダも再帰的に検索するか（true/false）
+  recursive: true
+
+# =====================================
+# ステップ2: ファイル名のクリーンアップ
+# =====================================
+cleanup:
+  # この処理を有効にするか（true/false）
+  enabled: true
+  
+  # サブフォルダも再帰的に処理するか（true/false）
+  recursive: true
+  
+  # カスタムクリーンアップパターン（正規表現）
+  # デフォルトで絵文字や特殊文字を削除しますが、追加パターンを指定できます
+  custom_patterns: []
+  # 追加例:
+  # - '[【】]'  # 全角カッコを削除
+  # - '\[.*?\]'  # 角カッコとその中身を削除
+
+# =====================================
+# ステップ3: ファイル振り分けルール
+# =====================================
+sorting_rules:
+  # ルール1: r=5を含むファイルをコピー
+  - search: "*r=5*"
+    destination: "D:\\ikoooou\\_SYNC\\r5"
+    action: "copy"  # copy: コピー, move: 移動, delete: 削除
+    
+  # ルール2: t=Vを含むファイルを移動
+  - search: "*t=V*"
+    destination: "D:\\ikoooou\\_SYNC\\V"
+    action: "move"
+    
+  # ルール3: t=picを含むファイルを移動
+  - search: "*t=pic*"
+    destination: "D:\\ikoooou\\_SYNC\\pic"
+    action: "move"
+    
+  # ルール4: t=774を含むファイルを移動
+  - search: "*t=774*"
+    destination: "D:\\ikoooou\\Develop\\774_shortcut"
+    action: "move"
+    
+  # ルール5: t=ReActを含むファイルを移動
+  - search: "*t=ReAct*"
+    destination: "D:\\ikoooou\\_SYNC\\V\\ReAct"
+    action: "move"
+
+  # ルール5: t=ReActを含むファイルを移動
+  - search: "*t=あしなが*"
+    destination: "D:\\ikoooou\\あしなが"
+    action: "move"
+  
+  # 追加ルール例:
+  # - search: "*.txt"
+  #   destination: "D:\\text_files"
+  #   action: "move"
+
+# =====================================
+# 詳細設定
+# =====================================
+advanced:
+  # ドライラン完了後、実行するか確認プロンプトを表示
+  confirm_before_execution: true
+  
+  # ログファイルを保存するディレクトリ
+  log_directory: "logs"
+  
+  # プログレスバーを表示するか
+  show_progress: true

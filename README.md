@@ -227,5 +227,5 @@ IssueやPull Requestを歓迎します！
 
 ---
 
-**👤 Author / 作成者**: YoyogiPinball  
+**👤 Author / 作成者**: YoyogiPinball
 **📅 Last Updated / 最終更新**: 2025-11-16

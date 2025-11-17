@@ -16,8 +16,8 @@
 # - 複数の入力フォルダに対応
 # - PNG/JPG/JPEG/WebP等の一般的な画像形式に対応
 # - Stable Diffusion, NovelAI, ComfyUI等のメタデータ形式に対応
-# - 複数LoRa検出時は全フォルダにコピー（元ファイルは最後に削除）
-# - ファイル名重複時は自動で連番付与（image_1.png, image_2.png...）
+# - 複数LoRa検出時は最初のマッチに移動
+# - ファイル名重複時の処理方法を選択可能（上書き/連番/確認/スキップ）
 #
 # ========================================
 
@@ -63,6 +63,13 @@ settings:
     - "jpg"
     - "jpeg"
     - "webp"
+
+  # 重複ファイル処理方法
+  # overwrite: 上書き（デフォルト）
+  # sequential: 連番付与（xxx_1.png, xxx_2.png...）
+  # ask: 毎回尋ねる
+  # skip: スキップ
+  duplicate_handling: "overwrite"
 
   # 一般設定
   enable_logging: true

@@ -1630,6 +1630,10 @@ class PngPromptSortModeHandler:
         """
         success_count = 0
         failure_count = 0
+        skip_count = 0
+
+        # 重複処理方法を取得
+        duplicate_handling = self.settings.get('duplicate_handling', 'overwrite')
 
         # 操作実行
         for op in tqdm(operations, desc="処理中", unit="files"):
@@ -1638,13 +1642,47 @@ class PngPromptSortModeHandler:
                     # 保存先ディレクトリ作成
                     op.destination.parent.mkdir(parents=True, exist_ok=True)
 
-                    # 重複チェック＆連番付与
-                    unique_filename = self._get_unique_filename(op.destination.parent, op.destination.name)
-                    final_dest = op.destination.parent / unique_filename
+                    # 重複チェック＆処理
+                    final_dest = op.destination.parent / op.destination.name
+
+                    if final_dest.exists():
+                        if duplicate_handling == 'overwrite':
+                            # 上書き：そのまま移動（既存ファイルが置き換えられる）
+                            pass
+                        elif duplicate_handling == 'sequential':
+                            # 連番付与
+                            unique_filename = self._get_unique_filename(op.destination.parent, op.destination.name)
+                            final_dest = op.destination.parent / unique_filename
+                        elif duplicate_handling == 'ask':
+                            # 毎回尋ねる
+                            import questionary
+                            answer = questionary.select(
+                                f"ファイルが既に存在します: {final_dest.name}",
+                                choices=[
+                                    "上書き",
+                                    "連番付与",
+                                    "スキップ"
+                                ]
+                            ).ask()
+
+                            if answer == "上書き":
+                                pass
+                            elif answer == "連番付与":
+                                unique_filename = self._get_unique_filename(op.destination.parent, op.destination.name)
+                                final_dest = op.destination.parent / unique_filename
+                            else:  # スキップ
+                                self.logger.info(f"スキップ: {op.source.name} (ユーザー選択)")
+                                skip_count += 1
+                                continue
+                        elif duplicate_handling == 'skip':
+                            # スキップ
+                            self.logger.info(f"スキップ: {op.source.name} (重複ファイル)")
+                            skip_count += 1
+                            continue
 
                     # 移動実行
                     shutil.move(op.source, final_dest)
-                    self.logger.info(f"移動: {op.source.name} -> {op.destination.parent.name}/{unique_filename}")
+                    self.logger.info(f"移動: {op.source.name} -> {op.destination.parent.name}/{final_dest.name}")
                     success_count += 1
                 else:
                     self.logger.info(f"[DRY-RUN] 移動: {op.source.name} -> {op.destination.parent.name}")
@@ -1653,6 +1691,9 @@ class PngPromptSortModeHandler:
             except Exception as e:
                 self.logger.error(f"移動失敗 ({op.source.name}): {e}")
                 failure_count += 1
+
+        if skip_count > 0:
+            self.logger.info(f"スキップ: {skip_count}件")
 
         return success_count, failure_count
 

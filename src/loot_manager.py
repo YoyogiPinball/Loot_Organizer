@@ -1311,7 +1311,7 @@ class LootManager:
             choices.append("❌ 終了")
 
             selected = questionary.select(
-                f"{Colors.NEON_YELLOW}実行するプリセットを選択:{Colors.RESET}",
+                "実行するプリセットを選択:",
                 choices=choices
             ).ask()
 
@@ -1387,7 +1387,7 @@ class LootManager:
         # 実行確認
         if settings.get('confirm_before_execute', True):
             execute = questionary.confirm(
-                f"{Colors.NEON_YELLOW}この内容で実行しますか?{Colors.RESET}",
+                "この内容で実行しますか?",
                 default=False
             ).ask()
 

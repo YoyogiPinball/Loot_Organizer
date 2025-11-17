@@ -829,12 +829,19 @@ class PreviewGenerator:
             files_to_show = self._select_files_to_show(group_ops)
 
             for op in files_to_show:
-                preview_lines.append(f"  ├─ {op.source.name}")
+                # 削除アクションは赤色で強調表示
+                if op.action == 'delete':
+                    preview_lines.append(f"{Colors.NEON_RED}  ├─ {op.source.name}{Colors.RESET}")
+                else:
+                    preview_lines.append(f"  ├─ {op.source.name}")
 
             # 省略表示
             omitted = count - len(files_to_show)
             if omitted > 0:
-                preview_lines.append(f"  └─ ... 他{omitted}件")
+                if group_ops[0].action == 'delete':
+                    preview_lines.append(f"{Colors.NEON_RED}  └─ ... 他{omitted}件{Colors.RESET}")
+                else:
+                    preview_lines.append(f"  └─ ... 他{omitted}件")
 
             preview_lines.append("")
 
@@ -891,6 +898,10 @@ class PreviewGenerator:
         Returns:
             表示対象のファイル操作リスト
         """
+        # 削除アクションは常に全件表示（重要な操作のため）
+        if operations and operations[0].action == 'delete':
+            return operations
+
         if self.preview_mode == "all":
             return operations
 

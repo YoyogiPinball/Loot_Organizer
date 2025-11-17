@@ -43,8 +43,9 @@ settings:
 
   # プレビュー表示設定
   preview:
-    mode: "both"      # head: 先頭のみ / tail: 末尾のみ / both: 両端 / all: 全件
+    mode: "all"       # head: 先頭のみ / tail: 末尾のみ / both: 両端 / all: 全件
     count: 3          # 表示件数（modeがhead/tail/bothの場合）
+    # 注: 削除アクションは安全のため常に全件表示されます
 
   # ログ設定
   logging:

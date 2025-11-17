@@ -46,25 +46,27 @@ class ClassicCyberpunk:
 
 
 # ==========================================
-# B案: Night City風
+# B案: Night City風（Cyberpunk 2077 UI準拠）
 # ==========================================
 class NightCity:
-    """B案: Night City風（マゼンタ×シアン×イエロー）"""
-    # ネオンカラー
-    NEON_CYAN = Fore.CYAN + Style.BRIGHT
-    NEON_MAGENTA = Fore.MAGENTA + Style.BRIGHT
-    NEON_YELLOW = Fore.YELLOW + Style.BRIGHT
-    NEON_GREEN = Fore.GREEN + Style.BRIGHT
-    NEON_RED = Fore.RED + Style.BRIGHT
+    """B案: Cyberpunk 2077 UI準拠（イエロー中心×シアンアクセント）"""
+    # メインカラー（CP2077準拠）
+    NEON_YELLOW = Fore.YELLOW + Style.BRIGHT      # 主役カラー（選択、ハイライト）
+    NEON_CYAN = Fore.CYAN + Style.BRIGHT          # セカンダリカラー（情報表示）
+    NEON_WHITE = Fore.WHITE + Style.BRIGHT        # テキスト
+    NEON_RED = Fore.RED + Style.BRIGHT            # エラー、警告
+    NEON_GREEN = Fore.GREEN + Style.BRIGHT        # 成功
+    NEON_MAGENTA = Fore.MAGENTA + Style.BRIGHT    # 控えめアクセント
     NEON_BLUE = Fore.BLUE + Style.BRIGHT
 
     # 通常カラー
     CYAN = Fore.CYAN
-    BLUE = Fore.BLUE
-    RED = Fore.RED
-    MAGENTA = Fore.MAGENTA
     YELLOW = Fore.YELLOW
+    WHITE = Fore.WHITE
+    RED = Fore.RED
     GREEN = Fore.GREEN
+    MAGENTA = Fore.MAGENTA
+    BLUE = Fore.BLUE
 
     # 背景
     BG_BLACK = Back.BLACK
@@ -135,15 +137,15 @@ def show_level1_error(colors):
 # レベル2: ネオンボーダー
 # ==========================================
 def show_level2_menu(colors, theme_name):
-    """レベル2: ネオンボーダー（1行1色）"""
+    """レベル2: ネオンボーダー（Cyberpunk 2077風 - 1行1色）"""
     if theme_name == "A案":
         header_color = colors.NEON_MAGENTA
         text_color = colors.NEON_CYAN
         item_color = colors.NEON_YELLOW
-    elif theme_name == "B案":
-        header_color = colors.NEON_MAGENTA
-        text_color = colors.NEON_CYAN
-        item_color = colors.NEON_YELLOW
+    elif theme_name == "B案":  # Cyberpunk 2077準拠
+        header_color = colors.NEON_YELLOW      # イエローを主役に
+        text_color = colors.NEON_CYAN          # シアンで情報表示
+        item_color = colors.NEON_YELLOW        # 選択項目はイエロー
     else:  # C案
         header_color = colors.NEON_CYAN
         text_color = colors.NEON_BLUE
@@ -151,7 +153,7 @@ def show_level2_menu(colors, theme_name):
 
     print(f"\n{header_color}╔{'═' * 46}╗{colors.RESET}")
     print(f"{text_color}║  🌆 LOOT ORGANIZER v2077                    ║{colors.RESET}")
-    print(f"{item_color}║  ▓▒░ {theme_name} THEME ░▒▓{' ' * (30 - len(theme_name))}║{colors.RESET}")
+    print(f"{header_color}║  ▓▒░ {theme_name} THEME ░▒▓{' ' * (30 - len(theme_name))}║{colors.RESET}")
     print(f"{header_color}╠{'═' * 46}╣{colors.RESET}")
     print(f"{colors.CYAN}║                                              ║{colors.RESET}")
     print(f"{item_color}║  ▶ 📤 ダウンロード振り分け [Sort]           ║{colors.RESET}")
@@ -162,19 +164,23 @@ def show_level2_menu(colors, theme_name):
 
 
 def show_level2_success(colors, theme_name):
-    """レベル2: 成功メッセージ（1行1色）"""
-    if theme_name == "B案":
+    """レベル2: 成功メッセージ（Cyberpunk 2077風 - 1行1色）"""
+    if theme_name == "B案":  # Cyberpunk 2077準拠
+        border_color = colors.NEON_YELLOW
         accent = colors.NEON_YELLOW
+        success_color = colors.NEON_CYAN
     else:
+        border_color = colors.NEON_CYAN
         accent = colors.NEON_GREEN
+        success_color = colors.NEON_GREEN
 
-    print(f"{colors.NEON_CYAN}╔{'═' * 46}╗{colors.RESET}")
+    print(f"{border_color}╔{'═' * 46}╗{colors.RESET}")
     print(f"{accent}║  ⚡ 処理完了 - UPLOAD SUCCESSFUL              ║{colors.RESET}")
-    print(f"{colors.NEON_CYAN}╠{'═' * 46}╣{colors.RESET}")
-    print(f"{colors.NEON_GREEN}║  ⚡ 完了: 23件成功                            ║{colors.RESET}")
+    print(f"{border_color}╠{'═' * 46}╣{colors.RESET}")
+    print(f"{success_color}║  ⚡ 完了: 23件成功                            ║{colors.RESET}")
     print(f"{colors.CYAN}║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━║{colors.RESET}")
     print(f"{colors.CYAN}║  📊 ログ: logs/2025-11-17.log                ║{colors.RESET}")
-    print(f"{colors.NEON_CYAN}╚{'═' * 46}╝{colors.RESET}\n")
+    print(f"{border_color}╚{'═' * 46}╝{colors.RESET}\n")
 
 
 def show_level2_error(colors, theme_name):
@@ -188,54 +194,34 @@ def show_level2_error(colors, theme_name):
 
 
 # ==========================================
-# レベル3: ASCIIアート（グリッチ） + ネオン強調
+# レベル3: ASCIIアート + ネオン強調（グリッチなし）
 # ==========================================
-def glitch_text(text, colors, chunk_size=4):
-    """グリッチエフェクト: 装飾用（数文字単位でカラー変更 - Cyberpunk 2077風）"""
-    import random
-    color_list = [colors.NEON_CYAN, colors.NEON_MAGENTA, colors.NEON_YELLOW]
-    result = []
-    for i in range(0, len(text), chunk_size):
-        chunk = text[i:i+chunk_size]
-        color = random.choice(color_list)
-        result.append(color + chunk)
-    return ''.join(result) + colors.RESET
-
-
 def show_level3_menu(colors, theme_name):
-    """レベル3: ASCIIアート（グリッチエフェクト） + メッセージ（1行1色）"""
+    """レベル3: ASCIIアート + メッセージ（Cyberpunk 2077風 - グリッチなし）"""
     if theme_name == "A案":
+        art_color = colors.NEON_MAGENTA
         header_color = colors.NEON_CYAN
         item_color = colors.NEON_YELLOW
-    elif theme_name == "B案":
-        header_color = colors.NEON_MAGENTA
-        item_color = colors.NEON_CYAN
+    elif theme_name == "B案":  # Cyberpunk 2077準拠
+        art_color = colors.NEON_YELLOW         # ASCIIアートをイエローで
+        header_color = colors.NEON_YELLOW      # ボーダーもイエロー
+        item_color = colors.NEON_YELLOW        # 選択項目もイエロー
     else:  # C案
+        art_color = colors.NEON_CYAN
         header_color = colors.NEON_BLUE
         item_color = colors.NEON_YELLOW
 
-    # ASCIIアート風タイトル（グリッチエフェクト）
-    art_line1 = "▄" * 48
-    art_line2 = "█" * 48
-    art_line3 = "  ██╗      ██████╗  ██████╗ ████████╗"
-    art_line4 = "  ██║     ██╔═══██╗██╔═══██╗╚══██╔══╝"
-    art_line5 = "  ██║     ██║   ██║██║   ██║   ██║   "
-    art_line6 = "  ██║     ██║   ██║██║   ██║   ██║   "
-    art_line7 = "  ███████╗╚██████╔╝╚██████╔╝   ██║   "
-    art_line8 = "  ╚══════╝ ╚═════╝  ╚═════╝    ╚═╝   "
-    art_line9 = "█" * 48
-    art_line10 = "▀" * 48
-
-    print(f"\n{glitch_text(art_line1, colors)}")
-    print(f"{glitch_text(art_line2, colors)}")
-    print(f"{glitch_text(art_line3, colors)}")
-    print(f"{glitch_text(art_line4, colors)}")
-    print(f"{glitch_text(art_line5, colors)}")
-    print(f"{glitch_text(art_line6, colors)}")
-    print(f"{glitch_text(art_line7, colors)}")
-    print(f"{glitch_text(art_line8, colors)}")
-    print(f"{glitch_text(art_line9, colors)}")
-    print(f"{glitch_text(art_line10, colors)}")
+    # ASCIIアート風タイトル（統一カラー - 見やすい）
+    print(f"\n{art_color}{'▄' * 48}{colors.RESET}")
+    print(f"{art_color}{'█' * 48}{colors.RESET}")
+    print(f"{art_color}  ██╗      ██████╗  ██████╗ ████████╗{colors.RESET}")
+    print(f"{art_color}  ██║     ██╔═══██╗██╔═══██╗╚══██╔══╝{colors.RESET}")
+    print(f"{art_color}  ██║     ██║   ██║██║   ██║   ██║   {colors.RESET}")
+    print(f"{art_color}  ██║     ██║   ██║██║   ██║   ██║   {colors.RESET}")
+    print(f"{art_color}  ███████╗╚██████╔╝╚██████╔╝   ██║   {colors.RESET}")
+    print(f"{art_color}  ╚══════╝ ╚═════╝  ╚═════╝    ╚═╝   {colors.RESET}")
+    print(f"{art_color}{'█' * 48}{colors.RESET}")
+    print(f"{art_color}{'▀' * 48}{colors.RESET}")
 
     # メニュー部分（読みやすく1行1色）
     print(f"\n{header_color}╔{'═' * 46}╗{colors.RESET}")
@@ -248,11 +234,18 @@ def show_level3_menu(colors, theme_name):
 
 
 def show_level3_success(colors, theme_name):
-    """レベル3: 成功メッセージ（1行1色）"""
-    print(f"{colors.NEON_GREEN}{'▓' * 48}{colors.RESET}")
-    print(f"{colors.NEON_YELLOW}>>> UPLOAD SUCCESSFUL <<<{colors.RESET}")
-    print(f"{colors.NEON_GREEN}⚡ 完了: 23件{colors.RESET}")
-    print(f"{colors.NEON_GREEN}{'▓' * 48}{colors.RESET}\n")
+    """レベル3: 成功メッセージ（Cyberpunk 2077風 - 1行1色）"""
+    if theme_name == "B案":  # Cyberpunk 2077準拠
+        border_color = colors.NEON_YELLOW
+        success_color = colors.NEON_CYAN
+    else:
+        border_color = colors.NEON_GREEN
+        success_color = colors.NEON_YELLOW
+
+    print(f"{border_color}{'▓' * 48}{colors.RESET}")
+    print(f"{success_color}>>> UPLOAD SUCCESSFUL <<<{colors.RESET}")
+    print(f"{border_color}⚡ 完了: 23件{colors.RESET}")
+    print(f"{border_color}{'▓' * 48}{colors.RESET}\n")
 
 
 def show_level3_error(colors, theme_name):
@@ -301,7 +294,7 @@ def main():
     """メイン処理"""
     themes = {
         "A": ("A案: クラシックサイバーパンク", ClassicCyberpunk),
-        "B": ("B案: Night City風", NightCity),
+        "B": ("B案: Cyberpunk 2077 UI", NightCity),
         "C": ("C案: Corpo風", Corpo)
     }
 
@@ -310,7 +303,7 @@ def main():
     print("=" * 50)
     print("\n【テーマ選択】")
     print("A: クラシックサイバーパンク（定番カラー）")
-    print("B: Night City風（マゼンタ×シアン×イエロー）")
+    print("B: Cyberpunk 2077 UI（イエロー中心×シアンアクセント）")
     print("C: Corpo風（企業テーマ - シアン×ブルー）")
     print("ALL: 全パターン表示")
     print("Q: 終了")

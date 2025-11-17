@@ -26,15 +26,16 @@ try:
     from PIL import Image
     from tqdm import tqdm
 except ImportError as e:
-    print(f"必要なライブラリがインストールされていません: {e}")
-    print("pip install -r requirements.txt を実行してください")
+    # coloramaがインポートできない場合もあるので直接ANSIコードを使用
+    print(f"\033[91m必要なライブラリがインストールされていません: {e}\033[0m")
+    print(f"\033[93mpip install -r requirements.txt を実行してください\033[0m")
     sys.exit(1)
 
 # colorama初期化（Windows対応）
 init(autoreset=True)
 
 # =====================================
-# カラーテーマ: Corpo風（Cyberpunk 2077）
+# カラーテーマ: Corpo風（cyberpunk風）
 # =====================================
 # C案レベル3: シアン×ブルー×イエローの洗練されたサイバーパンク
 class Colors:
@@ -770,14 +771,16 @@ class PreviewGenerator:
     - 件数サマリー
     """
 
-    def __init__(self, preview_mode: str = "head", preview_count: int = 5):
+    def __init__(self, config: Dict[str, Any] = None, preview_mode: str = "head", preview_count: int = 5):
         """
         初期化
 
         Args:
+            config: 設定辞書（クリーンアップパターン表示用）
             preview_mode: プレビューモード（head/tail/both/all）
             preview_count: 表示件数（head/tail/bothの場合）
         """
+        self.config = config or {}
         self.preview_mode = preview_mode
         self.preview_count = preview_count
 
@@ -809,6 +812,17 @@ class PreviewGenerator:
         preview_lines.append(f"{Colors.NEON_CYAN}╠════════════════════════════════════════════╣{Colors.RESET}")
         preview_lines.append("")
 
+        # クリーンアップ操作がある場合、対象パターンを表示
+        if mode == "Clean" and any(op.action == 'cleanup' for op in operations):
+            cleanup_info = self._get_cleanup_patterns_description()
+            if cleanup_info:
+                preview_lines.append(f"{Colors.NEON_YELLOW}🧹 クリーンアップ対象パターン:{Colors.RESET}")
+                for line in cleanup_info:
+                    preview_lines.append(f"{Colors.NEON_CYAN}  {line}{Colors.RESET}")
+                preview_lines.append("")
+                preview_lines.append(f"{Colors.CYAN}{'─' * 44}{Colors.RESET}")
+                preview_lines.append("")
+
         total_count = 0
 
         for group_key, group_ops in grouped.items():
@@ -829,11 +843,11 @@ class PreviewGenerator:
             files_to_show = self._select_files_to_show(group_ops)
 
             for op in files_to_show:
-                # 削除アクションは赤色で強調表示
+                # 削除アクションは赤色で強調表示、その他は青色
                 if op.action == 'delete':
                     preview_lines.append(f"{Colors.NEON_RED}  ├─ {op.source.name}{Colors.RESET}")
                 else:
-                    preview_lines.append(f"  ├─ {op.source.name}")
+                    preview_lines.append(f"{Colors.NEON_BLUE}  ├─ {op.source.name}{Colors.RESET}")
 
             # 省略表示
             omitted = count - len(files_to_show)
@@ -841,7 +855,7 @@ class PreviewGenerator:
                 if group_ops[0].action == 'delete':
                     preview_lines.append(f"{Colors.NEON_RED}  └─ ... 他{omitted}件{Colors.RESET}")
                 else:
-                    preview_lines.append(f"  └─ ... 他{omitted}件")
+                    preview_lines.append(f"{Colors.NEON_BLUE}  └─ ... 他{omitted}件{Colors.RESET}")
 
             preview_lines.append("")
 
@@ -938,6 +952,33 @@ class PreviewGenerator:
             'cleanup': '✨'
         }
         return icons.get(action, '📄')
+
+    def _get_cleanup_patterns_description(self) -> List[str]:
+        """
+        クリーンアップで除去される文字パターンの説明を生成
+
+        Returns:
+            パターン説明のリスト
+        """
+        descriptions = []
+
+        # デフォルトパターンの説明
+        descriptions.append("📌 デフォルト除去パターン:")
+        descriptions.append("  ├─ 絵文字（顔文字、シンボル、乗り物、国旗など）")
+        descriptions.append("  ├─ 装飾記号（U+2702～U+27B0）")
+        descriptions.append("  ├─ 囲み文字（U+24C2～U+1F251）")
+        descriptions.append("  └─ 連続する空白 → 単一スペース化")
+
+        # カスタムパターンがあれば表示
+        if 'cleanup' in self.config:
+            custom_patterns = self.config['cleanup'].get('custom_patterns', [])
+            if custom_patterns:
+                descriptions.append("")
+                descriptions.append("📌 カスタム除去パターン (正規表現):")
+                for i, pattern in enumerate(custom_patterns, 1):
+                    descriptions.append(f"  [{i}] {pattern}")
+
+        return descriptions
 
 
 # =====================================
@@ -1259,7 +1300,7 @@ class LootManager:
 
             if not presets:
                 print(f"{Colors.NEON_RED}エラー: configs/ フォルダにプリセットが見つかりません{Colors.RESET}")
-                print(f"configs/samples/ から設定ファイルをコピーして configs/ に配置してください")
+                print(f"{Colors.NEON_YELLOW}configs/samples/ から設定ファイルをコピーして configs/ に配置してください{Colors.RESET}")
                 return
 
             # メニュー選択
@@ -1270,7 +1311,7 @@ class LootManager:
             choices.append("❌ 終了")
 
             selected = questionary.select(
-                "実行するプリセットを選択:",
+                f"{Colors.NEON_YELLOW}実行するプリセットを選択:{Colors.RESET}",
                 choices=choices
             ).ask()
 
@@ -1301,7 +1342,7 @@ class LootManager:
             config = self.config_loader.load_config(preset.file_path)
         except Exception as e:
             print(f"{Colors.NEON_RED}エラー: 設定ファイルの読み込みに失敗: {e}{Colors.RESET}")
-            input("Enterキーで続行...")
+            input(f"{Colors.NEON_CYAN}Enterキーで続行...{Colors.RESET}")
             return
 
         settings = config['settings']
@@ -1317,7 +1358,7 @@ class LootManager:
             scanner = FileScanner(settings['target_directory'], logger)
         except FileNotFoundError as e:
             print(f"{Colors.NEON_RED}エラー: {e}{Colors.RESET}")
-            input("Enterキーで続行...")
+            input(f"{Colors.NEON_CYAN}Enterキーで続行...{Colors.RESET}")
             return
 
         # モード別処理
@@ -1331,11 +1372,12 @@ class LootManager:
 
         if not operations:
             print(f"{Colors.NEON_YELLOW}処理対象のファイルがありません{Colors.RESET}")
-            input("Enterキーで続行...")
+            input(f"{Colors.NEON_CYAN}Enterキーで続行...{Colors.RESET}")
             return
 
         # プレビュー表示
         preview_gen = PreviewGenerator(
+            config=config,
             preview_mode=settings['preview']['mode'],
             preview_count=settings['preview']['count']
         )
@@ -1345,13 +1387,13 @@ class LootManager:
         # 実行確認
         if settings.get('confirm_before_execute', True):
             execute = questionary.confirm(
-                "この内容で実行しますか?",
+                f"{Colors.NEON_YELLOW}この内容で実行しますか?{Colors.RESET}",
                 default=False
             ).ask()
 
             if not execute:
                 print(f"{Colors.NEON_YELLOW}キャンセルしました{Colors.RESET}")
-                input("Enterキーで続行...")
+                input(f"{Colors.NEON_CYAN}Enterキーで続行...{Colors.RESET}")
                 return
 
         # 実行
@@ -1367,7 +1409,7 @@ class LootManager:
         if failure > 0:
             print(f"{Colors.NEON_RED}失敗: {failure}件{Colors.RESET}")
 
-        input("Enterキーで続行...")
+        input(f"{Colors.NEON_CYAN}Enterキーで続行...{Colors.RESET}")
 
 
 # =====================================

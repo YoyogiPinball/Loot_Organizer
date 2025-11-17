@@ -33,6 +33,26 @@ except ImportError as e:
 # colorama初期化（Windows対応）
 init(autoreset=True)
 
+# =====================================
+# カラーテーマ: Corpo風（Cyberpunk 2077）
+# =====================================
+# C案レベル3: シアン×ブルー×イエローの洗練されたサイバーパンク
+class Colors:
+    """カラーパレット - Corpo風"""
+    # ネオンカラー
+    NEON_CYAN = Fore.CYAN + Style.BRIGHT        # ボーダー、フレーム
+    NEON_BLUE = Fore.BLUE + Style.BRIGHT        # タイトル、ヘッダー
+    NEON_YELLOW = Fore.YELLOW + Style.BRIGHT    # 選択項目、ハイライト
+    NEON_GREEN = Fore.GREEN + Style.BRIGHT      # 成功メッセージ
+    NEON_RED = Fore.RED + Style.BRIGHT          # エラーメッセージ
+
+    # 通常カラー
+    CYAN = Fore.CYAN
+    YELLOW = Fore.YELLOW
+
+    # リセット
+    RESET = Style.RESET_ALL
+
 
 # =====================================
 # データクラス
@@ -777,16 +797,16 @@ class PreviewGenerator:
             プレビュー文字列
         """
         if not operations:
-            return f"{Fore.YELLOW}処理対象のファイルがありません{Style.RESET_ALL}"
+            return f"{Colors.NEON_YELLOW}処理対象のファイルがありません{Colors.RESET}"
 
         # 操作をグループ化（destination別、またはaction別）
         grouped = self._group_operations(operations)
 
         # プレビュー生成
         preview_lines = []
-        preview_lines.append(f"{Fore.CYAN}╔════════════════════════════════════════════╗")
-        preview_lines.append(f"{Fore.CYAN}║  📋 処理対象プレビュー                    ║")
-        preview_lines.append(f"{Fore.CYAN}╠════════════════════════════════════════════╣{Style.RESET_ALL}")
+        preview_lines.append(f"{Colors.NEON_CYAN}╔════════════════════════════════════════════╗")
+        preview_lines.append(f"{Colors.NEON_BLUE}║  📋 処理対象プレビュー                    ║")
+        preview_lines.append(f"{Colors.NEON_CYAN}╠════════════════════════════════════════════╣{Colors.RESET}")
         preview_lines.append("")
 
         total_count = 0
@@ -803,7 +823,7 @@ class PreviewGenerator:
                 action_icon = self._get_action_icon(group_ops[0].action)
                 header = f"{action_icon} {group_key} ({count}件)"
 
-            preview_lines.append(f"{Fore.GREEN}{header}{Style.RESET_ALL}")
+            preview_lines.append(f"{Colors.NEON_CYAN}{header}{Colors.RESET}")
 
             # ファイルリスト表示
             files_to_show = self._select_files_to_show(group_ops)
@@ -819,8 +839,8 @@ class PreviewGenerator:
             preview_lines.append("")
 
         # サマリー
-        preview_lines.append(f"{Fore.CYAN}{'─' * 44}{Style.RESET_ALL}")
-        preview_lines.append(f"{Fore.YELLOW}合計: {total_count}件{Style.RESET_ALL}")
+        preview_lines.append(f"{Colors.CYAN}{'─' * 44}{Colors.RESET}")
+        preview_lines.append(f"{Colors.NEON_YELLOW}合計: {total_count}件{Colors.RESET}")
         preview_lines.append("")
 
         return "\n".join(preview_lines)
@@ -1227,7 +1247,7 @@ class LootManager:
             presets = self.config_loader.discover_presets()
 
             if not presets:
-                print(f"{Fore.RED}エラー: configs/ フォルダにプリセットが見つかりません{Style.RESET_ALL}")
+                print(f"{Colors.NEON_RED}エラー: configs/ フォルダにプリセットが見つかりません{Colors.RESET}")
                 print(f"configs/samples/ から設定ファイルをコピーして configs/ に配置してください")
                 return
 
@@ -1244,7 +1264,7 @@ class LootManager:
             ).ask()
 
             if not selected or selected == "❌ 終了":
-                print(f"{Fore.CYAN}終了します{Style.RESET_ALL}")
+                print(f"{Colors.NEON_CYAN}終了します{Colors.RESET}")
                 break
 
             # 選択されたプリセットを実行
@@ -1260,16 +1280,16 @@ class LootManager:
             preset: プリセットメタ情報
         """
         print()
-        print(f"{Fore.CYAN}{'=' * 44}")
-        print(f"{preset.icon} {preset.name}")
-        print(f"{'=' * 44}{Style.RESET_ALL}")
+        print(f"{Colors.NEON_CYAN}{'=' * 44}")
+        print(f"{Colors.NEON_BLUE}{preset.icon} {preset.name}")
+        print(f"{Colors.NEON_CYAN}{'=' * 44}{Colors.RESET}")
         print()
 
         # 設定ロード
         try:
             config = self.config_loader.load_config(preset.file_path)
         except Exception as e:
-            print(f"{Fore.RED}エラー: 設定ファイルの読み込みに失敗: {e}{Style.RESET_ALL}")
+            print(f"{Colors.NEON_RED}エラー: 設定ファイルの読み込みに失敗: {e}{Colors.RESET}")
             input("Enterキーで続行...")
             return
 
@@ -1285,7 +1305,7 @@ class LootManager:
         try:
             scanner = FileScanner(settings['target_directory'], logger)
         except FileNotFoundError as e:
-            print(f"{Fore.RED}エラー: {e}{Style.RESET_ALL}")
+            print(f"{Colors.NEON_RED}エラー: {e}{Colors.RESET}")
             input("Enterキーで続行...")
             return
 
@@ -1299,7 +1319,7 @@ class LootManager:
         operations = handler.plan_operations()
 
         if not operations:
-            print(f"{Fore.YELLOW}処理対象のファイルがありません{Style.RESET_ALL}")
+            print(f"{Colors.NEON_YELLOW}処理対象のファイルがありません{Colors.RESET}")
             input("Enterキーで続行...")
             return
 
@@ -1319,22 +1339,22 @@ class LootManager:
             ).ask()
 
             if not execute:
-                print(f"{Fore.YELLOW}キャンセルしました{Style.RESET_ALL}")
+                print(f"{Colors.NEON_YELLOW}キャンセルしました{Colors.RESET}")
                 input("Enterキーで続行...")
                 return
 
         # 実行
         dry_run = settings.get('dry_run_default', True)
         if dry_run:
-            print(f"{Fore.YELLOW}[ドライランモード] 実際にはファイル操作を行いません{Style.RESET_ALL}")
+            print(f"{Colors.NEON_YELLOW}[ドライランモード] 実際にはファイル操作を行いません{Colors.RESET}")
 
         success, failure = handler.execute_operations(operations, dry_run=dry_run)
 
         # 結果サマリー
         print()
-        print(f"{Fore.GREEN}完了: {success}件成功{Style.RESET_ALL}")
+        print(f"{Colors.NEON_GREEN}完了: {success}件成功{Colors.RESET}")
         if failure > 0:
-            print(f"{Fore.RED}失敗: {failure}件{Style.RESET_ALL}")
+            print(f"{Colors.NEON_RED}失敗: {failure}件{Colors.RESET}")
 
         input("Enterキーで続行...")
 
@@ -1345,9 +1365,9 @@ class LootManager:
 
 def main():
     """メインエントリポイント"""
-    print(f"{Fore.CYAN}╔════════════════════════════════════════════╗")
-    print(f"{Fore.CYAN}║  📁 Loot Organizer                        ║")
-    print(f"{Fore.CYAN}╚════════════════════════════════════════════╝{Style.RESET_ALL}")
+    print(f"{Colors.NEON_CYAN}╔════════════════════════════════════════════╗")
+    print(f"{Colors.NEON_BLUE}║  📁 Loot Organizer                        ║")
+    print(f"{Colors.NEON_CYAN}╚════════════════════════════════════════════╝{Colors.RESET}")
     print()
 
     manager = LootManager()

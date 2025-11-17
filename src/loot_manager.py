@@ -31,6 +31,10 @@ except ImportError as e:
     print(f"\033[93mpip install -r requirements.txt を実行してください\033[0m")
     sys.exit(1)
 
+# Windows環境でのUTF-8出力対応
+if sys.platform == 'win32':
+    sys.stdout.reconfigure(encoding='utf-8')
+
 # colorama初期化（Windows対応）
 init(autoreset=True)
 
@@ -1698,21 +1702,26 @@ class LootManager:
             enable_logging=settings.get('enable_logging', True)
         )
 
-        # スキャナー初期化
-        try:
-            scanner = FileScanner(settings['target_directory'], logger)
-        except FileNotFoundError as e:
-            print(f"{Colors.NEON_RED}エラー: {e}{Colors.RESET}")
-            input(f"{Colors.NEON_CYAN}Enterキーで続行...{Colors.RESET}")
-            return
-
         # モード別処理
-        if preset.mode == "Sort":
-            handler = SortModeHandler(config, scanner, logger)
-        elif preset.mode == "Clean":
-            handler = CleanModeHandler(config, scanner, logger)
+        if preset.mode == "Sort" or preset.mode == "Clean":
+            # Sort/Cleanモードはtarget_directoryを使用
+            try:
+                scanner = FileScanner(settings['target_directory'], logger)
+            except FileNotFoundError as e:
+                print(f"{Colors.NEON_RED}エラー: {e}{Colors.RESET}")
+                input(f"{Colors.NEON_CYAN}Enterキーで続行...{Colors.RESET}")
+                return
+
+            if preset.mode == "Sort":
+                handler = SortModeHandler(config, scanner, logger)
+            else:  # Clean
+                handler = CleanModeHandler(config, scanner, logger)
+
         elif preset.mode == "PNG_Prompt_Sort":
+            # PNG_Prompt_Sortモードはsource_directoriesを使用（ハンドラ内で処理）
+            scanner = None  # PNG_Prompt_Sortモードではscannerは使用しない
             handler = PngPromptSortModeHandler(config, scanner, logger)
+
         else:
             print(f"{Colors.NEON_RED}エラー: 不明なモード '{preset.mode}'{Colors.RESET}")
             input(f"{Colors.NEON_CYAN}Enterキーで続行...{Colors.RESET}")

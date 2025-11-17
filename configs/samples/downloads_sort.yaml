@@ -25,10 +25,10 @@ meta:
 # =====================================
 settings:
   # 処理対象のディレクトリ
-  # Windowsの例: "C:\\Users\\username\\Downloads"
-  # Linuxの例: "/home/username/Downloads"
-  # Macの例: "/Users/username/Downloads"
-  target_directory: "C:\\Users\\username\\Downloads"
+  # Windowsの例: "C:\\Users\\YOUR_USERNAME\\Downloads"
+  # Linuxの例: "/home/YOUR_USERNAME/Downloads"
+  # Macの例: "/Users/YOUR_USERNAME/Downloads"
+  target_directory: "C:\\Users\\YOUR_USERNAME\\Downloads"
 
   # ログを記録するか
   enable_logging: true
@@ -63,38 +63,38 @@ move_rules:
   # -------------------------------
   # スクリーンショットは専用フォルダへ
   - pattern: "*screenshot*"
-    dest: "C:\\Users\\username\\Pictures\\Screenshots"
+    dest: "C:\\Users\\YOUR_USERNAME\\Pictures\\Screenshots"
     description: "スクリーンショット"
     enabled: true
 
   - pattern: "*ss_202*"
-    dest: "C:\\Users\\username\\Pictures\\Screenshots"
+    dest: "C:\\Users\\YOUR_USERNAME\\Pictures\\Screenshots"
     description: "スクショ（年月パターン）"
     enabled: true
 
   # 一般的な画像ファイル
   - pattern: "*.png"
-    dest: "C:\\Users\\username\\Pictures\\Unsorted"
+    dest: "C:\\Users\\YOUR_USERNAME\\Pictures\\Unsorted"
     description: "PNG画像"
     enabled: true
 
   - pattern: "*.jpg"
-    dest: "C:\\Users\\username\\Pictures\\Unsorted"
+    dest: "C:\\Users\\YOUR_USERNAME\\Pictures\\Unsorted"
     description: "JPG画像"
     enabled: true
 
   - pattern: "*.jpeg"
-    dest: "C:\\Users\\username\\Pictures\\Unsorted"
+    dest: "C:\\Users\\YOUR_USERNAME\\Pictures\\Unsorted"
     description: "JPEG画像"
     enabled: true
 
   - pattern: "*.gif"
-    dest: "C:\\Users\\username\\Pictures\\Unsorted"
+    dest: "C:\\Users\\YOUR_USERNAME\\Pictures\\Unsorted"
     description: "GIF画像"
     enabled: true
 
   - pattern: "*.webp"
-    dest: "C:\\Users\\username\\Pictures\\Unsorted"
+    dest: "C:\\Users\\YOUR_USERNAME\\Pictures\\Unsorted"
     description: "WebP画像"
     enabled: true
 
@@ -102,27 +102,27 @@ move_rules:
   # 動画ファイル
   # -------------------------------
   - pattern: "*.mp4"
-    dest: "C:\\Users\\username\\Videos\\Unsorted"
+    dest: "C:\\Users\\YOUR_USERNAME\\Videos\\Unsorted"
     description: "MP4動画"
     enabled: true
 
   - pattern: "*.mkv"
-    dest: "C:\\Users\\username\\Videos\\Unsorted"
+    dest: "C:\\Users\\YOUR_USERNAME\\Videos\\Unsorted"
     description: "MKV動画"
     enabled: true
 
   - pattern: "*.avi"
-    dest: "C:\\Users\\username\\Videos\\Unsorted"
+    dest: "C:\\Users\\YOUR_USERNAME\\Videos\\Unsorted"
     description: "AVI動画"
     enabled: true
 
   - pattern: "*.mov"
-    dest: "C:\\Users\\username\\Videos\\Unsorted"
+    dest: "C:\\Users\\YOUR_USERNAME\\Videos\\Unsorted"
     description: "MOV動画"
     enabled: true
 
   - pattern: "*.webm"
-    dest: "C:\\Users\\username\\Videos\\Unsorted"
+    dest: "C:\\Users\\YOUR_USERNAME\\Videos\\Unsorted"
     description: "WebM動画"
     enabled: true
 
@@ -130,37 +130,37 @@ move_rules:
   # ドキュメントファイル
   # -------------------------------
   - pattern: "*.pdf"
-    dest: "C:\\Users\\username\\Documents\\PDFs"
+    dest: "C:\\Users\\YOUR_USERNAME\\Documents\\PDFs"
     description: "PDFファイル"
     enabled: true
 
   - pattern: "*.docx"
-    dest: "C:\\Users\\username\\Documents\\Word"
+    dest: "C:\\Users\\YOUR_USERNAME\\Documents\\Word"
     description: "Word文書"
     enabled: true
 
   - pattern: "*.doc"
-    dest: "C:\\Users\\username\\Documents\\Word"
+    dest: "C:\\Users\\YOUR_USERNAME\\Documents\\Word"
     description: "Word文書（旧形式）"
     enabled: true
 
   - pattern: "*.xlsx"
-    dest: "C:\\Users\\username\\Documents\\Excel"
+    dest: "C:\\Users\\YOUR_USERNAME\\Documents\\Excel"
     description: "Excelファイル"
     enabled: true
 
   - pattern: "*.xls"
-    dest: "C:\\Users\\username\\Documents\\Excel"
+    dest: "C:\\Users\\YOUR_USERNAME\\Documents\\Excel"
     description: "Excelファイル（旧形式）"
     enabled: true
 
   - pattern: "*.pptx"
-    dest: "C:\\Users\\username\\Documents\\PowerPoint"
+    dest: "C:\\Users\\YOUR_USERNAME\\Documents\\PowerPoint"
     description: "PowerPointファイル"
     enabled: true
 
   - pattern: "*.txt"
-    dest: "C:\\Users\\username\\Documents\\TextFiles"
+    dest: "C:\\Users\\YOUR_USERNAME\\Documents\\TextFiles"
     description: "テキストファイル"
     enabled: true
 
@@ -168,17 +168,17 @@ move_rules:
   # アーカイブファイル
   # -------------------------------
   - pattern: "*.zip"
-    dest: "C:\\Users\\username\\Documents\\Archives"
+    dest: "C:\\Users\\YOUR_USERNAME\\Documents\\Archives"
     description: "ZIPファイル"
     enabled: true
 
   - pattern: "*.rar"
-    dest: "C:\\Users\\username\\Documents\\Archives"
+    dest: "C:\\Users\\YOUR_USERNAME\\Documents\\Archives"
     description: "RARファイル"
     enabled: true
 
   - pattern: "*.7z"
-    dest: "C:\\Users\\username\\Documents\\Archives"
+    dest: "C:\\Users\\YOUR_USERNAME\\Documents\\Archives"
     description: "7zファイル"
     enabled: true
 
@@ -186,12 +186,12 @@ move_rules:
   # プログラム・インストーラー
   # -------------------------------
   - pattern: "*.exe"
-    dest: "C:\\Users\\username\\Downloads\\Installers"
+    dest: "C:\\Users\\YOUR_USERNAME\\Downloads\\Installers"
     description: "実行ファイル"
     enabled: true
 
   - pattern: "*.msi"
-    dest: "C:\\Users\\username\\Downloads\\Installers"
+    dest: "C:\\Users\\YOUR_USERNAME\\Downloads\\Installers"
     description: "MSIインストーラー"
     enabled: true
 
@@ -199,17 +199,17 @@ move_rules:
   # 音声ファイル
   # -------------------------------
   - pattern: "*.mp3"
-    dest: "C:\\Users\\username\\Music\\Unsorted"
+    dest: "C:\\Users\\YOUR_USERNAME\\Music\\Unsorted"
     description: "MP3音声"
     enabled: true
 
   - pattern: "*.wav"
-    dest: "C:\\Users\\username\\Music\\Unsorted"
+    dest: "C:\\Users\\YOUR_USERNAME\\Music\\Unsorted"
     description: "WAV音声"
     enabled: true
 
   - pattern: "*.flac"
-    dest: "C:\\Users\\username\\Music\\Unsorted"
+    dest: "C:\\Users\\YOUR_USERNAME\\Music\\Unsorted"
     description: "FLAC音声"
     enabled: true
 

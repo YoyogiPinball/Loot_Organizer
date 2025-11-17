@@ -30,7 +30,7 @@ meta:
 settings:
   # 処理対象のディレクトリ
   # 例: Sortモードで振り分けた後のフォルダ
-  target_directory: "D:\\SortedFiles\\Videos"
+  target_directory: "D:\\YOUR_FOLDER\\Videos"
 
   # ログを記録するか
   enable_logging: true

@@ -1310,10 +1310,16 @@ class LootManager:
             ]
             choices.append("❌ 終了")
 
+            print(f"\n{Colors.NEON_CYAN}{'─' * 44}{Colors.RESET}")
+            print(f"{Colors.NEON_YELLOW}📋 メニュー選択{Colors.RESET}")
+            print(f"{Colors.NEON_CYAN}{'─' * 44}{Colors.RESET}")
+
             selected = questionary.select(
                 "実行するプリセットを選択:",
                 choices=choices
             ).ask()
+
+            print(f"{Colors.NEON_CYAN}{'─' * 44}{Colors.RESET}\n")
 
             if not selected or selected == "❌ 終了":
                 print(f"{Colors.NEON_CYAN}終了します{Colors.RESET}")
@@ -1386,10 +1392,16 @@ class LootManager:
 
         # 実行確認
         if settings.get('confirm_before_execute', True):
+            print(f"{Colors.NEON_CYAN}{'─' * 44}{Colors.RESET}")
+            print(f"{Colors.NEON_YELLOW}⚡ 実行確認{Colors.RESET}")
+            print(f"{Colors.NEON_CYAN}{'─' * 44}{Colors.RESET}")
+
             execute = questionary.confirm(
                 "この内容で実行しますか?",
                 default=False
             ).ask()
+
+            print(f"{Colors.NEON_CYAN}{'─' * 44}{Colors.RESET}\n")
 
             if not execute:
                 print(f"{Colors.NEON_YELLOW}キャンセルしました{Colors.RESET}")

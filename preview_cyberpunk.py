@@ -8,10 +8,9 @@ C案: Corpo風
 
 レベル1: カラースキームのみ
 レベル2: カラー + ネオンボーダー
-レベル3: グリッチエフェクト + ASCIIアート
+レベル3: ASCIIアート + ネオン強調
 """
 
-import random
 from colorama import init, Fore, Back, Style
 
 # colorama初期化
@@ -136,111 +135,111 @@ def show_level1_error(colors):
 # レベル2: ネオンボーダー
 # ==========================================
 def show_level2_menu(colors, theme_name):
-    """レベル2: ネオンボーダー + グラデーション"""
+    """レベル2: ネオンボーダー（1行1色）"""
     if theme_name == "A案":
         header_color = colors.NEON_MAGENTA
-        border_color = colors.NEON_CYAN
-        accent_color = colors.NEON_YELLOW
+        text_color = colors.NEON_CYAN
+        item_color = colors.NEON_YELLOW
     elif theme_name == "B案":
         header_color = colors.NEON_MAGENTA
-        border_color = colors.CYAN
-        accent_color = colors.NEON_YELLOW
+        text_color = colors.NEON_CYAN
+        item_color = colors.NEON_YELLOW
     else:  # C案
         header_color = colors.NEON_CYAN
-        border_color = colors.BLUE
-        accent_color = colors.NEON_YELLOW
+        text_color = colors.NEON_BLUE
+        item_color = colors.NEON_YELLOW
 
-    print(f"\n{header_color}╔{'═' * 46}╗")
-    print(f"║ {colors.NEON_CYAN}🌆 LOOT ORGANIZER v2077{' ' * 21}{header_color}║")
-    print(f"║ {accent_color}▓▒░ {theme_name} THEME ░▒▓{' ' * (30 - len(theme_name))}{header_color}║")
-    print(f"{border_color}╠{'═' * 46}╣{colors.RESET}")
-    print(f"{border_color}║{' ' * 46}║")
-    print(f"{border_color}║  {colors.NEON_MAGENTA if theme_name != 'C案' else colors.NEON_BLUE}▶ {colors.RESET}📤 ダウンロード振り分け [Sort]{' ' * 11}{border_color}║")
-    print(f"{border_color}║    ✨ ファイルクリーンアップ [Clean]{' ' * 8}{border_color}║")
-    print(f"{border_color}║    🔄 連続実行モード{' ' * 24}{border_color}║")
-    print(f"{border_color}║{' ' * 46}║")
+    print(f"\n{header_color}╔{'═' * 46}╗{colors.RESET}")
+    print(f"{text_color}║  🌆 LOOT ORGANIZER v2077                    ║{colors.RESET}")
+    print(f"{item_color}║  ▓▒░ {theme_name} THEME ░▒▓{' ' * (30 - len(theme_name))}║{colors.RESET}")
+    print(f"{header_color}╠{'═' * 46}╣{colors.RESET}")
+    print(f"{colors.CYAN}║                                              ║{colors.RESET}")
+    print(f"{item_color}║  ▶ 📤 ダウンロード振り分け [Sort]           ║{colors.RESET}")
+    print(f"{colors.CYAN}║    ✨ ファイルクリーンアップ [Clean]        ║{colors.RESET}")
+    print(f"{colors.CYAN}║    🔄 連続実行モード                        ║{colors.RESET}")
+    print(f"{colors.CYAN}║                                              ║{colors.RESET}")
     print(f"{header_color}╚{'═' * 46}╝{colors.RESET}\n")
 
 
 def show_level2_success(colors, theme_name):
-    """レベル2: 成功メッセージ"""
+    """レベル2: 成功メッセージ（1行1色）"""
     if theme_name == "B案":
         accent = colors.NEON_YELLOW
     else:
         accent = colors.NEON_GREEN
 
-    print(f"{colors.NEON_CYAN}╔{'═' * 46}╗")
-    print(f"║ {accent}⚡ 処理完了 - UPLOAD SUCCESSFUL{' ' * 14}{colors.NEON_CYAN}║")
-    print(f"╠{'═' * 46}╣{colors.RESET}")
-    print(f"{colors.CYAN}║  {colors.NEON_GREEN}⚡ 完了: 23件成功{' ' * 30}{colors.CYAN}║")
-    print(f"{colors.CYAN}╚{'═' * 46}╝{colors.RESET}\n")
+    print(f"{colors.NEON_CYAN}╔{'═' * 46}╗{colors.RESET}")
+    print(f"{accent}║  ⚡ 処理完了 - UPLOAD SUCCESSFUL              ║{colors.RESET}")
+    print(f"{colors.NEON_CYAN}╠{'═' * 46}╣{colors.RESET}")
+    print(f"{colors.NEON_GREEN}║  ⚡ 完了: 23件成功                            ║{colors.RESET}")
+    print(f"{colors.CYAN}║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━║{colors.RESET}")
+    print(f"{colors.CYAN}║  📊 ログ: logs/2025-11-17.log                ║{colors.RESET}")
+    print(f"{colors.NEON_CYAN}╚{'═' * 46}╝{colors.RESET}\n")
 
 
 def show_level2_error(colors, theme_name):
-    """レベル2: エラーメッセージ"""
-    print(f"{colors.NEON_RED}╔{'═' * 46}╗")
-    print(f"║ {colors.NEON_RED}{colors.BG_BLACK}🔥 ERROR - SYSTEM MALFUNCTION{' ' * 16}{colors.RESET}{colors.NEON_RED}║")
-    print(f"╠{'═' * 46}╣{colors.RESET}")
-    print(f"{colors.RED}║  🔥 エラー: ファイルが見つかりません{' ' * 8}{colors.RED}║")
-    print(f"║  >> C:\\invalid\\path\\file.txt{' ' * 17}{colors.RED}║")
-    print(f"╚{'═' * 46}╝{colors.RESET}\n")
+    """レベル2: エラーメッセージ（1行1色）"""
+    print(f"{colors.NEON_RED}╔{'═' * 46}╗{colors.RESET}")
+    print(f"{colors.NEON_RED}║  🔥 ERROR - SYSTEM MALFUNCTION               ║{colors.RESET}")
+    print(f"{colors.NEON_RED}╠{'═' * 46}╣{colors.RESET}")
+    print(f"{colors.RED}║  エラー: ファイルが見つかりません            ║{colors.RESET}")
+    print(f"{colors.RED}║  >> C:\\invalid\\path\\file.txt                 ║{colors.RESET}")
+    print(f"{colors.NEON_RED}╚{'═' * 46}╝{colors.RESET}\n")
 
 
 # ==========================================
-# レベル3: グリッチエフェクト
+# レベル3: ASCIIアート + ネオン強調
 # ==========================================
-def glitch_text(text, colors):
-    """グリッチエフェクト: ランダムカラー"""
-    color_list = [colors.NEON_CYAN, colors.NEON_MAGENTA, colors.NEON_YELLOW]
-    return ''.join(random.choice(color_list) + c for c in text) + colors.RESET
-
-
 def show_level3_menu(colors, theme_name):
-    """レベル3: グリッチエフェクト + ASCIIアート"""
+    """レベル3: ASCIIアート + ネオン強調（1行1色）"""
     if theme_name == "A案":
-        header_color = colors.NEON_MAGENTA
-        border_color = colors.NEON_CYAN
-    elif theme_name == "B案":
-        header_color = colors.NEON_MAGENTA
-        border_color = colors.CYAN
-    else:  # C案
+        art_color = colors.NEON_MAGENTA
         header_color = colors.NEON_CYAN
-        border_color = colors.BLUE
+        item_color = colors.NEON_YELLOW
+    elif theme_name == "B案":
+        art_color = colors.NEON_YELLOW
+        header_color = colors.NEON_MAGENTA
+        item_color = colors.NEON_CYAN
+    else:  # C案
+        art_color = colors.NEON_CYAN
+        header_color = colors.NEON_BLUE
+        item_color = colors.NEON_YELLOW
 
     # ASCIIアート風タイトル
-    print(f"\n{colors.NEON_CYAN}{'▄' * 48}")
-    print(f"{colors.NEON_MAGENTA}{'█' * 48}")
-    print(f"{colors.NEON_YELLOW}  ██╗      ██████╗  ██████╗ ████████╗")
-    print(f"  ██║     ██╔═══██╗██╔═══██╗╚══██╔══╝")
-    print(f"  ██║     ██║   ██║██║   ██║   ██║   ")
-    print(f"  ██║     ██║   ██║██║   ██║   ██║   ")
-    print(f"  ███████╗╚██████╔╝╚██████╔╝   ██║   ")
-    print(f"  ╚══════╝ ╚═════╝  ╚═════╝    ╚═╝   ")
-    print(f"{colors.NEON_MAGENTA}{'█' * 48}")
+    print(f"\n{colors.NEON_CYAN}{'▄' * 48}{colors.RESET}")
+    print(f"{art_color}{'█' * 48}{colors.RESET}")
+    print(f"{art_color}  ██╗      ██████╗  ██████╗ ████████╗{colors.RESET}")
+    print(f"{art_color}  ██║     ██╔═══██╗██╔═══██╗╚══██╔══╝{colors.RESET}")
+    print(f"{art_color}  ██║     ██║   ██║██║   ██║   ██║   {colors.RESET}")
+    print(f"{art_color}  ██║     ██║   ██║██║   ██║   ██║   {colors.RESET}")
+    print(f"{art_color}  ███████╗╚██████╔╝╚██████╔╝   ██║   {colors.RESET}")
+    print(f"{art_color}  ╚══════╝ ╚═════╝  ╚═════╝    ╚═╝   {colors.RESET}")
+    print(f"{art_color}{'█' * 48}{colors.RESET}")
     print(f"{colors.NEON_CYAN}{'▀' * 48}{colors.RESET}")
 
-    print(f"\n{header_color}╔{'═' * 46}╗")
-    print(f"║ {glitch_text('ORGANIZER v2077', colors)}{' ' * 30}{header_color}║")
-    print(f"{border_color}╠{'═' * 46}╣{colors.RESET}")
-    print(f"{border_color}║  ▶ 📤 ダウンロード振り分け{' ' * 20}{border_color}║")
-    print(f"{border_color}║    ✨ ファイルクリーンアップ{' ' * 18}{border_color}║")
-    print(f"{border_color}╚{'═' * 46}╝{colors.RESET}\n")
+    print(f"\n{header_color}╔{'═' * 46}╗{colors.RESET}")
+    print(f"{header_color}║  ORGANIZER v2077 - {theme_name}{' ' * (24 - len(theme_name))}║{colors.RESET}")
+    print(f"{header_color}╠{'═' * 46}╣{colors.RESET}")
+    print(f"{item_color}║  ▶ 📤 ダウンロード振り分け                   ║{colors.RESET}")
+    print(f"{colors.CYAN}║    ✨ ファイルクリーンアップ                 ║{colors.RESET}")
+    print(f"{colors.CYAN}║    🔄 連続実行モード                         ║{colors.RESET}")
+    print(f"{header_color}╚{'═' * 46}╝{colors.RESET}\n")
 
 
 def show_level3_success(colors, theme_name):
-    """レベル3: グリッチ風成功メッセージ"""
-    print(f"{colors.NEON_GREEN}{'▓' * 48}")
-    print(f"{glitch_text('>>> UPLOAD SUCCESSFUL <<<', colors)}")
+    """レベル3: 成功メッセージ（1行1色）"""
+    print(f"{colors.NEON_GREEN}{'▓' * 48}{colors.RESET}")
+    print(f"{colors.NEON_YELLOW}>>> UPLOAD SUCCESSFUL <<<{colors.RESET}")
     print(f"{colors.NEON_GREEN}⚡ 完了: 23件{colors.RESET}")
     print(f"{colors.NEON_GREEN}{'▓' * 48}{colors.RESET}\n")
 
 
 def show_level3_error(colors, theme_name):
-    """レベル3: グリッチ風エラーメッセージ"""
-    print(f"{colors.NEON_RED}{colors.BG_BLACK}{'█' * 48}")
-    print(f"{glitch_text('!!! SYSTEM ERROR !!!', colors)}")
+    """レベル3: エラーメッセージ（1行1色）"""
+    print(f"{colors.NEON_RED}{'█' * 48}{colors.RESET}")
+    print(f"{colors.NEON_YELLOW}!!! SYSTEM ERROR !!!{colors.RESET}")
     print(f"{colors.NEON_RED}🔥 MALFUNCTION DETECTED{colors.RESET}")
-    print(f"{colors.NEON_RED}{colors.BG_BLACK}{'█' * 48}{colors.RESET}\n")
+    print(f"{colors.NEON_RED}{'█' * 48}{colors.RESET}\n")
 
 
 # ==========================================

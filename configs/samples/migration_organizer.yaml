@@ -24,8 +24,8 @@ meta:
 # =====================================
 settings:
   # 旧設定の base_path → target_directory に変更
-  # 例: "C:\\Users\\username\\Downloads"
-  target_directory: "C:\\Users\\username\\Downloads"
+  # 例: "C:\\Users\\YOUR_USERNAME\\Downloads"
+  target_directory: "C:\\Users\\YOUR_USERNAME\\Downloads"
 
   # ログ出力のON/OFF
   enable_logging: true
@@ -61,27 +61,27 @@ settings:
 move_rules:
   # スクリーンショット関連
   - pattern: "*screenshot*"
-    dest: "C:\\Users\\username\\Pictures\\Screenshots"
+    dest: "C:\\Users\\YOUR_USERNAME\\Pictures\\Screenshots"
     description: "スクリーンショット関連"
     enabled: true
 
   - pattern: "*Twitch*"
-    dest: "C:\\Users\\username\\Pictures\\Screenshots"
+    dest: "C:\\Users\\YOUR_USERNAME\\Pictures\\Screenshots"
     description: "Twitch関連"
     enabled: true
 
   - pattern: "*ss_2024*"
-    dest: "C:\\Users\\username\\Pictures\\Screenshots"
+    dest: "C:\\Users\\YOUR_USERNAME\\Pictures\\Screenshots"
     description: "2024年スクショ"
     enabled: true
 
   - pattern: "*ss_2025*"
-    dest: "C:\\Users\\username\\Pictures\\Screenshots"
+    dest: "C:\\Users\\YOUR_USERNAME\\Pictures\\Screenshots"
     description: "2025年スクショ"
     enabled: true
 
   - pattern: "*ss_2026*"
-    dest: "C:\\Users\\username\\Pictures\\Screenshots"
+    dest: "C:\\Users\\YOUR_USERNAME\\Pictures\\Screenshots"
     description: "2026年スクショ"
     enabled: true
 

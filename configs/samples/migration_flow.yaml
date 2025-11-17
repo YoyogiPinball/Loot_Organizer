@@ -26,7 +26,7 @@ meta:
 settings:
   # 処理対象のディレクトリ（絶対パスまたは相対パス）
   # 例: "D:\\SortedFiles\\ToClean"
-  target_directory: "D:\\SortedFiles\\ToClean"
+  target_directory: "D:\\YOUR_FOLDER\\ToClean"
 
   # ログ出力のON/OFF
   enable_logging: true

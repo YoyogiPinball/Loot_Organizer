@@ -30,7 +30,7 @@ meta:
 # =====================================
 settings:
   # 処理対象のディレクトリ
-  target_directory: "C:\\Users\\username\\Pictures\\Unsorted"
+  target_directory: "C:\\Users\\YOUR_USERNAME\\Pictures\\Unsorted"
 
   # ログを記録するか
   enable_logging: true

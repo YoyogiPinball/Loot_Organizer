@@ -18,10 +18,12 @@ Loot Organizerは、ダウンロードフォルダなどに散らばったファ
 
 ## ✨ Key Features / 主な機能
 
-- **📤 Sort Mode**: Organize messy folders into categorized directories
-  - **振り分けモード**: ゴチャついたフォルダを各種フォルダへ整理
+- **📤 Sort Mode**: Organize large amounts of messy files (e.g., download folders) into categorized directories
+  - **振り分けモード**: 大量のファイルでゴチャついたフォルダ（ダウンロードフォルダなど）を各種フォルダへ整理整頓
 - **✨ Clean Mode**: Cleanup file names, delete unwanted files, and re-organize
   - **クリーンアップモード**: ファイル名整理、不要ファイル削除、再振り分け
+- **🎨 PNG_Prompt_Sort Mode**: Automatically sort AI-generated images by LoRA metadata in prompts
+  - **PNG_Prompt_Sortモード**: AI生成画像をプロンプトのLoRAメタデータで自動振り分け
 - **🔄 Batch Mode**: Execute multiple presets sequentially
   - **連続実行モード**: 複数のプリセットを順番に実行
 - **🎮 Interactive UI**: Navigate with ↑↓ arrow keys
@@ -86,7 +88,7 @@ Every YAML configuration file requires the following \`meta\` section:
 meta:
   name: "My File Organizer"
   icon: "📤"
-  mode: "Sort"  # Sort or Clean
+  mode: "Sort"  # Sort, Clean, or PNG_Prompt_Sort
   description: "Organize download folder"
 
 settings:
@@ -135,6 +137,52 @@ Organize videos by file size, duration, or content tags.
 1. Sort files from downloads / ダウンロードから振り分け
 2. Use external tool (like Zippla) to label files / 外部ツールでラベリング
 3. Use Clean mode to reorganize labeled files / Cleanモードで再整理
+
+### Case 5: AI-Generated Image Organization / AI生成画像の整理
+
+**English:**
+Organize AI-generated images (from Stable Diffusion, NovelAI, ComfyUI, etc.) by LoRA names embedded in the metadata.
+
+1. Generate images with Stable Diffusion (or other AI tools)
+2. Create a `lora_map.yaml` file mapping LoRA names to folder names
+3. Run PNG_Prompt_Sort mode to automatically sort images by LoRA
+4. Images with multiple LoRAs are copied to all matching folders
+
+**Example `lora_map.yaml`:**
+```yaml
+mappings:
+  "character_alice": "Characters/Alice"
+  "style_anime": "Styles/Anime"
+  "pose_sitting": "Poses/Sitting"
+```
+
+**Features:**
+- Supports PNG, JPG, JPEG, WebP formats
+- Detects LoRA in format: `<lora:name:weight>`
+- Handles multiple input directories
+- Auto-renames duplicates with sequential numbers
+
+**日本語:**
+Stable Diffusion、NovelAI、ComfyUI等で生成したAI画像を、メタデータに埋め込まれたLoRA名で整理します。
+
+1. Stable Diffusion等で画像を生成
+2. LoRA名→フォルダ名のマッピングファイル `lora_map.yaml` を作成
+3. PNG_Prompt_Sortモードを実行して自動振り分け
+4. 複数LoRAを含む画像は該当する全フォルダにコピーされます
+
+**マッピングファイル例:**
+```yaml
+mappings:
+  "character_alice": "キャラクター/アリス"
+  "style_anime": "スタイル/アニメ"
+  "pose_sitting": "ポーズ/座り"
+```
+
+**特徴:**
+- PNG, JPG, JPEG, WebP 形式に対応
+- `<lora:名前:重み>` 形式のLoRAを検出
+- 複数の入力フォルダに対応
+- 重複ファイルは連番で自動リネーム
 
 ---
 
@@ -185,8 +233,6 @@ AI: "I'll help you create a configuration! Let me ask a few questions:
 Once you answer these, I'll generate a ready-to-use configuration file for you."
 \`\`\`
 
----
-
 ## 🔧 Troubleshooting / トラブルシューティング
 
 ### Problem: Preset not showing in menu
@@ -227,5 +273,5 @@ IssueやPull Requestを歓迎します！
 
 ---
 
-**👤 Author / 作成者**: YoyogiPinball  
+**👤 Author / 作成者**: YoyogiPinball
 **📅 Last Updated / 最終更新**: 2025-11-16

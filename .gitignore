@@ -26,6 +26,12 @@ configs/*.yaml
 # 開発用ドキュメント（GitHubには含めない）
 CLAUDE.md
 
+# カラープレビュースクリプト（開発用）
+preview_cyberpunk.py
+
+# 移行元スクリプト（個人的な設定含む）
+MigrationSource/
+
 # テストデータ
 test_data/
 

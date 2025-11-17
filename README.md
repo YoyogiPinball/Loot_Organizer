@@ -54,25 +54,32 @@ Copy a sample configuration and edit it for your environment:
 
 サンプル設定をコピーして、自分の環境に合わせて編集：
 
-\`\`\`bash
+```bash
 # Copy sample
 cp configs/samples/downloads_sort.yaml configs/my_sort.yaml
+```
 
-# Edit the configuration
-# 設定ファイルを編集
-notepad configs/my_sort.yaml  # Windows
-nano configs/my_sort.yaml     # Linux/Mac
-\`\`\`
+**Windows:**
+```cmd
+notepad configs\my_sort.yaml
+```
+
+**Linux/Mac:**
+```bash
+nano configs/my_sort.yaml
+```
 
 ### 3. Run / 実行
 
-\`\`\`bash
-# Windows
+**Windows:**
+```cmd
 run.bat
+```
 
-# Linux/Mac
+**Linux/Mac:**
+```bash
 python src/loot_manager.py
-\`\`\`
+```
 
 ---
 

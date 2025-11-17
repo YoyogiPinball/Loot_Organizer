@@ -190,11 +190,16 @@ def show_level2_error(colors, theme_name):
 # ==========================================
 # レベル3: ASCIIアート（グリッチ） + ネオン強調
 # ==========================================
-def glitch_text(text, colors):
-    """グリッチエフェクト: 装飾用（1文字ごとにランダムカラー）"""
+def glitch_text(text, colors, chunk_size=4):
+    """グリッチエフェクト: 装飾用（数文字単位でカラー変更 - Cyberpunk 2077風）"""
     import random
     color_list = [colors.NEON_CYAN, colors.NEON_MAGENTA, colors.NEON_YELLOW]
-    return ''.join(random.choice(color_list) + c for c in text) + colors.RESET
+    result = []
+    for i in range(0, len(text), chunk_size):
+        chunk = text[i:i+chunk_size]
+        color = random.choice(color_list)
+        result.append(color + chunk)
+    return ''.join(result) + colors.RESET
 
 
 def show_level3_menu(colors, theme_name):

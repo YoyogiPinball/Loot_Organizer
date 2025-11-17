@@ -188,35 +188,51 @@ def show_level2_error(colors, theme_name):
 
 
 # ==========================================
-# レベル3: ASCIIアート + ネオン強調
+# レベル3: ASCIIアート（グリッチ） + ネオン強調
 # ==========================================
+def glitch_text(text, colors):
+    """グリッチエフェクト: 装飾用（1文字ごとにランダムカラー）"""
+    import random
+    color_list = [colors.NEON_CYAN, colors.NEON_MAGENTA, colors.NEON_YELLOW]
+    return ''.join(random.choice(color_list) + c for c in text) + colors.RESET
+
+
 def show_level3_menu(colors, theme_name):
-    """レベル3: ASCIIアート + ネオン強調（1行1色）"""
+    """レベル3: ASCIIアート（グリッチエフェクト） + メッセージ（1行1色）"""
     if theme_name == "A案":
-        art_color = colors.NEON_MAGENTA
         header_color = colors.NEON_CYAN
         item_color = colors.NEON_YELLOW
     elif theme_name == "B案":
-        art_color = colors.NEON_YELLOW
         header_color = colors.NEON_MAGENTA
         item_color = colors.NEON_CYAN
     else:  # C案
-        art_color = colors.NEON_CYAN
         header_color = colors.NEON_BLUE
         item_color = colors.NEON_YELLOW
 
-    # ASCIIアート風タイトル
-    print(f"\n{colors.NEON_CYAN}{'▄' * 48}{colors.RESET}")
-    print(f"{art_color}{'█' * 48}{colors.RESET}")
-    print(f"{art_color}  ██╗      ██████╗  ██████╗ ████████╗{colors.RESET}")
-    print(f"{art_color}  ██║     ██╔═══██╗██╔═══██╗╚══██╔══╝{colors.RESET}")
-    print(f"{art_color}  ██║     ██║   ██║██║   ██║   ██║   {colors.RESET}")
-    print(f"{art_color}  ██║     ██║   ██║██║   ██║   ██║   {colors.RESET}")
-    print(f"{art_color}  ███████╗╚██████╔╝╚██████╔╝   ██║   {colors.RESET}")
-    print(f"{art_color}  ╚══════╝ ╚═════╝  ╚═════╝    ╚═╝   {colors.RESET}")
-    print(f"{art_color}{'█' * 48}{colors.RESET}")
-    print(f"{colors.NEON_CYAN}{'▀' * 48}{colors.RESET}")
+    # ASCIIアート風タイトル（グリッチエフェクト）
+    art_line1 = "▄" * 48
+    art_line2 = "█" * 48
+    art_line3 = "  ██╗      ██████╗  ██████╗ ████████╗"
+    art_line4 = "  ██║     ██╔═══██╗██╔═══██╗╚══██╔══╝"
+    art_line5 = "  ██║     ██║   ██║██║   ██║   ██║   "
+    art_line6 = "  ██║     ██║   ██║██║   ██║   ██║   "
+    art_line7 = "  ███████╗╚██████╔╝╚██████╔╝   ██║   "
+    art_line8 = "  ╚══════╝ ╚═════╝  ╚═════╝    ╚═╝   "
+    art_line9 = "█" * 48
+    art_line10 = "▀" * 48
 
+    print(f"\n{glitch_text(art_line1, colors)}")
+    print(f"{glitch_text(art_line2, colors)}")
+    print(f"{glitch_text(art_line3, colors)}")
+    print(f"{glitch_text(art_line4, colors)}")
+    print(f"{glitch_text(art_line5, colors)}")
+    print(f"{glitch_text(art_line6, colors)}")
+    print(f"{glitch_text(art_line7, colors)}")
+    print(f"{glitch_text(art_line8, colors)}")
+    print(f"{glitch_text(art_line9, colors)}")
+    print(f"{glitch_text(art_line10, colors)}")
+
+    # メニュー部分（読みやすく1行1色）
     print(f"\n{header_color}╔{'═' * 46}╗{colors.RESET}")
     print(f"{header_color}║  ORGANIZER v2077 - {theme_name}{' ' * (24 - len(theme_name))}║{colors.RESET}")
     print(f"{header_color}╠{'═' * 46}╣{colors.RESET}")

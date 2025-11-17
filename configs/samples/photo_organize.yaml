@@ -39,12 +39,12 @@ settings:
   confirm_before_execute: true
 
   # ドライラン（プレビューのみ）をデフォルトで有効化
-  dry_run_default: true
+  dry_run_default: false
 
   # プレビュー表示設定
   preview:
     mode: "both"      # 先頭と末尾を両方表示
-    count: 3          # 各3件ずつ表示
+    count: 5          # 各5件ずつ表示
 
   # ログ設定
   logging:

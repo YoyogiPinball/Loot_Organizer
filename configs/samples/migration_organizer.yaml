@@ -34,11 +34,11 @@ settings:
   confirm_before_execute: true
 
   # ドライラン（プレビュー）をデフォルトで有効化
-  dry_run_default: true
+  dry_run_default: false
 
   # プレビュー表示設定（新機能、省略可）
   preview:
-    mode: "head"      # head: 先頭のみ / tail: 末尾のみ / both: 両端 / all: 全件
+    mode: "both"      # head: 先頭のみ / tail: 末尾のみ / both: 両端 / all: 全件
     count: 5          # 表示件数（head/tail/bothの場合）
 
   # ログ設定

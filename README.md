@@ -233,60 +233,6 @@ AI: "I'll help you create a configuration! Let me ask a few questions:
 Once you answer these, I'll generate a ready-to-use configuration file for you."
 \`\`\`
 
----
-
-## 🔒 Privacy & Repository Contents / プライバシーとリポジトリ内容
-
-### What's Included in Git / Gitに含まれるもの
-
-**✅ Included:**
-- Source code (`src/loot_manager.py`)
-- Sample configurations (`configs/samples/*.yaml`)
-- Documentation (README.md, LICENSE)
-- Requirements file (`requirements.txt`)
-- Launcher script (`run.bat`)
-
-**❌ NOT Included (Gitignored):**
-- Your personal configuration files (`configs/*.yaml`)
-- Your personal mapping files for PNG_Prompt_Sort (`configs/lora_map*.yaml`)
-- Log files (`logs/`)
-- Development notes (`CLAUDE.md`)
-- Preview/test scripts (`preview_*.py`)
-
-### Privacy Protection / プライバシー保護
-
-**English:**
-Your personal data is protected by `.gitignore`:
-- **File paths** in your configurations are NOT committed to Git
-- **LoRA mapping files** (which may reveal what images you're organizing) are NOT committed
-- **Log files** containing operation history are NOT committed
-- Only generic sample files with placeholder paths (like `"D:\\YOUR_FOLDER"` or Pokemon examples) are included
-
-**日本語:**
-個人情報は `.gitignore` で保護されています：
-- 設定ファイル内の**ファイルパス**はGitにコミットされません
-- **LoRAマッピングファイル**（どんな画像を整理しているか分かる情報）はコミットされません
-- 操作履歴を含む**ログファイル**はコミットされません
-- プレースホルダーパス（`"D:\\YOUR_FOLDER"`やポケモン例など）を使用した汎用サンプルのみが含まれます
-
-### Verifying Privacy / プライバシーの確認方法
-
-**English:**
-To verify what files are tracked by Git:
-```bash
-git status                    # Check current changes
-git ls-files configs/         # List tracked files in configs/
-```
-
-**日本語:**
-Gitで追跡されているファイルを確認するには：
-```bash
-git status                    # 現在の変更を確認
-git ls-files configs/         # configs/内の追跡ファイルを一覧表示
-```
-
----
-
 ## 🔧 Troubleshooting / トラブルシューティング
 
 ### Problem: Preset not showing in menu

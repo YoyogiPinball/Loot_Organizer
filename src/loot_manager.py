@@ -812,7 +812,7 @@ class PreviewGenerator:
 
         Args:
             operations: ファイル操作のリスト
-            mode: モード（"Sort" または "Clean"）
+            mode: モード（"Sort", "Clean", または "PNG_Prompt_Sort"）
 
         Returns:
             プレビュー文字列
@@ -820,8 +820,12 @@ class PreviewGenerator:
         if not operations:
             return f"{Colors.NEON_YELLOW}処理対象のファイルがありません{Colors.RESET}"
 
+        # PNG_Prompt_Sort専用プレビュー
+        if mode == "PNG_Prompt_Sort":
+            return self._generate_png_prompt_sort_preview(operations)
+
         # 操作をグループ化（destination別、またはaction別）
-        grouped = self._group_operations(operations)
+        grouped = self._group_operations(operations, mode)
 
         # プレビュー生成
         preview_lines = []
@@ -886,13 +890,15 @@ class PreviewGenerator:
 
     def _group_operations(
         self,
-        operations: List[FileOperation]
+        operations: List[FileOperation],
+        mode: str = "Sort"
     ) -> Dict[str, List[FileOperation]]:
         """
         操作をグループ化
 
         Args:
             operations: ファイル操作のリスト
+            mode: モード
 
         Returns:
             グループ化された操作（key: destination or action）
@@ -997,6 +1003,69 @@ class PreviewGenerator:
                     descriptions.append(f"  [{i}] {pattern}")
 
         return descriptions
+
+    def _generate_png_prompt_sort_preview(self, operations: List[FileOperation]) -> str:
+        """
+        PNG_Prompt_Sort専用のプレビュー生成
+
+        Args:
+            operations: ファイル操作のリスト
+
+        Returns:
+            プレビュー文字列
+        """
+        preview_lines = []
+        preview_lines.append(f"{Colors.NEON_CYAN}╔════════════════════════════════════════════╗")
+        preview_lines.append(f"{Colors.NEON_BLUE}║  📋 処理対象プレビュー                    ║")
+        preview_lines.append(f"{Colors.NEON_CYAN}╠════════════════════════════════════════════╣{Colors.RESET}")
+        preview_lines.append("")
+
+        # 移動先フォルダでグループ化
+        grouped = {}
+        for op in operations:
+            folder_path = op.destination.parent
+            folder_name = folder_path.name
+
+            if folder_name not in grouped:
+                grouped[folder_name] = []
+            grouped[folder_name].append(op)
+
+        total_count = 0
+
+        for folder_name, ops in grouped.items():
+            count = len(ops)
+            total_count += count
+
+            # フォルダヘッダー（LoRAワード表示）
+            # 最初のoperationからLoRAワードを取得
+            first_reason = ops[0].reason
+            preview_lines.append(f"{Colors.NEON_CYAN}📁 {folder_name}{Colors.RESET} {Colors.NEON_YELLOW}({first_reason}){Colors.RESET}")
+            preview_lines.append(f"{Colors.CYAN}   {count}件{Colors.RESET}")
+
+            # 先頭3件と終端3件を表示
+            if count <= 6:
+                # 6件以下は全件表示
+                files_to_show = ops
+            else:
+                # 先頭3件 + 終端3件
+                files_to_show = ops[:3] + ops[-3:]
+
+            for i, op in enumerate(files_to_show):
+                # 省略記号の挿入
+                if count > 6 and i == 3:
+                    omitted = count - 6
+                    preview_lines.append(f"{Colors.NEON_BLUE}   ... 他{omitted}件{Colors.RESET}")
+
+                preview_lines.append(f"{Colors.NEON_BLUE}   ├─ {op.source.name}{Colors.RESET}")
+
+            preview_lines.append("")
+
+        # サマリー
+        preview_lines.append(f"{Colors.CYAN}{'─' * 44}{Colors.RESET}")
+        preview_lines.append(f"{Colors.NEON_YELLOW}合計: {total_count}件{Colors.RESET}")
+        preview_lines.append("")
+
+        return "\n".join(preview_lines)
 
 
 # =====================================
@@ -1532,15 +1601,15 @@ class PngPromptSortModeHandler:
                             reason=f'未登録LoRa: {loras[0]}'
                         ))
                     else:
-                        # マッチしたフォルダ全てにコピー（複数の場合）
-                        for folder_name, lora_name in matched_folders:
-                            dest_folder = output_dir / folder_name
-                            operations.append(FileOperation(
-                                source=file_path,
-                                destination=dest_folder / file_path.name,
-                                action='copy' if len(matched_folders) > 1 else 'move',
-                                reason=f'LoRa: {lora_name}'
-                            ))
+                        # 最初のマッチフォルダに移動のみ
+                        folder_name, lora_name = matched_folders[0]
+                        dest_folder = output_dir / folder_name
+                        operations.append(FileOperation(
+                            source=file_path,
+                            destination=dest_folder / file_path.name,
+                            action='move',
+                            reason=f'LoRa: {lora_name}'
+                        ))
 
         return operations
 
@@ -1550,7 +1619,7 @@ class PngPromptSortModeHandler:
         dry_run: bool = False
     ) -> Tuple[int, int]:
         """
-        操作を実行（複数コピー対応）
+        操作を実行（移動のみ）
 
         Args:
             operations: ファイル操作のリスト
@@ -1562,57 +1631,28 @@ class PngPromptSortModeHandler:
         success_count = 0
         failure_count = 0
 
-        # 元ファイルの削除管理（複数コピー時に最後に削除）
-        files_to_delete = {}  # {元ファイルパス: [操作リスト]}
-
-        # 操作をグループ化
-        for op in operations:
-            source_str = str(op.source)
-            if source_str not in files_to_delete:
-                files_to_delete[source_str] = []
-            files_to_delete[source_str].append(op)
-
         # 操作実行
-        for source_path_str, ops in tqdm(files_to_delete.items(), desc="処理中", unit="files"):
-            source_path = Path(source_path_str)
-            all_success = True
+        for op in tqdm(operations, desc="処理中", unit="files"):
+            try:
+                if not dry_run:
+                    # 保存先ディレクトリ作成
+                    op.destination.parent.mkdir(parents=True, exist_ok=True)
 
-            for op in ops:
-                try:
-                    if not dry_run:
-                        # 保存先ディレクトリ作成
-                        op.destination.parent.mkdir(parents=True, exist_ok=True)
+                    # 重複チェック＆連番付与
+                    unique_filename = self._get_unique_filename(op.destination.parent, op.destination.name)
+                    final_dest = op.destination.parent / unique_filename
 
-                        # 重複チェック＆連番付与
-                        unique_filename = self._get_unique_filename(op.destination.parent, op.destination.name)
-                        final_dest = op.destination.parent / unique_filename
+                    # 移動実行
+                    shutil.move(op.source, final_dest)
+                    self.logger.info(f"移動: {op.source.name} -> {op.destination.parent.name}/{unique_filename}")
+                    success_count += 1
+                else:
+                    self.logger.info(f"[DRY-RUN] 移動: {op.source.name} -> {op.destination.parent.name}")
+                    success_count += 1
 
-                        # コピー実行
-                        shutil.copy2(op.source, final_dest)
-                        self.logger.info(f"コピー: {op.source.name} -> {op.destination.parent.name}/{unique_filename}")
-                        success_count += 1
-                    else:
-                        self.logger.info(f"[DRY-RUN] コピー: {op.source.name} -> {op.destination.parent.name}")
-                        success_count += 1
-
-                except Exception as e:
-                    self.logger.error(f"コピー失敗 ({op.source.name}): {e}")
-                    all_success = False
-                    failure_count += 1
-
-            # 全てのコピーが成功したら元ファイルを削除
-            if all_success and len(ops) > 0:
-                # copy操作が含まれる場合のみ元ファイルを削除
-                has_copy = any(o.action == 'copy' for o in ops)
-                if has_copy:
-                    try:
-                        if not dry_run:
-                            source_path.unlink()
-                            self.logger.info(f"元ファイル削除: {source_path.name}")
-                        else:
-                            self.logger.info(f"[DRY-RUN] 元ファイル削除: {source_path.name}")
-                    except Exception as e:
-                        self.logger.error(f"元ファイル削除失敗 ({source_path.name}): {e}")
+            except Exception as e:
+                self.logger.error(f"移動失敗 ({op.source.name}): {e}")
+                failure_count += 1
 
         return success_count, failure_count
 

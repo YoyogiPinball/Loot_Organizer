@@ -29,6 +29,7 @@ class ClassicCyberpunk:
     NEON_YELLOW = Fore.YELLOW + Style.BRIGHT
     NEON_GREEN = Fore.GREEN + Style.BRIGHT
     NEON_RED = Fore.RED + Style.BRIGHT
+    NEON_BLUE = Fore.BLUE + Style.BRIGHT
 
     # 通常カラー
     CYAN = Fore.CYAN
@@ -36,6 +37,7 @@ class ClassicCyberpunk:
     GREEN = Fore.GREEN
     YELLOW = Fore.YELLOW
     RED = Fore.RED
+    BLUE = Fore.BLUE
 
     # 背景
     BG_BLACK = Back.BLACK
@@ -55,11 +57,15 @@ class NightCity:
     NEON_YELLOW = Fore.YELLOW + Style.BRIGHT
     NEON_GREEN = Fore.GREEN + Style.BRIGHT
     NEON_RED = Fore.RED + Style.BRIGHT
+    NEON_BLUE = Fore.BLUE + Style.BRIGHT
 
     # 通常カラー
     CYAN = Fore.CYAN
     BLUE = Fore.BLUE
     RED = Fore.RED
+    MAGENTA = Fore.MAGENTA
+    YELLOW = Fore.YELLOW
+    GREEN = Fore.GREEN
 
     # 背景
     BG_BLACK = Back.BLACK
@@ -79,6 +85,8 @@ class Corpo:
     NEON_YELLOW = Fore.YELLOW + Style.BRIGHT
     NEON_WHITE = Fore.WHITE + Style.BRIGHT
     NEON_RED = Fore.RED + Style.BRIGHT
+    NEON_MAGENTA = Fore.MAGENTA + Style.BRIGHT
+    NEON_GREEN = Fore.GREEN + Style.BRIGHT
 
     # 通常カラー
     CYAN = Fore.CYAN
@@ -86,6 +94,8 @@ class Corpo:
     WHITE = Fore.WHITE
     YELLOW = Fore.YELLOW
     RED = Fore.RED
+    MAGENTA = Fore.MAGENTA
+    GREEN = Fore.GREEN
 
     # 背景
     BG_BLACK = Back.BLACK

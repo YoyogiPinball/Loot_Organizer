@@ -39,12 +39,12 @@ settings:
   confirm_before_execute: true
 
   # ドライラン（プレビューのみ、実際には実行しない）をデフォルトで有効化
-  dry_run_default: true
+  dry_run_default: false
 
   # プレビュー表示設定
   preview:
-    mode: "all"       # head: 先頭のみ / tail: 末尾のみ / both: 両端 / all: 全件
-    count: 3          # 表示件数（modeがhead/tail/bothの場合）
+    mode: "both"      # head: 先頭のみ / tail: 末尾のみ / both: 両端 / all: 全件
+    count: 5          # 表示件数（modeがhead/tail/bothの場合）
     # 注: 削除アクションは安全のため常に全件表示されます
 
   # ログ設定

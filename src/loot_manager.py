@@ -159,16 +159,26 @@ class ConfigLoader:
                 raise ValueError(f"{config_path}: meta.{field} が必要です")
 
         # modeの検証
-        if meta['mode'] not in ['Sort', 'Clean']:
-            raise ValueError(f"{config_path}: meta.mode は 'Sort' または 'Clean' である必要があります")
+        if meta['mode'] not in ['Sort', 'Clean', 'PNG_Prompt_Sort']:
+            raise ValueError(f"{config_path}: meta.mode は 'Sort', 'Clean', または 'PNG_Prompt_Sort' である必要があります")
 
         # settingsセクションの検証
         if 'settings' not in config:
             raise ValueError(f"{config_path}: 'settings'セクションが必要です")
 
         settings = config['settings']
-        if 'target_directory' not in settings:
-            raise ValueError(f"{config_path}: settings.target_directory が必要です")
+
+        # モード別の必須フィールド検証
+        if meta['mode'] in ['Sort', 'Clean']:
+            if 'target_directory' not in settings:
+                raise ValueError(f"{config_path}: settings.target_directory が必要です")
+        elif meta['mode'] == 'PNG_Prompt_Sort':
+            if 'source_directories' not in settings:
+                raise ValueError(f"{config_path}: settings.source_directories が必要です")
+            if 'output_directory' not in settings:
+                raise ValueError(f"{config_path}: settings.output_directory が必要です")
+            if 'mapping_file' not in settings:
+                raise ValueError(f"{config_path}: settings.mapping_file が必要です")
 
         # モード別の検証
         if meta['mode'] == 'Sort':
@@ -249,8 +259,12 @@ class ConfigLoader:
             self.logger.warning(f"設定ディレクトリが見つかりません: {self.configs_dir}")
             return presets
 
-        # configs/直下のYAMLファイルを検索（samples/内は除外）
+        # configs/直下のYAMLファイルを検索（samples/内とlora_map*.yamlは除外）
         for yaml_file in self.configs_dir.glob("*.yaml"):
+            # lora_map*.yamlはマッピングファイルなのでスキップ
+            if yaml_file.name.startswith('lora_map'):
+                continue
+
             try:
                 config = self.load_config(yaml_file)
                 meta = config['meta']

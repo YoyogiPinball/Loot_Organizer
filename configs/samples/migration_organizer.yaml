@@ -1,0 +1,141 @@
+# ========================================
+# 🔄 file_organizer からの移行用設定
+# ========================================
+#
+# 【使い方】
+# 1. このファイルを configs/my_organizer.yaml にコピー
+# 2. 旧 file_organizer/config.yaml の設定値をコピー＆ペースト
+# 3. すぐに使用開始できます
+#
+# 【変更点】
+# - base_path → target_directory に名前変更
+# - その他の設定項目はそのまま使用可能
+#
+# ========================================
+
+meta:
+  name: "file_organizer互換モード"
+  icon: "🔄"
+  mode: "Sort"
+  description: "既存のfile_organizerと同じ動作"
+
+# =====================================
+# 基本設定
+# =====================================
+settings:
+  # 旧設定の base_path → target_directory に変更
+  # 例: "C:\\Users\\YOUR_USERNAME\\Downloads"
+  target_directory: "C:\\Users\\YOUR_USERNAME\\Downloads"
+
+  # ログ出力のON/OFF
+  enable_logging: true
+
+  # 実行前の確認プロンプト
+  confirm_before_execute: true
+
+  # ドライラン（プレビュー）をデフォルトで有効化
+  dry_run_default: false
+
+  # プレビュー表示設定（新機能、省略可）
+  preview:
+    mode: "both"      # head: 先頭のみ / tail: 末尾のみ / both: 両端 / all: 全件
+    count: 5          # 表示件数（head/tail/bothの場合）
+
+  # ログ設定
+  logging:
+    log_success: true              # 成功したファイル操作もログに記録
+    log_directory: "logs"          # ログ保存先
+
+# =====================================
+# 移動ルール
+# =====================================
+# 【重要】上から順に優先度が高く、最初にマッチしたルールのみ適用されます
+# 【注意】旧設定からそのままコピー＆ペースト可能です
+#
+# 各ルールの構成:
+#   - pattern: ファイル名パターン（ワイルドカード可: * や ?）
+#   - dest: 移動先ディレクトリ（絶対パス推奨）
+#   - description: ルールの説明（ログやプレビューに表示）
+#   - enabled: true/false（falseにすると一時的に無効化）
+#
+move_rules:
+  # スクリーンショット関連
+  - pattern: "*screenshot*"
+    dest: "C:\\Users\\YOUR_USERNAME\\Pictures\\Screenshots"
+    description: "スクリーンショット関連"
+    enabled: true
+
+  - pattern: "*Twitch*"
+    dest: "C:\\Users\\YOUR_USERNAME\\Pictures\\Screenshots"
+    description: "Twitch関連"
+    enabled: true
+
+  - pattern: "*ss_2024*"
+    dest: "C:\\Users\\YOUR_USERNAME\\Pictures\\Screenshots"
+    description: "2024年スクショ"
+    enabled: true
+
+  - pattern: "*ss_2025*"
+    dest: "C:\\Users\\YOUR_USERNAME\\Pictures\\Screenshots"
+    description: "2025年スクショ"
+    enabled: true
+
+  - pattern: "*ss_2026*"
+    dest: "C:\\Users\\YOUR_USERNAME\\Pictures\\Screenshots"
+    description: "2026年スクショ"
+    enabled: true
+
+  # 動画ファイル
+  - pattern: "*.mp4"
+    dest: "D:\\Videos"
+    description: "動画ファイル"
+    enabled: true
+
+  # 画像ファイル
+  - pattern: "*.jpeg"
+    dest: "D:\\Images\\Temp"
+    description: "JPEG画像"
+    enabled: true
+
+  - pattern: "*.jpg"
+    dest: "D:\\Images\\Temp"
+    description: "JPG画像"
+    enabled: true
+
+  - pattern: "*.gif"
+    dest: "D:\\Images\\Temp"
+    description: "GIF画像"
+    enabled: true
+
+  - pattern: "*.png"
+    dest: "D:\\Images\\Temp"
+    description: "PNG画像"
+    enabled: true
+
+  - pattern: "*.webp"
+    dest: "D:\\Images\\Temp"
+    description: "WebP画像"
+    enabled: true
+
+  # ZIPファイル
+  - pattern: "*.zip"
+    dest: "D:\\Archives"
+    description: "ZIPファイル"
+    enabled: true
+
+# =====================================
+# 除外パターン
+# =====================================
+# これらのファイルは移動対象から除外されます
+#
+exclusions:
+  # ファイル名での除外（完全一致）
+  exact_names:
+    - "desktop.ini"
+    - "Thumbs.db"
+
+  # パターンでの除外（ワイルドカード可）
+  patterns:
+    - "*.tmp"      # 一時ファイル
+    - "*.bak"      # バックアップファイル
+    - "~*"         # Officeの一時ファイル

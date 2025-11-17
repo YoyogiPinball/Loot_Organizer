@@ -1,4 +1,49 @@
-logs/ 
-*.log 
-__pycache__/ 
-*.pyc 
+# ログファイル
+logs/
+*.log
+
+# Python関連
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+
+# OS関連
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ユーザーの設定ファイル（configs直下のみ除外、samplesは含める）
+configs/*.yaml
+!configs/samples/
+
+# 開発用ドキュメント（GitHubには含めない）
+CLAUDE.md
+
+# カラープレビュースクリプト（開発用）
+preview_cyberpunk.py
+
+# 移行元スクリプト（個人的な設定含む）
+MigrationSource/
+
+# テストデータ
+test_data/
+
+# IDE関連
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# 仮想環境
+venv/
+env/
+ENV/
+.venv/

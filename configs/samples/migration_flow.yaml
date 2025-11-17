@@ -1,0 +1,126 @@
+# ========================================
+# 🔄 File_Flow からの移行用設定
+# ========================================
+#
+# 【使い方】
+# 1. このファイルを configs/my_cleanup.yaml にコピー
+# 2. 旧 File_Flow/config.yaml の設定値をコピー＆ペースト
+# 3. すぐに使用開始できます
+#
+# 【変更点】
+# - advanced.confirm_before_execution → settings.confirm_before_execute に変更
+# - advanced.log_directory → settings.logging.log_directory に変更
+# - その他の設定項目（deletion, cleanup, sorting_rules）はそのまま使用可能
+#
+# ========================================
+
+meta:
+  name: "File_Flow互換モード"
+  icon: "✨"
+  mode: "Clean"
+  description: "既存のFile_Flowと同じ動作（削除→クリーンアップ→振り分け）"
+
+# =====================================
+# 基本設定
+# =====================================
+settings:
+  # 処理対象のディレクトリ（絶対パスまたは相対パス）
+  # 例: "D:\\SortedFiles\\ToClean"
+  target_directory: "D:\\YOUR_FOLDER\\ToClean"
+
+  # ログ出力のON/OFF
+  enable_logging: true
+
+  # 実行前の確認プロンプト
+  confirm_before_execute: true
+
+  # ドライラン（プレビュー）をデフォルトで有効化
+  dry_run_default: false
+
+  # プレビュー表示設定（新機能、省略可）
+  preview:
+    mode: "both"      # head: 先頭のみ / tail: 末尾のみ / both: 両端 / all: 全件
+    count: 5          # 表示件数（head/tail/bothの場合）
+    # 注: 削除アクションは安全のため常に全件表示されます
+
+  # ログ設定
+  logging:
+    log_success: true              # 成功したファイル操作もログに記録
+    log_directory: "logs"          # ログ保存先
+
+# =====================================
+# ステップ1: 特定文字列を含むファイルの削除
+# =====================================
+# Zipplaでラベリングした低レートファイル（例: {zpi$r=1}）などを削除
+#
+deletion:
+  # この処理を有効にするか（true/false）
+  enabled: true
+
+  # 削除対象の文字列リスト
+  # ファイル名にこれらの文字列が含まれていると削除されます
+  strings:
+    - "{zpi$r=1}"    # レート1のファイル
+    # 追加例:
+    # - "{zpi$r=2}"  # レート2も削除したい場合
+    # - "不要な文字列"
+
+  # サブフォルダも再帰的に検索するか（true/false）
+  recursive: true
+
+# =====================================
+# ステップ2: ファイル名のクリーンアップ
+# =====================================
+# 絵文字や特殊文字を削除してAndroid端末での互換性を向上
+#
+cleanup:
+  # この処理を有効にするか（true/false）
+  enabled: true
+
+  # サブフォルダも再帰的に処理するか（true/false）
+  recursive: true
+
+  # カスタムクリーンアップパターン（正規表現）
+  # デフォルトで絵文字や特殊文字を削除しますが、追加パターンを指定できます
+  custom_patterns: []
+  # 追加例:
+  # - '[【】]'      # 全角カッコを削除
+  # - '\\[.*?\\]'   # 角カッコとその中身を削除
+
+# =====================================
+# ステップ3: ファイル振り分けルール
+# =====================================
+# Zipplaでラベリングしたファイルを各フォルダに振り分け
+#
+# 各ルールの構成:
+#   - search: 検索パターン（ワイルドカード可: * や ?）
+#   - destination: 移動先ディレクトリ（絶対パス推奨）
+#   - action: 操作種類（copy: コピー / move: 移動 / delete: 削除）
+#
+sorting_rules:
+  # 高レートファイル（r=5）はコピーして保護
+  - search: "*r=5*"
+    destination: "D:\\HighRated"
+    action: "copy"
+
+  # タグ付きファイルの振り分け（移動）
+  - search: "*t=V*"
+    destination: "D:\\Videos\\Tagged"
+    action: "move"
+
+  - search: "*t=pic*"
+    destination: "D:\\Pictures\\Tagged"
+    action: "move"
+
+  - search: "*t=774*"
+    destination: "D:\\Archives\\774"
+    action: "move"
+
+  - search: "*t=ReAct*"
+    destination: "D:\\Videos\\ReAct"
+    action: "move"
+
+  # 追加ルール例:
+  # - search: "*.txt"
+  #   destination: "D:\\TextFiles"
+  #   action: "move"

@@ -1,0 +1,105 @@
+# ========================================
+# 🎨 AI画像LoRa振り分けサンプル
+# ========================================
+#
+# 【このサンプルについて】
+# Stable Diffusion等で生成したAI画像を、画像内のメタデータから
+# LoRa名を自動検出して、対応するフォルダに振り分ける設定例です。
+#
+# 【使い方】
+# 1. このファイルを configs/my_ai_images.yaml にコピー
+# 2. source_directories を自分の生成画像フォルダに変更
+# 3. output_directory を振り分け先の親フォルダに変更
+# 4. mapping_file（lora_map.yaml）を作成・編集
+#
+# 【特徴】
+# - 複数の入力フォルダに対応
+# - PNG/JPG/JPEG/WebP等の一般的な画像形式に対応
+# - Stable Diffusion, NovelAI, ComfyUI等のメタデータ形式に対応
+# - 複数LoRa検出時は最初のマッチに移動
+# - ファイル名重複時の処理方法を選択可能（上書き/連番/確認/スキップ）
+#
+# ========================================
+
+meta:
+  name: "AI画像LoRa振り分け"
+  icon: "🎨"
+  mode: "PNG_Prompt_Sort"
+  description: "生成AI画像をLoRA名で自動振り分け"
+
+# =====================================
+# 基本設定
+# =====================================
+settings:
+  # 入力ディレクトリ（複数指定可能）
+  # 生成AI画像が保存されているフォルダを指定
+  source_directories:
+    - "D:\\AI_Images\\Output1"
+    - "D:\\AI_Images\\Output2"
+    # 必要に応じて追加
+
+  # 出力親ディレクトリ
+  # この下にLoRa名に対応したフォルダが作成されます
+  output_directory: "D:\\AI_Images\\Sorted"
+
+  # マッピングファイル
+  # LoRa名 → フォルダ名 の対応表ファイル
+  mapping_file: "configs/lora_map_sample.yaml"
+
+  # 特殊フォルダ名
+  # マッピングにないLoRaが見つかった場合の振り分け先
+  unknown_lora_folder: "__unknown_lora"
+
+  # LoRaが見つからなかった画像の振り分け先
+  no_lora_folder: "__no_lora_found"
+
+  # メタデータ読み取りエラー時の振り分け先
+  metadata_error_folder: "__metadata_error"
+
+  # 対象拡張子
+  # 処理する画像ファイルの拡張子リスト
+  target_extensions:
+    - "png"
+    - "jpg"
+    - "jpeg"
+    - "webp"
+
+  # 重複ファイル処理方法
+  # overwrite: 上書き（デフォルト）
+  # sequential: 連番付与（xxx_1.png, xxx_2.png...）
+  # ask: 毎回尋ねる
+  # skip: スキップ
+  duplicate_handling: "overwrite"
+
+  # 一般設定
+  enable_logging: true
+  confirm_before_execute: true
+  dry_run_default: false
+
+  # プレビュー表示設定
+  preview:
+    mode: "both"      # head: 先頭のみ / tail: 末尾のみ / both: 両端 / all: 全件
+    count: 5          # 表示件数（head/tail/bothの場合）
+
+  # ログ設定
+  logging:
+    log_success: true
+    log_directory: "logs"
+
+# =====================================
+# メタデータ検索設定
+# =====================================
+# 画像ファイルのメタデータからLoRa情報を抽出する設定
+#
+metadata:
+  # 検索するメタデータフィールド（優先順）
+  # 上から順に確認し、最初に見つかったフィールドを使用
+  fields:
+    - "parameters"     # Stable Diffusion WebUI
+    - "Comment"        # NovelAI
+    - "Description"    # 汎用
+    - "prompt"         # ComfyUI
+
+  # LoRa検出パターン（正規表現）
+  # デフォルト: <lora:name:weight> 形式を検出
+  lora_pattern: "<lora:([^:]+):[^>]+>"

@@ -1,0 +1,187 @@
+# -*- coding: utf-8 -*-
+"""
+Clean モードの処理ハンドラー
+"""
+
+import shutil
+from pathlib import Path
+from typing import List, Dict, Any, Tuple
+from tqdm import tqdm
+
+from ..core.file_scanner import FileScanner
+from ..core.logger import LootLogger
+from ..core.preview_generator import FileOperation
+from ..utils.file_utils import clean_filename
+
+
+class CleanModeHandler:
+    """
+    Clean モードの処理を行うクラス
+
+    機能:
+    - 3ステップ処理（削除 → クリーンアップ → 振り分け）
+    - プレビュー → 確認 → 実行のフロー
+    """
+
+    def __init__(
+        self,
+        config: Dict[str, Any],
+        scanner: FileScanner,
+        logger: LootLogger
+    ):
+        """
+        初期化
+
+        Args:
+            config: 設定辞書
+            scanner: ファイルスキャナー
+            logger: ロガー
+        """
+        self.config = config
+        self.scanner = scanner
+        self.logger = logger
+
+    def plan_operations(self) -> List[FileOperation]:
+        """
+        実行する操作を計画
+
+        Returns:
+            ファイル操作のリスト
+        """
+        operations = []
+
+        # ステップ1: 削除
+        if self.config.get('deletion', {}).get('enabled', False):
+            operations.extend(self._plan_deletion())
+
+        # ステップ2: クリーンアップ
+        if self.config.get('cleanup', {}).get('enabled', False):
+            operations.extend(self._plan_cleanup())
+
+        # ステップ3: 振り分け
+        if 'sorting_rules' in self.config:
+            operations.extend(self._plan_sorting())
+
+        return operations
+
+    def _plan_deletion(self) -> List[FileOperation]:
+        """削除操作を計画"""
+        operations = []
+        deletion_config = self.config['deletion']
+        strings = deletion_config.get('strings', [])
+        recursive = deletion_config.get('recursive', True)
+
+        for string in strings:
+            pattern = f"*{string}*"
+            matched_files = self.scanner.scan_files(
+                pattern=pattern,
+                recursive=recursive
+            )
+
+            for file in matched_files:
+                operations.append(FileOperation(
+                    source=file,
+                    destination=None,
+                    action='delete',
+                    reason=f"文字列 '{string}' を含む"
+                ))
+
+        return operations
+
+    def _plan_cleanup(self) -> List[FileOperation]:
+        """クリーンアップ操作を計画"""
+        operations = []
+        cleanup_config = self.config['cleanup']
+        recursive = cleanup_config.get('recursive', True)
+        custom_patterns = cleanup_config.get('custom_patterns', [])
+
+        # 全ファイルをスキャン
+        matched_files = self.scanner.scan_files(
+            pattern="*",
+            recursive=recursive
+        )
+
+        for file in matched_files:
+            # クリーンアップ後のファイル名を計算
+            cleaned_name = clean_filename(file.name, custom_patterns)
+
+            # 変更が必要な場合のみ追加
+            if cleaned_name != file.name:
+                operations.append(FileOperation(
+                    source=file,
+                    destination=file.parent / cleaned_name,
+                    action='cleanup',
+                    reason='絵文字・特殊文字の除去'
+                ))
+
+        return operations
+
+    def _plan_sorting(self) -> List[FileOperation]:
+        """振り分け操作を計画"""
+        operations = []
+        sorting_rules = self.config.get('sorting_rules', [])
+
+        for rule in sorting_rules:
+            search = rule['search']
+            destination = Path(rule['destination']) if rule.get('destination') else None
+            action = rule['action']
+
+            matched_files = self.scanner.scan_files(
+                pattern=search,
+                recursive=False
+            )
+
+            for file in matched_files:
+                operations.append(FileOperation(
+                    source=file,
+                    destination=destination,
+                    action=action,
+                    reason=f"パターン '{search}'"
+                ))
+
+        return operations
+
+    def execute_operations(
+        self,
+        operations: List[FileOperation],
+        dry_run: bool = False
+    ) -> Tuple[int, int]:
+        """
+        操作を実行
+
+        Args:
+            operations: ファイル操作のリスト
+            dry_run: ドライランモード（実際には実行しない）
+
+        Returns:
+            (成功数, 失敗数)
+        """
+        success_count = 0
+        failure_count = 0
+
+        for op in tqdm(operations, desc="処理中", unit="files"):
+            try:
+                if not dry_run:
+                    if op.action == 'delete':
+                        op.source.unlink()
+
+                    elif op.action == 'cleanup':
+                        op.source.rename(op.destination)
+
+                    elif op.action == 'move':
+                        op.destination.mkdir(parents=True, exist_ok=True)
+                        shutil.move(str(op.source), str(op.destination / op.source.name))
+
+                    elif op.action == 'copy':
+                        op.destination.mkdir(parents=True, exist_ok=True)
+                        shutil.copy2(str(op.source), str(op.destination / op.source.name))
+
+                # ログ記録
+                self.logger.info(f"[{op.action}] {op.source} ({op.reason})")
+                success_count += 1
+
+            except Exception as e:
+                self.logger.error(f"[エラー] {op.source}: {e}")
+                failure_count += 1
+
+        return success_count, failure_count

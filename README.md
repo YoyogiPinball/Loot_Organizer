@@ -14,6 +14,8 @@
   - [インストール](#インストール)
   - [設定](#設定)
   - [実行](#実行)
+- [🎯 初回セットアップガイド](#-初回セットアップガイド)
+- [🤖 YAML設定をAIで簡単に作成](#-yaml設定をaiで簡単に作成)
 - [設定ガイド](#設定ガイド)
 - [よくある使い方](#よくある使い方)
 - [AIエージェント向け](#aiエージェント向け)
@@ -81,8 +83,149 @@ run.bat
 
 **Linux/Mac:**
 ```bash
-python src/loot_manager.py
+python -m src.loot_manager
 ```
+
+---
+
+## 🎯 初回セットアップガイド
+
+### Sort/Cleanモードの場合（ファイル整理）
+
+**1. サンプル設定をコピー**
+```bash
+cp configs/samples/downloads_sort.yaml configs/my_organizer.yaml
+```
+
+**Windows:**
+```cmd
+copy configs\samples\downloads_sort.yaml configs\my_organizer.yaml
+```
+
+**2. 設定ファイルを編集**
+
+エディタで `configs/my_organizer.yaml` を開きます：
+
+```cmd
+notepad configs\my_organizer.yaml
+```
+
+以下の項目を自分の環境に合わせて変更：
+
+```yaml
+settings:
+  target_directory: "C:\\Users\\YOUR_NAME\\Downloads"  # 整理したいフォルダ
+
+move_rules:
+  - name: "Videos"
+    destination: "D:\\Videos"  # 移動先フォルダ
+    patterns:
+      - "*.mp4"
+      - "*.mkv"
+```
+
+**3. 実行**
+```cmd
+run.bat
+```
+
+メニューから設定ファイルを選択して実行！
+
+---
+
+### AI画像整理モードの場合（Stable Diffusion等）
+
+**1. サンプル設定をコピー**
+```bash
+cp configs/samples/ai_image_sort.yaml configs/my_ai_sorter.yaml
+cp configs/samples/lora_map_sample.yaml configs/lora_map.yaml
+```
+
+**Windows:**
+```cmd
+copy configs\samples\ai_image_sort.yaml configs\my_ai_sorter.yaml
+copy configs\samples\lora_map_sample.yaml configs\lora_map.yaml
+```
+
+**2. マッピングファイルを編集**
+
+`configs/lora_map.yaml` を開いて、自分の使っているLoRA名を登録：
+
+```yaml
+mappings:
+  "your_lora_name": "振り分け先フォルダ名"
+  "character_alice": "キャラクター＿アリス"
+  "style_anime": "スタイル＿アニメ"
+```
+
+**3. 設定ファイルを編集**
+
+`configs/my_ai_sorter.yaml` を開いて、パスを変更：
+
+```yaml
+settings:
+  source_directories:
+    - "D:\\StableDiffusion\\outputs"  # AI画像が保存されているフォルダ
+  output_directory: "D:\\AI_Images\\Sorted"  # 振り分け先の親フォルダ
+  mapping_file: "configs/lora_map.yaml"
+```
+
+**4. 実行**
+```cmd
+run.bat
+```
+
+---
+
+## 🤖 YAML設定をAIで簡単に作成
+
+YAML設定ファイルの編集が難しい？**AIエージェント（Claude、ChatGPT等）を使えば簡単に作成できます！**
+
+### プロンプト例1: ダウンロードフォルダ整理
+
+```
+Loot Organizerの設定ファイルを作成してください。
+
+目的：Downloadsフォルダ（C:\Users\YourName\Downloads）を整理
+振り分け先：
+- 動画（*.mp4, *.mkv） → D:\Videos
+- 画像（*.jpg, *.png） → D:\Pictures
+- ドキュメント（*.pdf, *.docx） → D:\Documents
+- 10MB以上のファイル → D:\LargeFiles
+
+configs/samples/downloads_sort.yaml を参考にして作成してください。
+```
+
+### プロンプト例2: AI画像整理
+
+```
+Loot Organizerの lora_map.yaml を作成してください。
+
+以下のLoRA名をフォルダに振り分けたいです：
+- pikachu → ピカチュウ
+- eevee → イーブイ
+- anime_style_v2 → アニメスタイル
+- realistic_face → リアル顔
+
+configs/samples/lora_map_sample.yaml の形式で作成してください。
+```
+
+### プロンプト例3: 古いファイル削除
+
+```
+Loot Organizerの設定で、以下を実現してください：
+
+- 30日以上前のファイルを削除
+- ただし "important" が含まれるファイルは除外
+- ファイル名に絵文字が含まれるものはクリーンアップ
+
+configs/samples/cleanup_files.yaml を参考にしてください。
+```
+
+**コツ：**
+- サンプルファイル（`configs/samples/`）を見せて「これを参考に作って」と頼む
+- 具体的な条件（パス、拡張子、サイズ等）を明示する
+- 分からない項目は「おすすめ設定を教えて」と聞く
 
 ---
 
@@ -276,6 +419,8 @@ English | [日本語](#-loot-organizer)
   - [Installation](#installation-1)
   - [Configuration](#configuration-1)
   - [Run](#run-1)
+- [🎯 Initial Setup Guide](#-initial-setup-guide)
+- [🤖 Using AI to Create YAML Configs](#-using-ai-to-create-yaml-configs)
 - [Configuration Guide](#configuration-guide-1)
 - [Common Use Cases](#common-use-cases)
 - [For AI Agents](#for-ai-agents)
@@ -343,8 +488,149 @@ run.bat
 
 **Linux/Mac:**
 ```bash
-python src/loot_manager.py
+python -m src.loot_manager
 ```
+
+---
+
+## 🎯 Initial Setup Guide
+
+### For Sort/Clean Mode (File Organization)
+
+**1. Copy Sample Configuration**
+```bash
+cp configs/samples/downloads_sort.yaml configs/my_organizer.yaml
+```
+
+**Windows:**
+```cmd
+copy configs\samples\downloads_sort.yaml configs\my_organizer.yaml
+```
+
+**2. Edit Configuration File**
+
+Open `configs/my_organizer.yaml` in your editor:
+
+```cmd
+notepad configs\my_organizer.yaml
+```
+
+Customize these settings for your environment:
+
+```yaml
+settings:
+  target_directory: "C:\\Users\\YOUR_NAME\\Downloads"  # Folder to organize
+
+move_rules:
+  - name: "Videos"
+    destination: "D:\\Videos"  # Destination folder
+    patterns:
+      - "*.mp4"
+      - "*.mkv"
+```
+
+**3. Run**
+```cmd
+run.bat
+```
+
+Select your configuration from the menu and execute!
+
+---
+
+### For AI Image Organization Mode (Stable Diffusion, etc.)
+
+**1. Copy Sample Configuration**
+```bash
+cp configs/samples/ai_image_sort.yaml configs/my_ai_sorter.yaml
+cp configs/samples/lora_map_sample.yaml configs/lora_map.yaml
+```
+
+**Windows:**
+```cmd
+copy configs\samples\ai_image_sort.yaml configs\my_ai_sorter.yaml
+copy configs\samples\lora_map_sample.yaml configs\lora_map.yaml
+```
+
+**2. Edit Mapping File**
+
+Open `configs/lora_map.yaml` and register your LoRA names:
+
+```yaml
+mappings:
+  "your_lora_name": "Destination_Folder_Name"
+  "character_alice": "Characters_Alice"
+  "style_anime": "Styles_Anime"
+```
+
+**3. Edit Configuration File**
+
+Open `configs/my_ai_sorter.yaml` and update paths:
+
+```yaml
+settings:
+  source_directories:
+    - "D:\\StableDiffusion\\outputs"  # Folder where AI images are saved
+  output_directory: "D:\\AI_Images\\Sorted"  # Parent folder for sorted files
+  mapping_file: "configs/lora_map.yaml"
+```
+
+**4. Run**
+```cmd
+run.bat
+```
+
+---
+
+## 🤖 Using AI to Create YAML Configs
+
+Finding YAML configuration difficult? **Use AI agents (Claude, ChatGPT, etc.) to easily create config files!**
+
+### Example Prompt 1: Organize Downloads Folder
+
+```
+Create a Loot Organizer configuration file.
+
+Purpose: Organize Downloads folder (C:\Users\YourName\Downloads)
+Destinations:
+- Videos (*.mp4, *.mkv) → D:\Videos
+- Images (*.jpg, *.png) → D:\Pictures
+- Documents (*.pdf, *.docx) → D:\Documents
+- Files over 10MB → D:\LargeFiles
+
+Use configs/samples/downloads_sort.yaml as reference.
+```
+
+### Example Prompt 2: AI Image Organization
+
+```
+Create a lora_map.yaml file for Loot Organizer.
+
+I want to organize the following LoRA names into folders:
+- pikachu → Pikachu
+- eevee → Eevee
+- anime_style_v2 → Anime_Styles
+- realistic_face → Realistic_Faces
+
+Use the format from configs/samples/lora_map_sample.yaml.
+```
+
+### Example Prompt 3: Delete Old Files
+
+```
+Create a Loot Organizer configuration to:
+
+- Delete files older than 30 days
+- But exclude files containing "important"
+- Cleanup filenames containing emojis
+
+Use configs/samples/cleanup_files.yaml as reference.
+```
+
+**Tips:**
+- Show sample files (`configs/samples/`) and ask "create based on this"
+- Be specific about conditions (paths, extensions, sizes, etc.)
+- Ask "what's the recommended setting?" for unclear options
 
 ---
 

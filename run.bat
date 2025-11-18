@@ -6,8 +6,8 @@ chcp 65001 > nul
 REM カレントディレクトリをスクリプトの場所に変更
 cd /d "%~dp0"
 
-REM Pythonスクリプトを実行
-python src/loot_manager.py
+REM Pythonスクリプトを実行（モジュールとして）
+python -m src.loot_manager
 
 REM 終了時に一時停止（エラー確認用）
 pause

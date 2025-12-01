@@ -28,13 +28,19 @@
 
 Loot Organizerは、ダウンロードフォルダなどに散らばったファイルを効率的に整理するためのCLIツールです。YAML形式で定義したルールに基づいて、ファイルの振り分け、クリーンアップ、削除を自動化します。
 
+**特に、AI生成画像（Stable Diffusion / NovelAI / ComfyUI等）を、PNG画像に埋め込まれたプロンプト情報から自動的に読み取り、使用されているLoRA名を検出して自動振り分けする機能が強力です。**
+
 ---
 
 ## 主な機能
 
 - **📤 振り分けモード（Sort）**: 大量のファイルでゴチャついたフォルダ（ダウンロードフォルダなど）を各種フォルダへ整理整頓
 - **✨ クリーンアップモード（Clean）**: ファイル名整理、不要ファイル削除、再振り分け
-- **🎨 PNG_Prompt_Sortモード**: AI生成画像をプロンプトのLoRAメタデータで自動振り分け
+- **🎨 PNG_Prompt_Sortモード**:
+  - **PNG画像に埋め込まれたプロンプトを自動解析**
+  - **使用LoRAを検出して自動振り分け** (Stable Diffusion / NovelAI / ComfyUI 対応)
+  - 数千枚の画像も一瞬で整理可能
+  - マッピングファイルで柔軟にフォルダ振り分け設定
 - **🔄 連続実行モード**: 複数のプリセットを順番に実行
 - **🎮 インタラクティブUI**: ↑↓キーで操作
 - **🛡️ 安全な操作**: 実行前に必ずプレビュー表示
@@ -283,9 +289,18 @@ settings:
 2. 外部ツール（Zippla等）でラベリング
 3. Cleanモードで再整理
 
-### ケース5: AI生成画像の整理
+### ケース5: AI生成画像の自動整理（PNG画像からプロンプトを読み取り）
 
-Stable Diffusion、NovelAI、ComfyUI等で生成したAI画像を、メタデータに埋め込まれたLoRA名で整理します。
+Stable Diffusion、NovelAI、ComfyUI等で生成したAI画像は、PNG形式のメタデータにプロンプト情報が埋め込まれています。
+Loot Organizerは、この**PNG画像に埋め込まれたプロンプト情報を自動的に読み取り**、使用されている**LoRA名を検出**して、設定したフォルダに自動振り分けします。
+
+#### 仕組み
+
+1. **PNG画像のメタデータからプロンプトを読み取り**
+2. プロンプト内の `<lora:名前:重み>` 形式のLoRAを検出
+3. マッピングファイルでLoRA名とフォルダ名を照合
+4. 最初にマッチしたLoRAのフォルダに自動移動
+5. 数千枚でも一瞬で処理完了
 
 #### 手順
 
@@ -433,13 +448,19 @@ English | [日本語](#-loot-organizer)
 
 Loot Organizer is a CLI tool that helps you efficiently organize scattered files in your download folder and other directories. It automates file sorting, cleanup, and deletion based on user-defined rules in YAML format.
 
+**Especially powerful for AI-generated images (Stable Diffusion / NovelAI / ComfyUI, etc.), it automatically reads prompt information embedded in PNG images, detects used LoRA names, and sorts them into folders.**
+
 ---
 
 ## Key Features
 
 - **📤 Sort Mode**: Organize large amounts of messy files (e.g., download folders) into categorized directories
 - **✨ Clean Mode**: Cleanup file names, delete unwanted files, and re-organize
-- **🎨 PNG_Prompt_Sort Mode**: Automatically sort AI-generated images by LoRA metadata in prompts
+- **🎨 PNG_Prompt_Sort Mode**:
+  - **Automatically analyzes prompts embedded in PNG images**
+  - **Detects used LoRAs and auto-sorts** (supports Stable Diffusion / NovelAI / ComfyUI)
+  - Process thousands of images instantly
+  - Flexible folder mapping via configuration files
 - **🔄 Batch Mode**: Execute multiple presets sequentially
 - **🎮 Interactive UI**: Navigate with ↑↓ arrow keys
 - **🛡️ Safe Operations**: Always preview before execution
@@ -688,9 +709,18 @@ Organize videos by file size, duration, or content tags.
 2. Use external tool (like Zippla) to label files
 3. Use Clean mode to reorganize labeled files
 
-### Case 5: AI-Generated Image Organization
+### Case 5: AI-Generated Image Auto-Organization (Reading Prompts from PNG)
 
-Organize AI-generated images (from Stable Diffusion, NovelAI, ComfyUI, etc.) by LoRA names embedded in the metadata.
+AI-generated images from Stable Diffusion, NovelAI, ComfyUI, etc. have prompt information embedded in PNG metadata.
+Loot Organizer **automatically reads the prompt information embedded in PNG images**, **detects LoRA names** used, and automatically sorts them into configured folders.
+
+#### How It Works
+
+1. **Reads prompts from PNG image metadata**
+2. Detects LoRAs in the format: `<lora:name:weight>`
+3. Matches LoRA names with folder names in mapping file
+4. Automatically moves to the first matching LoRA folder
+5. Processes thousands of images instantly
 
 #### Steps
 

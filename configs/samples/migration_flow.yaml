@@ -24,9 +24,14 @@ meta:
 # 基本設定
 # =====================================
 settings:
-  # 処理対象のディレクトリ（絶対パスまたは相対パス）
+  # 処理対象のディレクトリ（単一または複数指定可能、絶対パスまたは相対パス）
   # 例: "D:\\SortedFiles\\ToClean"
   target_directory: "D:\\YOUR_FOLDER\\ToClean"
+
+  # 複数ディレクトリを指定する場合はリスト形式で記述
+  # target_directory:
+  #   - "D:\\Folder1"
+  #   - "D:\\Folder2"
 
   # ログ出力のON/OFF
   enable_logging: true

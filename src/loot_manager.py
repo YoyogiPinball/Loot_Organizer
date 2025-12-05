@@ -196,6 +196,13 @@ class LootManager:
         if failure > 0:
             print(f"{Colors.NEON_RED}失敗: {failure}件{Colors.RESET}")
 
+        # スキップされたディレクトリがあれば通知
+        if scanner and hasattr(scanner, 'skipped_dirs') and scanner.skipped_dirs:
+            print()
+            print(f"{Colors.NEON_YELLOW}⚠️  以下のディレクトリは存在しないためスキップされました:{Colors.RESET}")
+            for skipped_dir in scanner.skipped_dirs:
+                print(f"{Colors.NEON_YELLOW}  - {skipped_dir}{Colors.RESET}")
+
         input(f"{Colors.NEON_CYAN}Enterキーで続行...{Colors.RESET}")
 
 

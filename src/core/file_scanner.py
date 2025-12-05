@@ -24,19 +24,38 @@ class FileScanner:
     - 除外パターン
     """
 
-    def __init__(self, target_directory: str, logger: 'LootLogger' = None):
+    def __init__(self, target_directory, logger: 'LootLogger' = None):
         """
         初期化
 
         Args:
-            target_directory: スキャン対象ディレクトリ
+            target_directory: スキャン対象ディレクトリ（文字列またはリスト）
             logger: ロガー
         """
-        self.target_directory = Path(target_directory)
         self.logger = logger
 
-        if not self.target_directory.exists():
-            raise FileNotFoundError(f"ディレクトリが見つかりません: {target_directory}")
+        # 文字列でもリストでも受け取れるように正規化
+        if isinstance(target_directory, list):
+            self.target_directories = [Path(d) for d in target_directory]
+        else:
+            self.target_directories = [Path(target_directory)]
+
+        # 存在チェック & 警告
+        self.valid_dirs = []
+        self.skipped_dirs = []
+
+        for directory in self.target_directories:
+            if directory.exists():
+                self.valid_dirs.append(directory)
+            else:
+                self.skipped_dirs.append(str(directory))
+                if self.logger:
+                    self.logger.warning(f"ディレクトリが存在しません（スキップします）: {directory}")
+
+        # 1つも有効なディレクトリがない場合はエラー
+        if not self.valid_dirs:
+            dirs_str = ", ".join(str(d) for d in self.target_directories)
+            raise FileNotFoundError(f"有効なディレクトリが見つかりません: {dirs_str}")
 
     def scan_files(
         self,
@@ -60,23 +79,27 @@ class FileScanner:
         filters = filters or {}
         exclusions = exclusions or {'exact_names': [], 'patterns': []}
 
-        # パターンマッチングでファイル取得
-        if recursive:
-            matched_files = list(self.target_directory.rglob(pattern))
-        else:
-            matched_files = list(self.target_directory.glob(pattern))
+        # 複数ディレクトリをまとめてスキャン
+        all_matched_files = []
+        for target_dir in self.valid_dirs:
+            # パターンマッチングでファイル取得
+            if recursive:
+                matched_files = list(target_dir.rglob(pattern))
+            else:
+                matched_files = list(target_dir.glob(pattern))
 
-        # ディレクトリを除外（ファイルのみ）
-        matched_files = [f for f in matched_files if f.is_file()]
+            # ディレクトリを除外（ファイルのみ）
+            matched_files = [f for f in matched_files if f.is_file()]
+            all_matched_files.extend(matched_files)
 
         # 除外パターンの適用
-        matched_files = self._apply_exclusions(matched_files, exclusions)
+        all_matched_files = self._apply_exclusions(all_matched_files, exclusions)
 
         # フィルタの適用
         if filters:
-            matched_files = self._apply_filters(matched_files, filters)
+            all_matched_files = self._apply_filters(all_matched_files, filters)
 
-        return matched_files
+        return all_matched_files
 
     def _apply_exclusions(
         self,

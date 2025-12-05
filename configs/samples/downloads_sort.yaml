@@ -24,11 +24,16 @@ meta:
 # 基本設定
 # =====================================
 settings:
-  # 処理対象のディレクトリ
+  # 処理対象のディレクトリ（単一または複数指定可能）
   # Windowsの例: "C:\\Users\\YOUR_USERNAME\\Downloads"
   # Linuxの例: "/home/YOUR_USERNAME/Downloads"
   # Macの例: "/Users/YOUR_USERNAME/Downloads"
   target_directory: "C:\\Users\\YOUR_USERNAME\\Downloads"
+
+  # 複数ディレクトリを指定する場合はリスト形式で記述
+  # target_directory:
+  #   - "C:\\Users\\YOUR_USERNAME\\Downloads"
+  #   - "D:\\TempFiles"
 
   # ログを記録するか
   enable_logging: true

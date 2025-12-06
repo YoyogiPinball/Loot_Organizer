@@ -36,6 +36,10 @@ Loot Organizerは、ダウンロードフォルダなどに散らばったファ
 
 - **📤 振り分けモード（Sort）**: 大量のファイルでゴチャついたフォルダ（ダウンロードフォルダなど）を各種フォルダへ整理整頓
 - **✨ クリーンアップモード（Clean）**: ファイル名整理、不要ファイル削除、再振り分け
+  - **source_directory**: 特定のディレクトリからのファイルのみ対象
+  - **rename_pattern**: 移動/コピー時にファイル名から文字列を削除/置換
+  - **recursive**: サブフォルダも再帰的に検索
+  - **cleanup pattern & target_directories**: 特定のパターン・ディレクトリのみをクリーンアップ
 - **🎨 PNG_Prompt_Sortモード**:
   - **PNG画像に埋め込まれたプロンプトを自動解析**
   - **使用LoRAを検出して自動振り分け** (Stable Diffusion / NovelAI / ComfyUI 対応)
@@ -45,6 +49,7 @@ Loot Organizerは、ダウンロードフォルダなどに散らばったファ
 - **🎮 インタラクティブUI**: ↑↓キーで操作
 - **🛡️ 安全な操作**: 実行前に必ずプレビュー表示
 - **💾 プリセット管理**: よく使う設定を保存・再利用
+- **📊 バージョン表示**: 起動時にバージョン番号とコミットハッシュを表示
 
 ---
 
@@ -263,6 +268,38 @@ settings:
     log_directory: "logs"
 ```
 
+### Clean モードの高度な機能
+
+Clean モードでは、以下の高度なオプションが使用できます：
+
+#### sorting_rules の拡張オプション
+
+```yaml
+sorting_rules:
+  - search: "*r=3*"
+    source_directory: "D:\\Source\\Folder"  # 特定のディレクトリからのみ対象
+    destination: "D:\\Destination\\Folder"
+    action: "copy"  # または "move"
+    recursive: true  # サブフォルダも検索
+    rename_pattern:  # ファイル名から文字列を削除/置換
+      "{zpi$r=3}": ""  # {zpi$r=3} を削除
+      "old_text": "new_text"  # 置換も可能
+```
+
+#### cleanup の拡張オプション
+
+```yaml
+cleanup:
+  enabled: true
+  recursive: true
+  pattern: "*{zpi$}*"  # 特定のパターンを含むファイルのみ対象
+  target_directories:  # 特定のディレクトリのみ対象
+    - "D:\\Folder1"
+    - "D:\\Folder2"
+  custom_patterns:  # ファイル名から削除する正規表現パターン
+    - "\\{zpi\\$r=3\\}"
+```
+
 完全な例と高度なフィルタリングオプションについては、`configs/samples/`ディレクトリを参照してください。
 
 ---
@@ -411,7 +448,7 @@ IssueやPull Requestを歓迎します！
 ---
 
 **👤 作成者**: YoyogiPinball
-**📅 最終更新**: 2025-11-18
+**📅 最終更新**: 2025-12-06
 
 ---
 ---
@@ -456,6 +493,10 @@ Loot Organizer is a CLI tool that helps you efficiently organize scattered files
 
 - **📤 Sort Mode**: Organize large amounts of messy files (e.g., download folders) into categorized directories
 - **✨ Clean Mode**: Cleanup file names, delete unwanted files, and re-organize
+  - **source_directory**: Target files only from specific directories
+  - **rename_pattern**: Remove/replace strings from filenames during move/copy
+  - **recursive**: Recursively search subfolders
+  - **cleanup pattern & target_directories**: Cleanup only specific patterns/directories
 - **🎨 PNG_Prompt_Sort Mode**:
   - **Automatically analyzes prompts embedded in PNG images**
   - **Detects used LoRAs and auto-sorts** (supports Stable Diffusion / NovelAI / ComfyUI)
@@ -465,6 +506,7 @@ Loot Organizer is a CLI tool that helps you efficiently organize scattered files
 - **🎮 Interactive UI**: Navigate with ↑↓ arrow keys
 - **🛡️ Safe Operations**: Always preview before execution
 - **💾 Preset Management**: Save and reuse your favorite settings
+- **📊 Version Display**: Shows version number and commit hash at startup
 
 ---
 
@@ -683,6 +725,38 @@ settings:
     log_directory: "logs"
 ```
 
+### Advanced Features in Clean Mode
+
+Clean mode supports the following advanced options:
+
+#### sorting_rules Extended Options
+
+```yaml
+sorting_rules:
+  - search: "*r=3*"
+    source_directory: "D:\\Source\\Folder"  # Target only specific directory
+    destination: "D:\\Destination\\Folder"
+    action: "copy"  # or "move"
+    recursive: true  # Search subfolders
+    rename_pattern:  # Remove/replace strings from filenames
+      "{zpi$r=3}": ""  # Remove {zpi$r=3}
+      "old_text": "new_text"  # Replacement also supported
+```
+
+#### cleanup Extended Options
+
+```yaml
+cleanup:
+  enabled: true
+  recursive: true
+  pattern: "*{zpi$}*"  # Target only files matching pattern
+  target_directories:  # Target only specific directories
+    - "D:\\Folder1"
+    - "D:\\Folder2"
+  custom_patterns:  # Regex patterns to remove from filenames
+    - "\\{zpi\\$r=3\\}"
+```
+
 For complete examples and advanced filtering options, see `configs/samples/` directory.
 
 ---
@@ -831,4 +905,4 @@ Issues and pull requests are welcome!
 ---
 
 **👤 Author**: YoyogiPinball
-**📅 Last Updated**: 2025-11-18
+**📅 Last Updated**: 2025-12-06

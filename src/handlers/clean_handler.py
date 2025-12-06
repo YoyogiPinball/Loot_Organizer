@@ -94,12 +94,22 @@ class CleanModeHandler:
         cleanup_config = self.config['cleanup']
         recursive = cleanup_config.get('recursive', True)
         custom_patterns = cleanup_config.get('custom_patterns', [])
+        pattern = cleanup_config.get('pattern', '*')  # 検索パターン（デフォルト: 全ファイル）
+        target_directories = cleanup_config.get('target_directories')  # 対象ディレクトリ（オプション）
 
-        # 全ファイルをスキャン
-        matched_files = self.scanner.scan_files(
-            pattern="*",
-            recursive=recursive
-        )
+        # target_directoriesが指定されていれば専用のスキャナーを使用
+        if target_directories:
+            temp_scanner = FileScanner(target_directories, self.logger)
+            matched_files = temp_scanner.scan_files(
+                pattern=pattern,
+                recursive=recursive
+            )
+        else:
+            # 指定がなければ全体のtarget_directoryを使用
+            matched_files = self.scanner.scan_files(
+                pattern=pattern,
+                recursive=recursive
+            )
 
         for file in matched_files:
             # クリーンアップ後のファイル名を計算

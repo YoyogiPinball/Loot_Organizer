@@ -87,7 +87,7 @@ def clean_filename(filename: str, custom_patterns: List[str] = None) -> str:
         "\U0001F680-\U0001F6FF"  # 乗り物＆地図シンボル
         "\U0001F1E0-\U0001F1FF"  # 国旗
         "\U00002702-\U000027B0"  # 装飾記号
-        "\U000024C2-\U0001F251"  # 囲み文字
+        "\U0001F200-\U0001F251"  # 囲み文字（修正: U+1F200～、日本語を除外）
         "]+",
         flags=re.UNICODE
     )

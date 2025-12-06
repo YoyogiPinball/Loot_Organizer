@@ -125,6 +125,8 @@ class CleanModeHandler:
             search = rule['search']
             destination = Path(rule['destination']) if rule.get('destination') else None
             action = rule['action']
+            source_directory = rule.get('source_directory')  # ソースディレクトリ指定（オプション）
+            rename_pattern = rule.get('rename_pattern')  # リネームパターン（オプション）
 
             matched_files = self.scanner.scan_files(
                 pattern=search,
@@ -132,9 +134,28 @@ class CleanModeHandler:
             )
 
             for file in matched_files:
+                # source_directoryが指定されている場合、そのディレクトリからのファイルのみ対象
+                if source_directory:
+                    source_dir_path = Path(source_directory)
+                    # ファイルが指定されたディレクトリ配下にあるかチェック
+                    try:
+                        file.relative_to(source_dir_path)
+                    except ValueError:
+                        # ディレクトリ配下にない場合はスキップ
+                        continue
+
+                # リネームパターンが指定されている場合、destination側のファイル名を変更
+                if rename_pattern and destination:
+                    new_name = file.name
+                    for pattern, replacement in rename_pattern.items():
+                        new_name = new_name.replace(pattern, replacement)
+                    dest_with_rename = destination / new_name
+                else:
+                    dest_with_rename = destination
+
                 operations.append(FileOperation(
                     source=file,
-                    destination=destination,
+                    destination=dest_with_rename if rename_pattern else destination,
                     action=action,
                     reason=f"パターン '{search}'"
                 ))
@@ -169,12 +190,27 @@ class CleanModeHandler:
                         op.source.rename(op.destination)
 
                     elif op.action == 'move':
-                        op.destination.mkdir(parents=True, exist_ok=True)
-                        shutil.move(str(op.source), str(op.destination / op.source.name))
+                        # destinationがファイルパス（親+ファイル名）かディレクトリパスかを判定
+                        # rename_pattern使用時はdestinationに新しいファイル名が含まれている
+                        if op.destination.suffix:
+                            # 拡張子があればファイルパスと判定
+                            op.destination.parent.mkdir(parents=True, exist_ok=True)
+                            shutil.move(str(op.source), str(op.destination))
+                        else:
+                            # ディレクトリパスと判定
+                            op.destination.mkdir(parents=True, exist_ok=True)
+                            shutil.move(str(op.source), str(op.destination / op.source.name))
 
                     elif op.action == 'copy':
-                        op.destination.mkdir(parents=True, exist_ok=True)
-                        shutil.copy2(str(op.source), str(op.destination / op.source.name))
+                        # destinationがファイルパス（親+ファイル名）かディレクトリパスかを判定
+                        if op.destination.suffix:
+                            # 拡張子があればファイルパスと判定
+                            op.destination.parent.mkdir(parents=True, exist_ok=True)
+                            shutil.copy2(str(op.source), str(op.destination))
+                        else:
+                            # ディレクトリパスと判定
+                            op.destination.mkdir(parents=True, exist_ok=True)
+                            shutil.copy2(str(op.source), str(op.destination / op.source.name))
 
                 # ログ記録
                 self.logger.info(f"[{op.action}] {op.source} ({op.reason})")

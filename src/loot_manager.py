@@ -21,6 +21,7 @@ except ImportError as e:
     sys.exit(1)
 
 # 自作モジュール
+from src.__version__ import __version__, __commit__
 from src.utils.colors import Colors
 from src.core.config_loader import ConfigLoader, PresetMeta
 from src.core.logger import LootLogger
@@ -214,6 +215,7 @@ def main():
     """メインエントリポイント"""
     print(f"{Colors.NEON_CYAN}╔════════════════════════════════════════════╗")
     print(f"{Colors.NEON_BLUE}║  📁 Loot Organizer                        ║")
+    print(f"{Colors.NEON_CYAN}║  v{__version__} (commit: {__commit__})               ║")
     print(f"{Colors.NEON_CYAN}╚════════════════════════════════════════════╝{Colors.RESET}")
     print()
 

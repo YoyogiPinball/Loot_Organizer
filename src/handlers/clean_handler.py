@@ -21,6 +21,12 @@ class CleanModeHandler:
     機能:
     - 3ステップ処理（削除 → クリーンアップ → 振り分け）
     - プレビュー → 確認 → 実行のフロー
+
+    拡張機能:
+    - source_directory: 特定のディレクトリからのファイルのみ対象
+    - rename_pattern: 移動/コピー時にファイル名から文字列を削除/置換
+    - recursive: サブフォルダも再帰的に検索
+    - cleanup の pattern と target_directories: 特定のパターン・ディレクトリのみをクリーンアップ
     """
 
     def __init__(
@@ -89,7 +95,18 @@ class CleanModeHandler:
         return operations
 
     def _plan_cleanup(self) -> List[FileOperation]:
-        """クリーンアップ操作を計画"""
+        """
+        クリーンアップ操作を計画
+
+        対応オプション:
+        - pattern: 特定のパターンを含むファイルのみ対象（デフォルト: '*'）
+        - target_directories: 特定のディレクトリのみ対象（未指定時は全体のtarget_directory）
+        - recursive: サブフォルダも検索（デフォルト: True）
+        - custom_patterns: ファイル名から削除する正規表現パターン
+
+        Returns:
+            ファイル操作のリスト
+        """
         operations = []
         cleanup_config = self.config['cleanup']
         recursive = cleanup_config.get('recursive', True)
@@ -127,7 +144,20 @@ class CleanModeHandler:
         return operations
 
     def _plan_sorting(self) -> List[FileOperation]:
-        """振り分け操作を計画"""
+        """
+        振り分け操作を計画
+
+        対応オプション:
+        - search: 検索パターン（ワイルドカード可）
+        - source_directory: 特定のディレクトリからのファイルのみ対象（オプション）
+        - destination: 移動先ディレクトリ
+        - action: 操作種類（move, copy, delete）
+        - recursive: サブフォルダも検索（デフォルト: False）
+        - rename_pattern: 移動/コピー時にファイル名から文字列を削除/置換（オプション）
+
+        Returns:
+            ファイル操作のリスト
+        """
         operations = []
         sorting_rules = self.config.get('sorting_rules', [])
 

@@ -127,10 +127,11 @@ class CleanModeHandler:
             action = rule['action']
             source_directory = rule.get('source_directory')  # ソースディレクトリ指定（オプション）
             rename_pattern = rule.get('rename_pattern')  # リネームパターン（オプション）
+            recursive = rule.get('recursive', False)  # サブフォルダも検索するか（デフォルト: False）
 
             matched_files = self.scanner.scan_files(
                 pattern=search,
-                recursive=False
+                recursive=recursive
             )
 
             for file in matched_files:

@@ -190,6 +190,8 @@ class CleanModeHandler:
                     new_name = file.name
                     for pattern, replacement in rename_pattern.items():
                         new_name = new_name.replace(pattern, replacement)
+                    # 置換後にクリーンアップ（余分なスペースを削除）
+                    new_name = clean_filename(new_name)
                     dest_with_rename = destination / new_name
                 else:
                     dest_with_rename = destination

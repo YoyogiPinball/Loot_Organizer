@@ -101,8 +101,11 @@ def clean_filename(filename: str, custom_patterns: List[str] = None) -> str:
             except re.error as e:
                 logging.warning(f"不正な正規表現パターン '{pattern}': {e}")
 
-    # 連続する空白を1つに、前後の空白を削除
-    name_part = re.sub(r'\s+', ' ', name_part).strip()
+    # 連続する空白を1つに統合
+    name_part = re.sub(r'\s+', ' ', name_part)
+
+    # 前後の空白を削除（拡張子の前のスペースも含む）
+    name_part = name_part.strip()
 
     # 空文字列になった場合のフォールバック
     if not name_part:

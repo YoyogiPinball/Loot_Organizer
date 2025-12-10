@@ -173,7 +173,13 @@ class PreviewGenerator:
             elif op.action == "cleanup":
                 key = f"クリーンアップ（{op.reason}）"
             elif op.destination:
-                key = str(op.destination)
+                # copy/move の場合、destination が完全なファイルパスなら親ディレクトリでグループ化
+                if op.destination.suffix:
+                    # ファイルパス（拡張子あり）→ 親ディレクトリでグループ化
+                    key = str(op.destination.parent)
+                else:
+                    # ディレクトリパス → そのままグループ化
+                    key = str(op.destination)
             else:
                 key = op.action
 

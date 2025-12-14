@@ -27,6 +27,7 @@ class CleanModeHandler:
     - rename_pattern: 移動/コピー時にファイル名から文字列を削除/置換
     - recursive: サブフォルダも再帰的に検索
     - cleanup の pattern と target_directories: 特定のパターン・ディレクトリのみをクリーンアップ
+    - cleanup の after_sorting: True の場合、sorting_rules の後に cleanup を実行（デフォルト: False）
     """
 
     def __init__(
@@ -60,13 +61,22 @@ class CleanModeHandler:
         if self.config.get('deletion', {}).get('enabled', False):
             operations.extend(self._plan_deletion())
 
-        # ステップ2: クリーンアップ
-        if self.config.get('cleanup', {}).get('enabled', False):
+        # cleanup を sorting の後に実行するかチェック
+        cleanup_config = self.config.get('cleanup', {})
+        cleanup_enabled = cleanup_config.get('enabled', False)
+        cleanup_after_sorting = cleanup_config.get('after_sorting', False)
+
+        # ステップ2: クリーンアップ（after_sorting が false の場合、デフォルト動作）
+        if cleanup_enabled and not cleanup_after_sorting:
             operations.extend(self._plan_cleanup())
 
         # ステップ3: 振り分け
         if 'sorting_rules' in self.config:
             operations.extend(self._plan_sorting())
+
+        # ステップ4: クリーンアップ（after_sorting が true の場合）
+        if cleanup_enabled and cleanup_after_sorting:
+            operations.extend(self._plan_cleanup())
 
         return operations
 
@@ -103,6 +113,7 @@ class CleanModeHandler:
         - target_directories: 特定のディレクトリのみ対象（未指定時は全体のtarget_directory）
         - recursive: サブフォルダも検索（デフォルト: True）
         - custom_patterns: ファイル名から削除する正規表現パターン
+        - after_sorting: True の場合、sorting_rules の後に実行（デフォルト: False）
 
         Returns:
             ファイル操作のリスト

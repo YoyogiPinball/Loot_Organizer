@@ -291,6 +291,7 @@ sorting_rules:
 ```yaml
 cleanup:
   enabled: true
+  after_sorting: true  # 🔥 NEW: sorting_rules の後に cleanup を実行（デフォルト: false）
   recursive: true
   pattern: "*{zpi$}*"  # 特定のパターンを含むファイルのみ対象
   target_directories:  # 特定のディレクトリのみ対象
@@ -298,6 +299,53 @@ cleanup:
     - "D:\\Folder2"
   custom_patterns:  # ファイル名から削除する正規表現パターン
     - "\\{zpi\\$r=3\\}"
+```
+
+##### `after_sorting` オプション（実行順序の制御）
+
+デフォルトでは、Clean モードは以下の順序で実行されます：
+
+```
+1. deletion（削除）
+2. cleanup（クリーンアップ）
+3. sorting_rules（振り分け）
+```
+
+しかし、`after_sorting: true` を設定すると：
+
+```
+1. deletion（削除）
+2. sorting_rules（振り分け）← 先に実行
+3. cleanup（クリーンアップ）← 後で実行
+```
+
+**ユースケース：**
+- 元ファイルをコピー後、元ファイルの名前も変更したい場合
+- 例：`{tag}` 付きファイルを別フォルダにコピー → 元ファイルから `{tag}` を削除
+
+**実例：**
+
+```yaml
+# r=3 タグ付きファイルを ai_r5 フォルダーにコピーして、元ファイルもクリーンアップ
+
+cleanup:
+  enabled: true
+  after_sorting: true  # sorting_rules の後に実行
+  pattern: "*{zpi$r=3}*"
+  custom_patterns:
+    - "\\{zpi\\$r=3\\}"
+
+sorting_rules:
+  - search: "*{zpi$r=3}*"
+    destination: "D:\\AI_Storage_PNG\\ai_r5"
+    action: "copy"  # コピー（元ファイルは残る）
+    rename_pattern:
+      "{zpi$r=3}": ""  # コピー先ではタグを削除
+
+# 実行結果:
+# 1. 元ファイル（{zpi$r=3} 付き）を ai_r5 にコピー（タグなし）
+# 2. 元ファイルからもタグを削除
+# 3. 次回実行時は、元ファイルにタグがないので処理対象外 ✅
 ```
 
 完全な例と高度なフィルタリングオプションについては、`configs/samples/`ディレクトリを参照してください。
@@ -448,7 +496,7 @@ IssueやPull Requestを歓迎します！
 ---
 
 **👤 作成者**: YoyogiPinball
-**📅 最終更新**: 2025-12-06
+**📅 最終更新**: 2025-12-14
 
 ---
 ---
@@ -748,6 +796,7 @@ sorting_rules:
 ```yaml
 cleanup:
   enabled: true
+  after_sorting: true  # 🔥 NEW: Execute cleanup after sorting_rules (default: false)
   recursive: true
   pattern: "*{zpi$}*"  # Target only files matching pattern
   target_directories:  # Target only specific directories
@@ -755,6 +804,53 @@ cleanup:
     - "D:\\Folder2"
   custom_patterns:  # Regex patterns to remove from filenames
     - "\\{zpi\\$r=3\\}"
+```
+
+##### `after_sorting` Option (Execution Order Control)
+
+By default, Clean mode executes in this order:
+
+```
+1. deletion
+2. cleanup
+3. sorting_rules
+```
+
+However, with `after_sorting: true`:
+
+```
+1. deletion
+2. sorting_rules  ← Executed first
+3. cleanup        ← Executed after
+```
+
+**Use Cases:**
+- Copy files first, then rename the originals
+- Example: Copy `{tag}` files to another folder → Remove `{tag}` from originals
+
+**Example:**
+
+```yaml
+# Copy r=3 tagged files to ai_r5 folder, then cleanup originals
+
+cleanup:
+  enabled: true
+  after_sorting: true  # Execute after sorting_rules
+  pattern: "*{zpi$r=3}*"
+  custom_patterns:
+    - "\\{zpi\\$r=3\\}"
+
+sorting_rules:
+  - search: "*{zpi$r=3}*"
+    destination: "D:\\AI_Storage_PNG\\ai_r5"
+    action: "copy"  # Copy (originals remain)
+    rename_pattern:
+      "{zpi$r=3}": ""  # Remove tag in destination
+
+# Results:
+# 1. Copy original files ({zpi$r=3} included) to ai_r5 (tag removed)
+# 2. Remove tag from original files
+# 3. Next run: No files match (originals have no tag) ✅
 ```
 
 For complete examples and advanced filtering options, see `configs/samples/` directory.
@@ -905,4 +1001,4 @@ Issues and pull requests are welcome!
 ---
 
 **👤 Author**: YoyogiPinball
-**📅 Last Updated**: 2025-12-06
+**📅 Last Updated**: 2025-12-14

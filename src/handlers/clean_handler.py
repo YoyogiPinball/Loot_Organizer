@@ -180,8 +180,10 @@ class CleanModeHandler:
             rename_pattern = rule.get('rename_pattern')  # リネームパターン（オプション）
             recursive = rule.get('recursive', False)  # サブフォルダも検索するか（デフォルト: False）
 
+            filters = rule.get('filters', {})
             matched_files = self.scanner.scan_files(
                 pattern=search,
+                filters=filters,
                 recursive=recursive
             )
 
@@ -194,6 +196,12 @@ class CleanModeHandler:
                         file.relative_to(source_dir_path)
                     except ValueError:
                         # ディレクトリ配下にない場合はスキップ
+                        continue
+
+                # skip_if_exists チェック（plan 時点で除外）
+                if rule.get('skip_if_exists', False) and destination:
+                    dest_file = destination / file.name
+                    if dest_file.exists():
                         continue
 
                 # リネームパターンが指定されている場合、destination側のファイル名を変更

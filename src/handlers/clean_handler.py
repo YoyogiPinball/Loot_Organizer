@@ -3,6 +3,7 @@
 Clean モードの処理ハンドラー
 """
 
+import re
 import shutil
 from pathlib import Path
 from typing import List, Dict, Any, Tuple
@@ -208,7 +209,7 @@ class CleanModeHandler:
                 if rename_pattern and destination:
                     new_name = file.name
                     for pattern, replacement in rename_pattern.items():
-                        new_name = new_name.replace(pattern, replacement)
+                        new_name = re.sub(re.escape(pattern), replacement, new_name, flags=re.IGNORECASE)
                     # 置換後にクリーンアップ（余分なスペースを削除）
                     new_name = clean_filename(new_name)
                     dest_with_rename = destination / new_name

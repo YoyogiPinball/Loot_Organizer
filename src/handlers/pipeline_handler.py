@@ -9,8 +9,25 @@ from tqdm import tqdm
 
 from ..core.planning_context import PlanningContext
 from ..core.preview_generator import FileOperation
-from ..utils.file_executor import execute_file_op, operation_log_message
+from ..utils.file_executor import (
+    SkippedFileOperation,
+    execute_file_op,
+    operation_log_message,
+    skipped_operation_log_message,
+)
 from .base_handler import BaseHandler
+
+
+class PipelineAskDuplicateHandlingError(ValueError):
+    """Pipeline 内の PNG ステップが ask を要求したときの設定エラー。"""
+
+    def __init__(self, step_label: str, config_path):
+        self.step_label = step_label
+        self.config_path = config_path
+        super().__init__(
+            f"Pipeline のステップ「{step_label}」の設定ファイル "
+            f"{config_path} では duplicate_handling: ask を使用できません"
+        )
 
 
 class PipelineModeHandler(BaseHandler):
@@ -41,16 +58,32 @@ class PipelineModeHandler(BaseHandler):
         from ..core.config_loader import ConfigLoader
 
         loader = self.config_loader or ConfigLoader()
+        prepared_steps = []
+        for index, step in enumerate(self.config.get('steps', []), 1):
+            step_config_path = step['config']
+            step_label = step.get('label') or f"{index}. {step_config_path}"
+            sub_config = loader.load_config(step_config_path)
+            if (
+                sub_config.get("meta", {}).get("mode") == "PNG_Prompt_Sort"
+                and sub_config.get("settings", {}).get(
+                    "duplicate_handling",
+                    "overwrite",
+                ) == "ask"
+            ):
+                raise PipelineAskDuplicateHandlingError(
+                    step_label,
+                    step_config_path,
+                )
+            prepared_steps.append(
+                (step_config_path, step_label, sub_config)
+            )
+
         if not self._external_planning_context:
             self.planning_context = PlanningContext()
         operations = []
         self.skipped_dirs = []
 
-        for index, step in enumerate(self.config.get('steps', []), 1):
-            step_config_path = step['config']
-            step_label = step.get('label') or f"{index}. {step_config_path}"
-
-            sub_config = loader.load_config(step_config_path)
+        for step_config_path, step_label, sub_config in prepared_steps:
             sub_handler = build_handler(
                 config=sub_config,
                 logger=self.logger,
@@ -87,7 +120,10 @@ class PipelineModeHandler(BaseHandler):
         for op in tqdm(operations, desc="処理中", unit="files"):
             try:
                 if not dry_run:
-                    execute_file_op(op)
+                    result = execute_file_op(op)
+                    if isinstance(result, SkippedFileOperation):
+                        self.logger.info(skipped_operation_log_message(op, result))
+                        continue
 
                 self.logger.info(operation_log_message(op, dry_run=dry_run))
                 success_count += 1

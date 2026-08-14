@@ -6,7 +6,6 @@ AI生成画像をメタデータのLoRA情報で振り分け
 
 import os
 import re
-import shutil
 import yaml
 import questionary
 from pathlib import Path
@@ -16,6 +15,7 @@ from PIL import Image
 
 from ..core.file_scanner import FileScanner
 from ..core.preview_generator import FileOperation
+from ..utils.file_executor import execute_file_op, operation_log_message
 from ..utils.path_utils import to_path
 from .base_handler import BaseHandler
 
@@ -157,7 +157,13 @@ class PngPromptSortModeHandler(BaseHandler):
         matches = self.lora_pattern.findall(metadata)
         return matches
 
-    def _get_unique_filename(self, dest_dir: Path, filename: str) -> str:
+    def _get_unique_filename(
+        self,
+        dest_dir: Path,
+        filename: str,
+        *,
+        planned_state: bool = True,
+    ) -> str:
         """
         重複しないファイル名を生成（連番付与）
 
@@ -169,7 +175,12 @@ class PngPromptSortModeHandler(BaseHandler):
             重複しないファイル名
         """
         dest_path = dest_dir / filename
-        if not dest_path.exists():
+        if planned_state:
+            destination_exists = self.planning_context.is_file
+        else:
+            destination_exists = Path.exists
+
+        if not destination_exists(dest_path):
             return filename
 
         # 拡張子を分離
@@ -180,9 +191,36 @@ class PngPromptSortModeHandler(BaseHandler):
         while True:
             new_filename = f"{name_part}_{counter}{ext_part}"
             new_path = dest_dir / new_filename
-            if not new_path.exists():
+            if not destination_exists(new_path):
                 return new_filename
             counter += 1
+
+    def _append_planned_operation(
+        self,
+        operations: List[FileOperation],
+        operation: FileOperation,
+    ) -> None:
+        """重複方針を確定してから仮想状態へ反映する。"""
+        duplicate_handling = self.settings.get('duplicate_handling', 'overwrite')
+        destination = operation.destination
+        operation.skip_if_exists = duplicate_handling == 'skip'
+
+        if destination is not None and self.planning_context.is_file(destination):
+            if duplicate_handling == 'skip':
+                self.logger.info(
+                    f"スキップ: {operation.source} "
+                    f"(保存先が既に存在します: {destination})"
+                )
+                return
+            if duplicate_handling == 'sequential':
+                unique_filename = self._get_unique_filename(
+                    destination.parent,
+                    destination.name,
+                )
+                operation.destination = destination.parent / unique_filename
+
+        operations.append(operation)
+        self._record_planned_operations([operation])
 
     def plan_operations(self) -> List[FileOperation]:
         """
@@ -247,7 +285,7 @@ class PngPromptSortModeHandler(BaseHandler):
                     if metadata is None:
                         # メタデータ読み取り失敗
                         dest_folder = output_dir / error_folder
-                        operations.append(FileOperation(
+                        self._append_planned_operation(operations, FileOperation(
                             source=file_path,
                             destination=dest_folder / file_path.name,
                             action='move',
@@ -261,7 +299,7 @@ class PngPromptSortModeHandler(BaseHandler):
                     if not loras:
                         # LoRA未検出
                         dest_folder = output_dir / no_lora_folder
-                        operations.append(FileOperation(
+                        self._append_planned_operation(operations, FileOperation(
                             source=file_path,
                             destination=dest_folder / file_path.name,
                             action='move',
@@ -282,7 +320,7 @@ class PngPromptSortModeHandler(BaseHandler):
                     if not matched_folders:
                         # マッピングにない
                         dest_folder = output_dir / unknown_folder
-                        operations.append(FileOperation(
+                        self._append_planned_operation(operations, FileOperation(
                             source=file_path,
                             destination=dest_folder / file_path.name,
                             action='move',
@@ -292,14 +330,14 @@ class PngPromptSortModeHandler(BaseHandler):
                         # 最初のマッチフォルダに移動のみ
                         folder_name, lora_name = matched_folders[0]
                         dest_folder = output_dir / folder_name
-                        operations.append(FileOperation(
+                        self._append_planned_operation(operations, FileOperation(
                             source=file_path,
                             destination=dest_folder / file_path.name,
                             action='move',
                             reason=f'LoRA: {lora_name}'
                         ))
 
-        return self._record_planned_operations(operations)
+        return operations
 
     def execute_operations(
         self,
@@ -307,7 +345,7 @@ class PngPromptSortModeHandler(BaseHandler):
         dry_run: bool = False
     ) -> Tuple[int, int]:
         """
-        操作を実行（移動のみ）
+        ask の単独実行だけ、従来どおり実行時に選択する。
 
         Args:
             operations: ファイル操作のリスト
@@ -316,77 +354,49 @@ class PngPromptSortModeHandler(BaseHandler):
         Returns:
             (成功数, 失敗数)
         """
+        duplicate_handling = self.settings.get('duplicate_handling', 'overwrite')
+        if duplicate_handling != 'ask':
+            return super().execute_operations(operations, dry_run=dry_run)
+
         success_count = 0
         failure_count = 0
         skip_count = 0
 
-        # 重複処理方法を取得
-        duplicate_handling = self.settings.get('duplicate_handling', 'overwrite')
-
-        # 操作実行
         for op in tqdm(operations, desc="処理中", unit="files"):
             try:
                 if not dry_run:
-                    # 保存先ディレクトリ作成
-                    op.destination.parent.mkdir(parents=True, exist_ok=True)
-
-                    # 重複チェック＆処理
-                    final_dest = op.destination.parent / op.destination.name
+                    final_dest = op.destination
 
                     if final_dest.exists():
-                        if duplicate_handling == 'overwrite':
-                            # 上書き：そのまま移動（既存ファイルが置き換えられる）
-                            pass
-                        elif duplicate_handling == 'sequential':
-                            # 連番付与
+                        answer = questionary.select(
+                            f"ファイルが既に存在します: {final_dest.name}",
+                            choices=["上書き", "連番付与", "スキップ"]
+                        ).ask()
+
+                        if answer == "連番付与":
                             unique_filename = self._get_unique_filename(
                                 op.destination.parent,
-                                op.destination.name
+                                op.destination.name,
+                                planned_state=False,
                             )
                             final_dest = op.destination.parent / unique_filename
-                        elif duplicate_handling == 'ask':
-                            # 毎回尋ねる
-                            answer = questionary.select(
-                                f"ファイルが既に存在します: {final_dest.name}",
-                                choices=[
-                                    "上書き",
-                                    "連番付与",
-                                    "スキップ"
-                                ]
-                            ).ask()
-
-                            if answer == "上書き":
-                                pass
-                            elif answer == "連番付与":
-                                unique_filename = self._get_unique_filename(
-                                    op.destination.parent,
-                                    op.destination.name
-                                )
-                                final_dest = op.destination.parent / unique_filename
-                            else:  # スキップ
-                                self.logger.info(
-                                    f"スキップ: {op.source.name} (ユーザー選択)"
-                                )
-                                skip_count += 1
-                                continue
-                        elif duplicate_handling == 'skip':
-                            # スキップ
-                            self.logger.info(f"スキップ: {op.source.name} (重複ファイル)")
+                        elif answer != "上書き":
+                            self.logger.info(
+                                f"スキップ: {op.source.name} (ユーザー選択)"
+                            )
                             skip_count += 1
                             continue
 
-                    # 移動実行
-                    shutil.move(op.source, final_dest)
-                    self.logger.info(
-                        f"移動: {op.source.name} -> "
-                        f"{op.destination.parent.name}/{final_dest.name}"
-                    )
+                    planned_destination = op.destination
+                    op.destination = final_dest
+                    try:
+                        execute_file_op(op)
+                        self.logger.info(operation_log_message(op))
+                    finally:
+                        op.destination = planned_destination
                     success_count += 1
                 else:
-                    self.logger.info(
-                        f"[DRY-RUN] 移動: {op.source.name} -> "
-                        f"{op.destination.parent.name}"
-                    )
+                    self.logger.info(operation_log_message(op, dry_run=True))
                     success_count += 1
 
             except Exception as e:

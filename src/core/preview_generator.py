@@ -5,9 +5,34 @@
 
 from pathlib import Path
 from typing import List, Dict, Any
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from ..utils.colors import Colors
+
+
+@dataclass(frozen=True)
+class SourceFingerprint:
+    """計画時に記録する source のファイル状態。"""
+
+    st_size: int
+    st_mtime_ns: int
+    st_dev: int | None
+    st_ino: int | None
+
+    @classmethod
+    def capture(cls, path: Path) -> "SourceFingerprint | None":
+        """実在するファイルの指紋を返し、未作成なら None を返す。"""
+        try:
+            stat_result = path.stat()
+        except FileNotFoundError:
+            return None
+
+        return cls(
+            st_size=stat_result.st_size,
+            st_mtime_ns=stat_result.st_mtime_ns,
+            st_dev=getattr(stat_result, "st_dev", None),
+            st_ino=getattr(stat_result, "st_ino", None),
+        )
 
 
 @dataclass
@@ -19,6 +44,13 @@ class FileOperation:
     reason: str  # ルールの説明
     step_label: str | None = None
     step_mode: str | None = None
+    skip_if_exists: bool = False
+    delete_mode: str = "trash"
+    source_fingerprint: SourceFingerprint | None = field(init=False, repr=False)
+
+    def __post_init__(self) -> None:
+        """計画時点で実在する source の指紋を保存する。"""
+        self.source_fingerprint = SourceFingerprint.capture(Path(self.source))
 
 
 class PreviewGenerator:
@@ -175,7 +207,10 @@ class PreviewGenerator:
         for op in operations:
             # グループキーの決定
             if op.action == "delete":
-                key = f"削除（{op.reason}）"
+                delete_label = (
+                    "完全削除" if op.delete_mode == "permanent" else "ゴミ箱へ移動"
+                )
+                key = f"{delete_label}（{op.reason}）"
             elif op.action == "cleanup":
                 key = f"クリーンアップ（{op.reason}）"
             elif op.destination:

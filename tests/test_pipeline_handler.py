@@ -132,6 +132,9 @@ class TestDependentSteps:
             downloads / "photo.jpg",
             staging / "photo.jpg",
         ]
+        assert ops[0].source_fingerprint is not None
+        assert ops[1].source_fingerprint is None
+        assert ops[2].source_fingerprint is None
         assert len(ops) == 3
 
         success, failure = handler.execute_operations(ops)

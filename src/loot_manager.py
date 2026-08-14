@@ -28,6 +28,7 @@ from src.core.logger import LootLogger
 from src.core.planning_context import PlanningConflictError
 from src.core.preview_generator import PreviewGenerator
 from src.handlers.registry import build_handler, get_handler_modes
+from src.handlers.pipeline_handler import PipelineAskDuplicateHandlingError
 
 # Windows環境でのUTF-8出力対応
 if sys.platform == 'win32':
@@ -147,6 +148,15 @@ class LootManager:
             print(f"{Colors.NEON_RED}  {e.second_source} -> {e.destination}{Colors.RESET}")
             print()
             print(f"{Colors.NEON_YELLOW}YAML のルールを見直してください。{Colors.RESET}")
+            input(f"{Colors.NEON_CYAN}Enterキーで続行...{Colors.RESET}")
+            return
+        except PipelineAskDuplicateHandlingError as e:
+            print(f"{Colors.NEON_RED}[エラー] {e}{Colors.RESET}")
+            print()
+            print(
+                f"{Colors.NEON_YELLOW}Pipeline では overwrite、sequential、"
+                f"skip のいずれかを指定してください。{Colors.RESET}"
+            )
             input(f"{Colors.NEON_CYAN}Enterキーで続行...{Colors.RESET}")
             return
 

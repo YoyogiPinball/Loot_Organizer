@@ -231,6 +231,39 @@ class TestSkipIfExists:
         ops = handler.plan_operations()
 
         assert len(ops) == 1
+        assert ops[0].skip_if_exists is True
+
+    def test_destination_created_after_planning_is_skipped_at_execution(
+        self,
+        tmp_path,
+        nolog,
+        monkeypatch,
+    ):
+        src = tmp_path / "src"
+        original = make_files(src, "file.png")[0]
+        dest = tmp_path / "dest"
+        handler = _handler(src, [{
+            "pattern": "*.png",
+            "dest": str(dest),
+            "skip_if_exists": True,
+            "description": "TOCTOU destination",
+        }], nolog)
+        operations = handler.plan_operations()
+        messages = []
+        monkeypatch.setattr(handler.logger, "info", messages.append)
+        dest.mkdir()
+        late_file = dest / "file.png"
+        late_file.write_text("late", encoding="utf-8")
+
+        result = handler.execute_operations(operations)
+
+        assert result == (0, 0)
+        assert original.exists()
+        assert late_file.read_text(encoding="utf-8") == "late"
+        assert any(
+            "[スキップ]" in message and str(late_file) in message
+            for message in messages
+        )
 
     def test_skips_without_rename_pattern(self, tmp_path, nolog):
         """rename_pattern なし・同名ファイルが dest に存在 → スキップ"""

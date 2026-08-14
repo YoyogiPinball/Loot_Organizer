@@ -67,13 +67,39 @@ class TestDeletion:
         src = tmp_path / "src"
         files = make_files(src, "{zpi$r=1}bad.png", "keep.png")
 
-        handler = _handler(src, nolog, deletion={"enabled": True, "strings": ["{zpi$r=1}"], "recursive": False})
+        handler = _handler(src, nolog, deletion={
+            "enabled": True,
+            "strings": ["{zpi$r=1}"],
+            "recursive": False,
+            "delete_mode": "permanent",
+        })
         ops = handler.plan_operations()
         for op in ops:
             execute_file_op(op)
 
         assert not files[0].exists()
         assert files[1].exists()
+
+    def test_delete_mode_defaults_to_trash_in_planned_operation(
+        self,
+        tmp_path,
+        nolog,
+    ):
+        src = tmp_path / "src"
+        make_files(src, "delete_me.png")
+        handler = _handler(
+            src,
+            nolog,
+            deletion={
+                "enabled": True,
+                "strings": ["delete_me"],
+                "recursive": False,
+            },
+        )
+
+        operations = handler.plan_operations()
+
+        assert operations[0].delete_mode == "trash"
 
 
 # ---------------------------------------------------------------------------
@@ -234,6 +260,7 @@ class TestSortingRules:
         ops = handler.plan_operations()
 
         assert len(ops) == 1
+        assert ops[0].skip_if_exists is True
 
 
 # ---------------------------------------------------------------------------

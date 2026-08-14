@@ -11,7 +11,12 @@ from ..core.file_scanner import FileScanner
 from ..core.planning_context import PlanningContext
 from ..core.logger import LootLogger
 from ..core.preview_generator import FileOperation
-from ..utils.file_executor import execute_file_op, operation_log_message
+from ..utils.file_executor import (
+    SkippedFileOperation,
+    execute_file_op,
+    operation_log_message,
+    skipped_operation_log_message,
+)
 
 
 class BaseHandler:
@@ -95,7 +100,10 @@ class BaseHandler:
         for op in tqdm(operations, desc="処理中", unit="files"):
             try:
                 if not dry_run:
-                    execute_file_op(op)
+                    result = execute_file_op(op)
+                    if isinstance(result, SkippedFileOperation):
+                        self.logger.info(skipped_operation_log_message(op, result))
+                        continue
 
                 self.logger.info(operation_log_message(op, dry_run=dry_run))
                 success_count += 1

@@ -52,6 +52,7 @@ class CleanModeHandler(BaseHandler):
             self.config['deletion'].setdefault('enabled', False)
             self.config['deletion'].setdefault('recursive', True)
             self.config['deletion'].setdefault('strings', [])
+            self.config['deletion'].setdefault('delete_mode', 'trash')
 
         if 'cleanup' in self.config:
             self.config['cleanup'].setdefault('enabled', False)
@@ -102,6 +103,11 @@ class CleanModeHandler(BaseHandler):
         """削除操作を計画"""
         operations = []
         deletion_config = self.config['deletion']
+        delete_mode = deletion_config.get('delete_mode', 'trash')
+        if delete_mode not in {'trash', 'permanent'}:
+            raise ValueError(
+                "deletion.delete_mode は trash または permanent を指定してください"
+            )
         strings = deletion_config.get('strings', [])
         recursive = deletion_config.get('recursive', True)
         planned_files = set()
@@ -120,7 +126,8 @@ class CleanModeHandler(BaseHandler):
                     source=file,
                     destination=None,
                     action='delete',
-                    reason=f"文字列 '{string}' を含む"
+                    reason=f"文字列 '{string}' を含む",
+                    delete_mode=delete_mode,
                 ))
                 planned_files.add(file)
 
@@ -212,7 +219,8 @@ class CleanModeHandler(BaseHandler):
                     source=file,
                     destination=destination,
                     action=rule['action'],
-                    reason=f"パターン '{search}'"
+                    reason=f"パターン '{search}'",
+                    skip_if_exists=rule.get('skip_if_exists', False),
                 )
                 operations.append(operation)
                 self._record_planned_operations([operation])

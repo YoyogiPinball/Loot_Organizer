@@ -117,7 +117,8 @@ class SortModeHandler(BaseHandler):
                         source=file,
                         destination=dest_path,
                         action='move',
-                        reason=description
+                        reason=description,
+                        skip_if_exists=rule.get('skip_if_exists', False),
                     )
                     operations.append(operation)
                     self._record_planned_operations([operation])

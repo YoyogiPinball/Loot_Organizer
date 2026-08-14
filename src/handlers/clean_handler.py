@@ -4,18 +4,16 @@ Clean モードの処理ハンドラー
 """
 
 import re
-import shutil
-from pathlib import Path
-from typing import List, Dict, Any, Tuple
-from tqdm import tqdm
+from typing import List
 
 from ..core.file_scanner import FileScanner
-from ..core.logger import LootLogger
 from ..core.preview_generator import FileOperation
 from ..utils.file_utils import clean_filename
+from ..utils.path_utils import to_path
+from .base_handler import BaseHandler
 
 
-class CleanModeHandler:
+class CleanModeHandler(BaseHandler):
     """
     Clean モードの処理を行うクラス
 
@@ -31,23 +29,37 @@ class CleanModeHandler:
     - cleanup の after_sorting: True の場合、sorting_rules の後に cleanup を実行（デフォルト: False）
     """
 
-    def __init__(
-        self,
-        config: Dict[str, Any],
-        scanner: FileScanner,
-        logger: LootLogger
-    ):
-        """
-        初期化
+    MODE = "Clean"
+    REQUIRED_SETTINGS = ("target_directory",)
 
-        Args:
-            config: 設定辞書
-            scanner: ファイルスキャナー
-            logger: ロガー
-        """
-        self.config = config
-        self.scanner = scanner
-        self.logger = logger
+    @classmethod
+    def validate_config(cls, config, config_path=None) -> None:
+        """Cleanモードの設定を検証"""
+        super().validate_config(config, config_path=config_path)
+        has_operations = any(
+            key in config for key in ['deletion', 'cleanup', 'sorting_rules']
+        )
+        if not has_operations:
+            label = str(config_path) if config_path else "設定"
+            raise ValueError(
+                f"{label}: Clean モードには 'deletion', 'cleanup', "
+                "'sorting_rules' のいずれかが必要です"
+            )
+
+    def _apply_mode_defaults(self) -> None:
+        """Cleanモードのデフォルト値を適用"""
+        if 'deletion' in self.config:
+            self.config['deletion'].setdefault('enabled', False)
+            self.config['deletion'].setdefault('recursive', True)
+            self.config['deletion'].setdefault('strings', [])
+
+        if 'cleanup' in self.config:
+            self.config['cleanup'].setdefault('enabled', False)
+            self.config['cleanup'].setdefault('recursive', True)
+            self.config['cleanup'].setdefault('custom_patterns', [])
+
+        if 'sorting_rules' not in self.config:
+            self.config['sorting_rules'] = []
 
     def plan_operations(self) -> List[FileOperation]:
         """
@@ -56,11 +68,13 @@ class CleanModeHandler:
         Returns:
             ファイル操作のリスト
         """
+        self._start_planning()
         operations = []
 
         # ステップ1: 削除
         if self.config.get('deletion', {}).get('enabled', False):
-            operations.extend(self._plan_deletion())
+            deletion_ops = self._plan_deletion()
+            operations.extend(self._record_planned_operations(deletion_ops))
 
         # cleanup を sorting の後に実行するかチェック
         cleanup_config = self.config.get('cleanup', {})
@@ -69,15 +83,18 @@ class CleanModeHandler:
 
         # ステップ2: クリーンアップ（after_sorting が false の場合、デフォルト動作）
         if cleanup_enabled and not cleanup_after_sorting:
-            operations.extend(self._plan_cleanup())
+            cleanup_ops = self._plan_cleanup()
+            operations.extend(self._record_planned_operations(cleanup_ops))
 
         # ステップ3: 振り分け
         if 'sorting_rules' in self.config:
-            operations.extend(self._plan_sorting())
+            sorting_ops = self._plan_sorting()
+            operations.extend(sorting_ops)
 
         # ステップ4: クリーンアップ（after_sorting が true の場合）
         if cleanup_enabled and cleanup_after_sorting:
-            operations.extend(self._plan_cleanup())
+            cleanup_ops = self._plan_cleanup()
+            operations.extend(self._record_planned_operations(cleanup_ops))
 
         return operations
 
@@ -87,6 +104,7 @@ class CleanModeHandler:
         deletion_config = self.config['deletion']
         strings = deletion_config.get('strings', [])
         recursive = deletion_config.get('recursive', True)
+        planned_files = set()
 
         for string in strings:
             pattern = f"*{string}*"
@@ -96,12 +114,15 @@ class CleanModeHandler:
             )
 
             for file in matched_files:
+                if file in planned_files:
+                    continue
                 operations.append(FileOperation(
                     source=file,
                     destination=None,
                     action='delete',
                     reason=f"文字列 '{string}' を含む"
                 ))
+                planned_files.add(file)
 
         return operations
 
@@ -128,7 +149,11 @@ class CleanModeHandler:
 
         # target_directoriesが指定されていれば専用のスキャナーを使用
         if target_directories:
-            temp_scanner = FileScanner(target_directories, self.logger)
+            temp_scanner = FileScanner(
+                target_directories,
+                self.logger,
+                planning_context=self.planning_context,
+            )
             matched_files = temp_scanner.scan_files(
                 pattern=pattern,
                 recursive=recursive
@@ -175,112 +200,75 @@ class CleanModeHandler:
 
         for rule in sorting_rules:
             search = rule['search']
-            destination = Path(rule['destination']) if rule.get('destination') else None
-            action = rule['action']
-            source_directory = rule.get('source_directory')  # ソースディレクトリ指定（オプション）
-            rename_pattern = rule.get('rename_pattern')  # リネームパターン（オプション）
-            recursive = rule.get('recursive', False)  # サブフォルダも検索するか（デフォルト: False）
+            for file in self._match_sorting_files(rule):
+                destination = self._build_sort_destination(file, rule)
 
-            filters = rule.get('filters', {})
-            matched_files = self.scanner.scan_files(
-                pattern=search,
-                filters=filters,
-                recursive=recursive
-            )
-
-            for file in matched_files:
-                # source_directoryが指定されている場合、そのディレクトリからのファイルのみ対象
-                if source_directory:
-                    source_dir_path = Path(source_directory)
-                    # ファイルが指定されたディレクトリ配下にあるかチェック
-                    try:
-                        file.relative_to(source_dir_path)
-                    except ValueError:
-                        # ディレクトリ配下にない場合はスキップ
-                        continue
-
-                # skip_if_exists チェック（plan 時点で除外）
+                # rename_pattern 適用後のファイル名で存在チェックする
                 if rule.get('skip_if_exists', False) and destination:
-                    dest_file = destination / file.name
-                    if dest_file.exists():
+                    if self._destination_exists(file, destination):
                         continue
 
-                # リネームパターンが指定されている場合、destination側のファイル名を変更
-                if rename_pattern and destination:
-                    new_name = file.name
-                    for pattern, replacement in rename_pattern.items():
-                        new_name = re.sub(re.escape(pattern), replacement, new_name, flags=re.IGNORECASE)
-                    # 置換後にクリーンアップ（余分なスペースを削除）
-                    new_name = clean_filename(new_name)
-                    dest_with_rename = destination / new_name
-                else:
-                    dest_with_rename = destination
-
-                operations.append(FileOperation(
+                operation = FileOperation(
                     source=file,
-                    destination=dest_with_rename if rename_pattern else destination,
-                    action=action,
+                    destination=destination,
+                    action=rule['action'],
                     reason=f"パターン '{search}'"
-                ))
+                )
+                operations.append(operation)
+                self._record_planned_operations([operation])
 
         return operations
 
-    def execute_operations(
-        self,
-        operations: List[FileOperation],
-        dry_run: bool = False
-    ) -> Tuple[int, int]:
-        """
-        操作を実行
+    def _match_sorting_files(self, rule) -> List:
+        """sorting_rule に一致するファイルを返す"""
+        matched_files = self.scanner.scan_files(
+            pattern=rule['search'],
+            filters=rule.get('filters', {}),
+            recursive=rule.get('recursive', False)
+        )
 
-        Args:
-            operations: ファイル操作のリスト
-            dry_run: ドライランモード（実際には実行しない）
+        source_directory = rule.get('source_directory')
+        if not source_directory:
+            return matched_files
 
-        Returns:
-            (成功数, 失敗数)
-        """
-        success_count = 0
-        failure_count = 0
-
-        for op in tqdm(operations, desc="処理中", unit="files"):
+        source_dir_path = to_path(source_directory)
+        filtered_files = []
+        for file in matched_files:
             try:
-                if not dry_run:
-                    if op.action == 'delete':
-                        op.source.unlink()
+                file.relative_to(source_dir_path)
+            except ValueError:
+                continue
+            filtered_files.append(file)
 
-                    elif op.action == 'cleanup':
-                        op.source.rename(op.destination)
+        return filtered_files
 
-                    elif op.action == 'move':
-                        # destinationがファイルパス（親+ファイル名）かディレクトリパスかを判定
-                        # rename_pattern使用時はdestinationに新しいファイル名が含まれている
-                        if op.destination.suffix:
-                            # 拡張子があればファイルパスと判定
-                            op.destination.parent.mkdir(parents=True, exist_ok=True)
-                            shutil.move(str(op.source), str(op.destination))
-                        else:
-                            # ディレクトリパスと判定
-                            op.destination.mkdir(parents=True, exist_ok=True)
-                            shutil.move(str(op.source), str(op.destination / op.source.name))
+    def _build_sort_destination(self, file, rule):
+        """sorting_rule から最終 destination を組み立てる"""
+        if not rule.get('destination'):
+            return None
 
-                    elif op.action == 'copy':
-                        # destinationがファイルパス（親+ファイル名）かディレクトリパスかを判定
-                        if op.destination.suffix:
-                            # 拡張子があればファイルパスと判定
-                            op.destination.parent.mkdir(parents=True, exist_ok=True)
-                            shutil.copy2(str(op.source), str(op.destination))
-                        else:
-                            # ディレクトリパスと判定
-                            op.destination.mkdir(parents=True, exist_ok=True)
-                            shutil.copy2(str(op.source), str(op.destination / op.source.name))
+        destination = to_path(rule['destination'])
+        rename_pattern = rule.get('rename_pattern')
+        if not rename_pattern:
+            return destination
 
-                # ログ記録
-                self.logger.info(f"[{op.action}] {op.source} ({op.reason})")
-                success_count += 1
+        new_name = self._apply_rename_pattern(file.name, rename_pattern)
+        return destination / new_name
 
-            except Exception as e:
-                self.logger.error(f"[エラー] {op.source}: {e}")
-                failure_count += 1
+    @staticmethod
+    def _apply_rename_pattern(filename: str, rename_pattern: dict[str, str]) -> str:
+        """rename_patternをファイル名に適用"""
+        new_name = filename
+        for pattern, replacement in rename_pattern.items():
+            new_name = re.sub(
+                re.escape(pattern),
+                replacement,
+                new_name,
+                flags=re.IGNORECASE
+            )
+        return clean_filename(new_name)
 
-        return success_count, failure_count
+    def _destination_exists(self, file, destination) -> bool:
+        """destination がディレクトリ/ファイルどちらでも存在確認する"""
+        dest_file = destination if destination.suffix else destination / file.name
+        return self.planning_context.is_file(dest_file)

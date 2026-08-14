@@ -25,11 +25,8 @@ from src.__version__ import __version__, __commit__
 from src.utils.colors import Colors
 from src.core.config_loader import ConfigLoader, PresetMeta
 from src.core.logger import LootLogger
-from src.core.file_scanner import FileScanner
 from src.core.preview_generator import PreviewGenerator
-from src.handlers.sort_handler import SortModeHandler
-from src.handlers.clean_handler import CleanModeHandler
-from src.handlers.png_prompt_sort_handler import PngPromptSortModeHandler
+from src.handlers.registry import build_handler, get_handler_modes
 
 # Windows環境でのUTF-8出力対応
 if sys.platform == 'win32':
@@ -55,7 +52,10 @@ class LootManager:
 
     def __init__(self):
         """初期化"""
-        self.config_loader = ConfigLoader()
+        self.config_loader = ConfigLoader(
+            mode_dir="mode",
+            valid_modes=get_handler_modes()
+        )
 
     def run(self):
         """メインループ"""
@@ -64,8 +64,8 @@ class LootManager:
             presets = self.config_loader.discover_presets()
 
             if not presets:
-                print(f"{Colors.NEON_RED}エラー: configs/ フォルダにプリセットが見つかりません{Colors.RESET}")
-                print(f"{Colors.NEON_YELLOW}configs/samples/ から設定ファイルをコピーして configs/ に配置してください{Colors.RESET}")
+                print(f"{Colors.NEON_RED}エラー: mode/ フォルダに実行モードが見つかりません{Colors.RESET}")
+                print(f"{Colors.NEON_YELLOW}mode/samples/ から設定ファイルをコピーして mode/ に配置してください{Colors.RESET}")
                 return
 
             # メニュー選択
@@ -124,28 +124,16 @@ class LootManager:
             enable_logging=settings.get('enable_logging', True)
         )
 
-        # モード別処理
-        if preset.mode == "Sort" or preset.mode == "Clean":
-            # Sort/Cleanモードはtarget_directoryを使用
-            try:
-                scanner = FileScanner(settings['target_directory'], logger)
-            except FileNotFoundError as e:
-                print(f"{Colors.NEON_RED}エラー: {e}{Colors.RESET}")
-                input(f"{Colors.NEON_CYAN}Enterキーで続行...{Colors.RESET}")
-                return
-
-            if preset.mode == "Sort":
-                handler = SortModeHandler(config, scanner, logger)
-            else:  # Clean
-                handler = CleanModeHandler(config, scanner, logger)
-
-        elif preset.mode == "PNG_Prompt_Sort":
-            # PNG_Prompt_Sortモードはsource_directoriesを使用（ハンドラ内で処理）
-            scanner = None  # PNG_Prompt_Sortモードではscannerは使用しない
-            handler = PngPromptSortModeHandler(config, scanner, logger)
-
-        else:
-            print(f"{Colors.NEON_RED}エラー: 不明なモード '{preset.mode}'{Colors.RESET}")
+        # モード別ハンドラ生成
+        try:
+            handler = build_handler(
+                config=config,
+                logger=logger,
+                config_loader=self.config_loader,
+                config_path=preset.file_path
+            )
+        except Exception as e:
+            print(f"{Colors.NEON_RED}エラー: ハンドラの初期化に失敗: {e}{Colors.RESET}")
             input(f"{Colors.NEON_CYAN}Enterキーで続行...{Colors.RESET}")
             return
 
@@ -198,10 +186,17 @@ class LootManager:
             print(f"{Colors.NEON_RED}失敗: {failure}件{Colors.RESET}")
 
         # スキップされたディレクトリがあれば通知
-        if scanner and hasattr(scanner, 'skipped_dirs') and scanner.skipped_dirs:
+        scanner = getattr(handler, 'scanner', None)
+        skipped_dirs = []
+        if scanner and getattr(scanner, 'skipped_dirs', None):
+            skipped_dirs.extend(scanner.skipped_dirs)
+        if getattr(handler, 'skipped_dirs', None):
+            skipped_dirs.extend(handler.skipped_dirs)
+
+        if skipped_dirs:
             print()
             print(f"{Colors.NEON_YELLOW}⚠️  以下のディレクトリは存在しないためスキップされました:{Colors.RESET}")
-            for skipped_dir in scanner.skipped_dirs:
+            for skipped_dir in skipped_dirs:
                 print(f"{Colors.NEON_YELLOW}  - {skipped_dir}{Colors.RESET}")
 
         input(f"{Colors.NEON_CYAN}Enterキーで続行...{Colors.RESET}")

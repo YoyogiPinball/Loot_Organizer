@@ -17,6 +17,8 @@ class FileOperation:
     destination: Path | None
     action: str  # "move", "copy", "delete", "cleanup"
     reason: str  # ルールの説明
+    step_label: str | None = None
+    step_mode: str | None = None
 
 
 class PreviewGenerator:
@@ -57,7 +59,7 @@ class PreviewGenerator:
 
         Args:
             operations: ファイル操作のリスト
-            mode: モード（"Sort", "Clean", または "PNG_Prompt_Sort"）
+            mode: モード（"Sort", "Clean", "PNG_Prompt_Sort", "Pipeline"）
 
         Returns:
             プレビュー文字列
@@ -68,6 +70,10 @@ class PreviewGenerator:
         # PNG_Prompt_Sort専用プレビュー
         if mode == "PNG_Prompt_Sort":
             return self._generate_png_prompt_sort_preview(operations)
+
+        # Pipeline専用プレビュー
+        if mode == "Pipeline":
+            return self._generate_pipeline_preview(operations)
 
         # 操作をグループ化（destination別、またはaction別）
         grouped = self._group_operations(operations, mode)
@@ -240,7 +246,8 @@ class PreviewGenerator:
             'move': '📦',
             'copy': '📋',
             'delete': '🗑️',
-            'cleanup': '✨'
+            'cleanup': '✨',
+            'rename': '✏️'
         }
         return icons.get(action, '📄')
 
@@ -344,6 +351,66 @@ class PreviewGenerator:
             preview_lines.append("")
 
         # サマリー
+        preview_lines.append(f"{Colors.CYAN}{'─' * 44}{Colors.RESET}")
+        preview_lines.append(f"{Colors.NEON_YELLOW}合計: {total_count}件{Colors.RESET}")
+        preview_lines.append("")
+
+        return "\n".join(preview_lines)
+
+    def _generate_pipeline_preview(
+        self,
+        operations: List[FileOperation]
+    ) -> str:
+        """
+        Pipeline専用のプレビュー生成
+
+        Args:
+            operations: ファイル操作のリスト
+
+        Returns:
+            プレビュー文字列
+        """
+        preview_lines = []
+        preview_lines.append(
+            f"{Colors.NEON_CYAN}╔════════════════════════════════════════════╗"
+        )
+        preview_lines.append(
+            f"{Colors.NEON_BLUE}║  📋 Pipeline プレビュー                   ║"
+        )
+        preview_lines.append(
+            f"{Colors.NEON_CYAN}╠════════════════════════════════════════════╣{Colors.RESET}"
+        )
+        preview_lines.append("")
+
+        grouped_by_step: Dict[str, List[FileOperation]] = {}
+        for op in operations:
+            step_label = op.step_label or "Pipeline"
+            grouped_by_step.setdefault(step_label, []).append(op)
+
+        total_count = 0
+        for step_label, step_ops in grouped_by_step.items():
+            total_count += len(step_ops)
+            preview_lines.append(
+                f"{Colors.NEON_YELLOW}▶ {step_label} ({len(step_ops)}件){Colors.RESET}"
+            )
+
+            grouped = self._group_operations(step_ops, "Clean")
+            for group_key, group_ops in grouped.items():
+                header = f"{self._get_action_icon(group_ops[0].action)} {group_key}"
+                preview_lines.append(f"{Colors.NEON_CYAN}  {header}{Colors.RESET}")
+
+                files_to_show = self._select_files_to_show(group_ops)
+                for op in files_to_show:
+                    color = Colors.NEON_RED if op.action == 'delete' else Colors.NEON_BLUE
+                    preview_lines.append(f"{color}    ├─ {op.source.name}{Colors.RESET}")
+
+                omitted = len(group_ops) - len(files_to_show)
+                if omitted > 0:
+                    preview_lines.append(
+                        f"{Colors.NEON_BLUE}    └─ ... 他{omitted}件{Colors.RESET}"
+                    )
+            preview_lines.append("")
+
         preview_lines.append(f"{Colors.CYAN}{'─' * 44}{Colors.RESET}")
         preview_lines.append(f"{Colors.NEON_YELLOW}合計: {total_count}件{Colors.RESET}")
         preview_lines.append("")

@@ -3,7 +3,7 @@
 # ========================================
 #
 # 【使い方】
-# 1. このファイルを configs/my_cleanup.yaml にコピー
+# 1. このファイルを mode/my_cleanup.yaml にコピー
 # 2. 旧 File_Flow/config.yaml の設定値をコピー＆ペースト
 # 3. すぐに使用開始できます
 #
@@ -129,3 +129,4 @@ sorting_rules:
   # - search: "*.txt"
   #   destination: "D:\\TextFiles"
   #   action: "move"
+

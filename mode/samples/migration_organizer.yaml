@@ -3,7 +3,7 @@
 # ========================================
 #
 # 【使い方】
-# 1. このファイルを configs/my_organizer.yaml にコピー
+# 1. このファイルを mode/my_organizer.yaml にコピー
 # 2. 旧 file_organizer/config.yaml の設定値をコピー＆ペースト
 # 3. すぐに使用開始できます
 #
@@ -144,3 +144,4 @@ exclusions:
     - "*.tmp"      # 一時ファイル
     - "*.bak"      # バックアップファイル
     - "~*"         # Officeの一時ファイル
+

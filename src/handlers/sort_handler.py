@@ -3,17 +3,17 @@
 Sort モードの処理ハンドラー
 """
 
-import shutil
-from pathlib import Path
-from typing import List, Dict, Any, Tuple
-from tqdm import tqdm
+import re
+import uuid
+from typing import List
 
-from ..core.file_scanner import FileScanner
-from ..core.logger import LootLogger
 from ..core.preview_generator import FileOperation
+from ..utils.file_utils import clean_filename
+from ..utils.path_utils import to_path
+from .base_handler import BaseHandler
 
 
-class SortModeHandler:
+class SortModeHandler(BaseHandler):
     """
     Sort モードの処理を行うクラス
 
@@ -23,23 +23,43 @@ class SortModeHandler:
     - プレビュー → 確認 → 実行のフロー
     """
 
-    def __init__(
-        self,
-        config: Dict[str, Any],
-        scanner: FileScanner,
-        logger: LootLogger
-    ):
-        """
-        初期化
+    MODE = "Sort"
+    REQUIRED_SETTINGS = ("target_directory",)
+    REQUIRED_TOP_LEVEL = ("move_rules",)
 
-        Args:
-            config: 設定辞書
-            scanner: ファイルスキャナー
-            logger: ロガー
-        """
-        self.config = config
-        self.scanner = scanner
-        self.logger = logger
+    @classmethod
+    def validate_config(cls, config, config_path=None) -> None:
+        """Sortモードの設定を検証"""
+        super().validate_config(config, config_path=config_path)
+        if not config.get('move_rules'):
+            label = str(config_path) if config_path else "設定"
+            raise ValueError(f"{label}: Sort モードには 'move_rules' が必要です")
+
+    def _apply_mode_defaults(self) -> None:
+        """Sortモードのデフォルト値を適用"""
+        if 'exclusions' not in self.config:
+            self.config['exclusions'] = {}
+        self.config['exclusions'].setdefault('exact_names', [])
+        self.config['exclusions'].setdefault('patterns', [])
+
+    @staticmethod
+    def _generate_random_name(extension: str) -> str:
+        """UUID4 先頭10文字のランダムファイル名を生成"""
+        random_str = uuid.uuid4().hex[:10]
+        return f"{random_str}{extension}"
+
+    @staticmethod
+    def _apply_rename_pattern(filename: str, rename_pattern: dict[str, str]) -> str:
+        """rename_patternをファイル名に適用"""
+        new_name = filename
+        for pattern, replacement in rename_pattern.items():
+            new_name = re.sub(
+                re.escape(pattern),
+                replacement,
+                new_name,
+                flags=re.IGNORECASE
+            )
+        return clean_filename(new_name)
 
     def plan_operations(self) -> List[FileOperation]:
         """
@@ -48,11 +68,12 @@ class SortModeHandler:
         Returns:
             ファイル操作のリスト
         """
+        self._start_planning()
         operations = []
         move_rules = self.config.get('move_rules', [])
         exclusions = self.config.get('exclusions', {})
 
-        # 処理済みファイルを追跡（最初のルールのみ適用）
+        # 処理済みの実体を追跡（リネーム後も最初のルールのみ適用）
         processed_files = set()
 
         for rule in move_rules:
@@ -60,9 +81,11 @@ class SortModeHandler:
                 continue
 
             pattern = rule['pattern']
-            dest = Path(rule['dest'])
+            dest = to_path(rule['dest'])
             description = rule.get('description', pattern)
             filters = rule.get('filters', {})
+            rename = rule.get('rename')
+            rename_pattern = rule.get('rename_pattern')
 
             # ファイルをスキャン
             matched_files = self.scanner.scan_files(
@@ -74,52 +97,31 @@ class SortModeHandler:
 
             # 未処理のファイルのみ追加
             for file in matched_files:
-                if file not in processed_files:
-                    operations.append(FileOperation(
+                file_identity = self.planning_context.backing_path(file)
+                if file_identity not in processed_files:
+                    # rename: random の場合、ファイル名をランダム文字列に置換
+                    if rename == 'random':
+                        new_name = self._generate_random_name(file.suffix)
+                        dest_path = dest / new_name
+                    elif rename_pattern:
+                        new_name = self._apply_rename_pattern(file.name, rename_pattern)
+                        dest_path = dest / new_name
+                    else:
+                        dest_path = dest
+
+                    if rule.get('skip_if_exists', False):
+                        dest_file = dest_path if dest_path.suffix else dest_path / file.name
+                        if self.planning_context.is_file(dest_file):
+                            continue
+
+                    operation = FileOperation(
                         source=file,
-                        destination=dest,
+                        destination=dest_path,
                         action='move',
                         reason=description
-                    ))
-                    processed_files.add(file)
+                    )
+                    operations.append(operation)
+                    self._record_planned_operations([operation])
+                    processed_files.add(file_identity)
 
         return operations
-
-    def execute_operations(
-        self,
-        operations: List[FileOperation],
-        dry_run: bool = False
-    ) -> Tuple[int, int]:
-        """
-        操作を実行
-
-        Args:
-            operations: ファイル操作のリスト
-            dry_run: ドライランモード（実際には実行しない）
-
-        Returns:
-            (成功数, 失敗数)
-        """
-        success_count = 0
-        failure_count = 0
-
-        for op in tqdm(operations, desc="処理中", unit="files"):
-            try:
-                if not dry_run:
-                    # 移動先ディレクトリを作成
-                    op.destination.mkdir(parents=True, exist_ok=True)
-
-                    # ファイル移動
-                    shutil.move(str(op.source), str(op.destination / op.source.name))
-
-                # ログ記録
-                self.logger.info(
-                    f"[移動] {op.source} → {op.destination / op.source.name} ({op.reason})"
-                )
-                success_count += 1
-
-            except Exception as e:
-                self.logger.error(f"[エラー] {op.source}: {e}")
-                failure_count += 1
-
-        return success_count, failure_count

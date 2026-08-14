@@ -10,16 +10,17 @@ import shutil
 import yaml
 import questionary
 from pathlib import Path
-from typing import List, Dict, Any, Tuple, Optional
+from typing import List, Dict, Tuple, Optional
 from tqdm import tqdm
 from PIL import Image
 
 from ..core.file_scanner import FileScanner
-from ..core.logger import LootLogger
 from ..core.preview_generator import FileOperation
+from ..utils.path_utils import to_path
+from .base_handler import BaseHandler
 
 
-class PngPromptSortModeHandler:
+class PngPromptSortModeHandler(BaseHandler):
     """
     PNG_Prompt_Sort モードの処理を行うクラス
 
@@ -30,11 +31,17 @@ class PngPromptSortModeHandler:
     - 重複ファイル処理オプション（上書き/連番/確認/スキップ）
     """
 
+    MODE = "PNG_Prompt_Sort"
+    REQUIRES_SCANNER = False
+    REQUIRED_SETTINGS = ("source_directories", "output_directory", "mapping_file")
+
     def __init__(
         self,
-        config: Dict[str, Any],
+        config: Dict,
         scanner: Optional[FileScanner],
-        logger: LootLogger
+        logger,
+        config_loader=None,
+        planning_context=None,
     ):
         """
         初期化
@@ -44,9 +51,13 @@ class PngPromptSortModeHandler:
             scanner: ファイルスキャナー（PNG_Prompt_Sortでは未使用）
             logger: ロガー
         """
-        self.config = config
-        self.scanner = scanner
-        self.logger = logger
+        super().__init__(
+            config=config,
+            scanner=scanner,
+            logger=logger,
+            config_loader=config_loader,
+            planning_context=planning_context,
+        )
         self.settings = config['settings']
 
         # マッピングファイル読み込み
@@ -75,19 +86,19 @@ class PngPromptSortModeHandler:
             self.logger.error("設定エラー: mapping_file が指定されていません")
             return None
 
-        # 相対パスの場合はプロジェクトルートからの相対
-        if not os.path.isabs(mapping_file):
-            script_dir = Path(__file__).parent.parent.parent  # src/handlers/ の2階層上
-            mapping_file = script_dir / mapping_file
-        else:
-            mapping_file = Path(mapping_file)
+        mapping_path = to_path(mapping_file)
 
-        if not mapping_file.exists():
-            self.logger.error(f"マッピングファイルが見つかりません: {mapping_file}")
+        # 相対パスの場合はプロジェクトルートからの相対
+        if not mapping_path.is_absolute():
+            script_dir = Path(__file__).parent.parent.parent  # src/handlers/ の2階層上
+            mapping_path = script_dir / mapping_path
+
+        if not mapping_path.exists():
+            self.logger.error(f"マッピングファイルが見つかりません: {mapping_path}")
             return None
 
         try:
-            with open(mapping_file, 'r', encoding='utf-8') as f:
+            with open(mapping_path, 'r', encoding='utf-8') as f:
                 data = yaml.safe_load(f)
 
             mappings = data.get('mappings', {})
@@ -116,7 +127,10 @@ class PngPromptSortModeHandler:
             メタデータ文字列、失敗時はNone
         """
         try:
-            with Image.open(image_path) as img:
+            metadata_path = image_path
+            if self.planning_context is not None:
+                metadata_path = self.planning_context.backing_path(image_path)
+            with Image.open(metadata_path) as img:
                 # 複数フィールドを順番に確認
                 for field in self.metadata_fields:
                     if field in img.info:
@@ -177,6 +191,8 @@ class PngPromptSortModeHandler:
         Returns:
             FileOperationのリスト
         """
+        self._start_planning()
+
         if self.lora_map is None:
             self.logger.error("マッピングファイルが読み込まれていないため、処理を中止します")
             return []
@@ -189,7 +205,7 @@ class PngPromptSortModeHandler:
             source_dirs = [source_dirs]
 
         # 出力親ディレクトリ
-        output_dir = Path(self.settings['output_directory'])
+        output_dir = to_path(self.settings['output_directory'])
 
         # 特殊フォルダ名
         unknown_folder = self.settings.get('unknown_lora_folder', '__unknown_lora')
@@ -204,16 +220,20 @@ class PngPromptSortModeHandler:
 
         # 各入力ディレクトリを処理
         for source_dir_str in source_dirs:
-            source_dir = Path(source_dir_str)
+            source_dir = to_path(source_dir_str)
 
-            if not source_dir.exists():
+            if not self.planning_context.directory_exists(source_dir):
                 self.logger.warning(f"入力ディレクトリが存在しません: {source_dir}")
                 continue
 
             self.logger.info(f"スキャン中: {source_dir}")
 
             # このディレクトリ用の一時スキャナーを作成
-            temp_scanner = FileScanner(str(source_dir), self.logger)
+            temp_scanner = FileScanner(
+                str(source_dir),
+                self.logger,
+                planning_context=self.planning_context,
+            )
 
             # 拡張子ごとにスキャン
             for ext in target_extensions:
@@ -279,7 +299,7 @@ class PngPromptSortModeHandler:
                             reason=f'LoRA: {lora_name}'
                         ))
 
-        return operations
+        return self._record_planned_operations(operations)
 
     def execute_operations(
         self,

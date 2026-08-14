@@ -7,7 +7,7 @@
 # LoRA名を自動検出して、対応するフォルダに振り分ける設定例です。
 #
 # 【使い方】
-# 1. このファイルを configs/my_ai_images.yaml にコピー
+# 1. このファイルを mode/my_ai_images.yaml にコピー
 # 2. source_directories を自分の生成画像フォルダに変更
 # 3. output_directory を振り分け先の親フォルダに変更
 # 4. mapping_file（lora_map.yaml）を作成・編集
@@ -44,7 +44,7 @@ settings:
 
   # マッピングファイル
   # LoRA名 → フォルダ名 の対応表ファイル
-  mapping_file: "configs/lora_map_sample.yaml"
+  mapping_file: "mode/lora_map.yaml"
 
   # 特殊フォルダ名
   # マッピングにないLoRAが見つかった場合の振り分け先
@@ -103,3 +103,4 @@ metadata:
   # LoRA検出パターン（正規表現）
   # デフォルト: <lora:name:weight> 形式を検出
   lora_pattern: "<lora:([^:]+):[^>]+>"
+

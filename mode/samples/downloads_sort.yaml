@@ -7,7 +7,7 @@
 # 各種フォルダへファイルを自動振り分けする設定例です。
 #
 # 【使い方】
-# 1. このファイルを configs/my_downloads.yaml にコピー
+# 1. このファイルを mode/my_downloads.yaml にコピー
 # 2. target_directory を自分のダウンロードフォルダに変更
 # 3. 各ルールの dest を自分の環境に合わせて変更
 # 4. 不要なルールは enabled: false で無効化
@@ -238,3 +238,4 @@ exclusions:
     - "~*"               # Officeの一時ファイル
     - "*.crdownload"     # Chrome未完了ダウンロード
     - "*.part"           # 未完了ダウンロード
+

@@ -7,7 +7,7 @@
 # 削除 → クリーンアップ → 振り分けの3ステップでファイルを整理します。
 #
 # 【使い方】
-# 1. このファイルを configs/my_cleanup.yaml にコピー
+# 1. このファイルを mode/my_cleanup.yaml にコピー
 # 2. target_directory を自分の環境に合わせて変更
 # 3. 削除したい文字列、振り分けルールを追加・編集
 #
@@ -158,3 +158,4 @@ sorting_rules:
   # - search: "*.zpi_meta"
   #   destination: ""    # destination不要（deleteの場合）
   #   action: "delete"
+

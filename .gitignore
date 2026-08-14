@@ -18,13 +18,29 @@ build/
 .DS_Store
 Thumbs.db
 desktop.ini
+*Zone.Identifier*
 
-# ユーザーの設定ファイル（configs直下のみ除外、samplesは含める）
-configs/*.yaml
-!configs/samples/
+# ユーザーの実行モードファイル（mode直下のみ除外、samplesは含める）
+mode/*.yaml
+!mode/samples/
+!mode/samples/*.yaml
+
+# samples のうち個人用のもの（実際の保存先パスを含む）
+mode/samples/kozuya_copy.yaml
 
 # 開発用ドキュメント（GitHubには含めない）
 CLAUDE.md
+devnote.md
+devnote.pdf
+docs_ToMe/
+_Archives/
+*.lnk
+
+# 個人用プリセット（実際の保存先パスを含むため公開しない）
+configs_myrule/
+
+# ローカルのエディタ・エージェント設定
+.claude/
 
 # カラープレビュースクリプト（開発用）
 preview_cyberpunk.py

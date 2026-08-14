@@ -15,7 +15,7 @@ class PresetMeta:
     """プリセットのメタ情報"""
     name: str
     icon: str
-    mode: str  # "Sort", "Clean", または "PNG_Prompt_Sort"
+    mode: str
     description: str
     file_path: str
 
@@ -31,14 +31,16 @@ class ConfigLoader:
     - プリセット自動検出
     """
 
-    def __init__(self, configs_dir: str = "configs"):
+    def __init__(self, mode_dir: str = "mode", valid_modes: List[str] | None = None):
         """
         初期化
 
         Args:
-            configs_dir: 設定ファイルディレクトリのパス
+            mode_dir: 実行モードファイルディレクトリのパス
+            valid_modes: 登録済み処理モードの一覧
         """
-        self.configs_dir = Path(configs_dir)
+        self.mode_dir = Path(mode_dir)
+        self.valid_modes = set(valid_modes or [])
         self.logger = logging.getLogger(__name__)
 
     def load_config(self, config_path: str) -> Dict[str, Any]:
@@ -96,44 +98,16 @@ class ConfigLoader:
             if field not in meta:
                 raise ValueError(f"{config_path}: meta.{field} が必要です")
 
-        # modeの検証
-        if meta['mode'] not in ['Sort', 'Clean', 'PNG_Prompt_Sort']:
+        # modeの検証（処理モードの詳細検証は各ハンドラが担当）
+        if self.valid_modes and meta['mode'] not in self.valid_modes:
             raise ValueError(
-                f"{config_path}: meta.mode は 'Sort', 'Clean', "
-                "または 'PNG_Prompt_Sort' である必要があります"
+                f"{config_path}: meta.mode は {sorted(self.valid_modes)} "
+                "のいずれかである必要があります"
             )
 
         # settingsセクションの検証
         if 'settings' not in config:
             raise ValueError(f"{config_path}: 'settings'セクションが必要です")
-
-        settings = config['settings']
-
-        # モード別の必須フィールド検証
-        if meta['mode'] in ['Sort', 'Clean']:
-            if 'target_directory' not in settings:
-                raise ValueError(f"{config_path}: settings.target_directory が必要です")
-        elif meta['mode'] == 'PNG_Prompt_Sort':
-            if 'source_directories' not in settings:
-                raise ValueError(f"{config_path}: settings.source_directories が必要です")
-            if 'output_directory' not in settings:
-                raise ValueError(f"{config_path}: settings.output_directory が必要です")
-            if 'mapping_file' not in settings:
-                raise ValueError(f"{config_path}: settings.mapping_file が必要です")
-
-        # モード別の検証
-        if meta['mode'] == 'Sort':
-            if 'move_rules' not in config or not config['move_rules']:
-                raise ValueError(f"{config_path}: Sort モードには 'move_rules' が必要です")
-
-        elif meta['mode'] == 'Clean':
-            # Cleanモードは deletion, cleanup, sorting_rules のいずれかが必要
-            has_operations = any(key in config for key in ['deletion', 'cleanup', 'sorting_rules'])
-            if not has_operations:
-                raise ValueError(
-                    f"{config_path}: Clean モードには 'deletion', 'cleanup', "
-                    "'sorting_rules' のいずれかが必要です"
-                )
 
     def _apply_defaults(self, config: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -163,45 +137,23 @@ class ConfigLoader:
         settings['logging'].setdefault('log_success', True)
         settings['logging'].setdefault('log_directory', 'logs')
 
-        # Sortモードのデフォルト値
-        if config['meta']['mode'] == 'Sort':
-            if 'exclusions' not in config:
-                config['exclusions'] = {}
-            config['exclusions'].setdefault('exact_names', [])
-            config['exclusions'].setdefault('patterns', [])
-
-        # Cleanモードのデフォルト値
-        elif config['meta']['mode'] == 'Clean':
-            if 'deletion' in config:
-                config['deletion'].setdefault('enabled', False)
-                config['deletion'].setdefault('recursive', True)
-                config['deletion'].setdefault('strings', [])
-
-            if 'cleanup' in config:
-                config['cleanup'].setdefault('enabled', False)
-                config['cleanup'].setdefault('recursive', True)
-                config['cleanup'].setdefault('custom_patterns', [])
-
-            if 'sorting_rules' not in config:
-                config['sorting_rules'] = []
-
         return config
 
     def discover_presets(self) -> List[PresetMeta]:
         """
-        configs/ ディレクトリからプリセットを自動検出
+        mode/ ディレクトリからプリセットを自動検出
 
         Returns:
             検出されたプリセットのリスト
         """
         presets = []
 
-        if not self.configs_dir.exists():
-            self.logger.warning(f"設定ディレクトリが見つかりません: {self.configs_dir}")
+        if not self.mode_dir.exists():
+            self.logger.warning(f"設定ディレクトリが見つかりません: {self.mode_dir}")
             return presets
 
-        # configs/直下のYAMLファイルを検索（samples/内とlora_map*.yamlは除外）
-        for yaml_file in self.configs_dir.glob("*.yaml"):
+        # mode/直下のYAMLファイルを検索（samples/内とlora_map*.yamlは除外）
+        for yaml_file in self.mode_dir.glob("*.yaml"):
             # lora_map*.yamlはマッピングファイルなのでスキップ
             if yaml_file.name.startswith('lora_map'):
                 continue

@@ -8,7 +8,7 @@
 # どのフォルダに振り分けるかを定義します。
 #
 # 【使い方】
-# 1. このファイルを configs/lora_map.yaml にコピー
+# 1. このファイルを mode/lora_map.yaml にコピー
 # 2. 自分の使用しているLoRA名とフォルダ名を記載
 # 3. ai_image_sort.yaml の mapping_file でこのファイルを指定
 #
@@ -40,3 +40,4 @@ mappings:
   # "my_custom_lora_v1": "カスタムキャラクター"
   # "anime_style_xl": "アニメスタイル"
   # "realistic_face_v2": "リアル顔"
+

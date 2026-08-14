@@ -1,3 +1,5 @@
+> 最終更新: 2026-08-14（Fri）12:42
+
 # 📁 Loot Organizer
 
 個人用ファイル整理ツール - 2段階ワークフローによるファイル管理システム
@@ -72,17 +74,17 @@ pip install -r requirements.txt
 
 ```bash
 # サンプルをコピー
-cp configs/samples/downloads_sort.yaml configs/my_sort.yaml
+cp mode/samples/downloads_sort.yaml mode/my_sort.yaml
 ```
 
 **Windows:**
 ```cmd
-notepad configs\my_sort.yaml
+notepad mode\my_sort.yaml
 ```
 
 **Linux/Mac:**
 ```bash
-nano configs/my_sort.yaml
+nano mode/my_sort.yaml
 ```
 
 ### 実行
@@ -105,20 +107,20 @@ python -m src.loot_manager
 
 **1. サンプル設定をコピー**
 ```bash
-cp configs/samples/downloads_sort.yaml configs/my_organizer.yaml
+cp mode/samples/downloads_sort.yaml mode/my_organizer.yaml
 ```
 
 **Windows:**
 ```cmd
-copy configs\samples\downloads_sort.yaml configs\my_organizer.yaml
+copy mode\samples\downloads_sort.yaml mode\my_organizer.yaml
 ```
 
 **2. 設定ファイルを編集**
 
-エディタで `configs/my_organizer.yaml` を開きます：
+エディタで `mode/my_organizer.yaml` を開きます：
 
 ```cmd
-notepad configs\my_organizer.yaml
+notepad mode\my_organizer.yaml
 ```
 
 以下の項目を自分の環境に合わせて変更：
@@ -148,19 +150,19 @@ run.bat
 
 **1. サンプル設定をコピー**
 ```bash
-cp configs/samples/ai_image_sort.yaml configs/my_ai_sorter.yaml
-cp configs/samples/lora_map_sample.yaml configs/lora_map.yaml
+cp mode/samples/ai_image_sort.yaml mode/my_ai_sorter.yaml
+cp mode/samples/lora_map_sample.yaml mode/lora_map.yaml
 ```
 
 **Windows:**
 ```cmd
-copy configs\samples\ai_image_sort.yaml configs\my_ai_sorter.yaml
-copy configs\samples\lora_map_sample.yaml configs\lora_map.yaml
+copy mode\samples\ai_image_sort.yaml mode\my_ai_sorter.yaml
+copy mode\samples\lora_map_sample.yaml mode\lora_map.yaml
 ```
 
 **2. マッピングファイルを編集**
 
-`configs/lora_map.yaml` を開いて、自分の使っているLoRA名を登録：
+`mode/lora_map.yaml` を開いて、自分の使っているLoRA名を登録：
 
 ```yaml
 mappings:
@@ -171,14 +173,14 @@ mappings:
 
 **3. 設定ファイルを編集**
 
-`configs/my_ai_sorter.yaml` を開いて、パスを変更：
+`mode/my_ai_sorter.yaml` を開いて、パスを変更：
 
 ```yaml
 settings:
   source_directories:
     - "D:\\StableDiffusion\\outputs"  # AI画像が保存されているフォルダ
   output_directory: "D:\\AI_Images\\Sorted"  # 振り分け先の親フォルダ
-  mapping_file: "configs/lora_map.yaml"
+  mapping_file: "mode/lora_map.yaml"
 ```
 
 **4. 実行**
@@ -204,7 +206,7 @@ Loot Organizerの設定ファイルを作成してください。
 - ドキュメント（*.pdf, *.docx） → D:\Documents
 - 10MB以上のファイル → D:\LargeFiles
 
-configs/samples/downloads_sort.yaml を参考にして作成してください。
+mode/samples/downloads_sort.yaml を参考にして作成してください。
 ```
 
 ### プロンプト例2: AI画像整理
@@ -218,7 +220,7 @@ Loot Organizerの lora_map.yaml を作成してください。
 - anime_style_v2 → アニメスタイル
 - realistic_face → リアル顔
 
-configs/samples/lora_map_sample.yaml の形式で作成してください。
+mode/samples/lora_map_sample.yaml の形式で作成してください。
 ```
 
 ### プロンプト例3: 古いファイル削除
@@ -230,11 +232,11 @@ Loot Organizerの設定で、以下を実現してください：
 - ただし "important" が含まれるファイルは除外
 - ファイル名に絵文字が含まれるものはクリーンアップ
 
-configs/samples/cleanup_files.yaml を参考にしてください。
+mode/samples/cleanup_files.yaml を参考にしてください。
 ```
 
 **コツ：**
-- サンプルファイル（`configs/samples/`）を見せて「これを参考に作って」と頼む
+- サンプルファイル（`mode/samples/`）を見せて「これを参考に作って」と頼む
 - 具体的な条件（パス、拡張子、サイズ等）を明示する
 - 分からない項目は「おすすめ設定を教えて」と聞く
 
@@ -267,6 +269,30 @@ settings:
     log_success: true
     log_directory: "logs"
 ```
+
+### Pipeline モード
+
+複数のプリセットを、1回のプレビューと確認で順番に実行できます。後段のステップは、前段で予定されたリネーム・移動・コピー・削除を反映した仮想ファイル状態を検索します。プレビュー中や dry-run 中に実ファイルは変更されません。
+
+```yaml
+meta:
+  name: "ワンストップ処理"
+  icon: "🚀"
+  mode: "Pipeline"
+  description: "リネーム後に振り分けとクリーンアップを実行"
+
+settings:
+  confirm_before_execute: true
+  dry_run_default: false
+
+steps:
+  - config: "mode/rename.yaml"
+    label: "1. リネーム"
+  - config: "mode/sort.yaml"
+    label: "2. 振り分け"
+```
+
+各ステップの `confirm_before_execute` と `dry_run_default` は使用せず、Pipeline側の設定を全体へ適用します。実行中に1件でも失敗した場合は、前段の結果に依存する後続操作を中止します。
 
 ### Clean モードの高度な機能
 
@@ -348,7 +374,7 @@ sorting_rules:
 # 3. 次回実行時は、元ファイルにタグがないので処理対象外 ✅
 ```
 
-完全な例と高度なフィルタリングオプションについては、`configs/samples/`ディレクトリを参照してください。
+完全な例と高度なフィルタリングオプションについては、`mode/samples/`ディレクトリを参照してください。
 
 ---
 
@@ -464,7 +490,7 @@ AI: 「設定ファイルの作成をお手伝いしますね！いくつか質�
 ### 問題: プリセットがメニューに表示されない
 
 **解決方法:**
-- YAMLファイルが`configs/`直下にあることを確認（`configs/samples/`ではない）
+- YAMLファイルが`mode/`直下にあることを確認（`mode/samples/`ではない）
 - `meta`セクションが存在し、正しくフォーマットされているか確認
 - YAMLの構文エラーをチェック（インデント等）
 
@@ -577,17 +603,17 @@ Copy a sample configuration and edit it for your environment:
 
 ```bash
 # Copy sample
-cp configs/samples/downloads_sort.yaml configs/my_sort.yaml
+cp mode/samples/downloads_sort.yaml mode/my_sort.yaml
 ```
 
 **Windows:**
 ```cmd
-notepad configs\my_sort.yaml
+notepad mode\my_sort.yaml
 ```
 
 **Linux/Mac:**
 ```bash
-nano configs/my_sort.yaml
+nano mode/my_sort.yaml
 ```
 
 ### Run
@@ -610,20 +636,20 @@ python -m src.loot_manager
 
 **1. Copy Sample Configuration**
 ```bash
-cp configs/samples/downloads_sort.yaml configs/my_organizer.yaml
+cp mode/samples/downloads_sort.yaml mode/my_organizer.yaml
 ```
 
 **Windows:**
 ```cmd
-copy configs\samples\downloads_sort.yaml configs\my_organizer.yaml
+copy mode\samples\downloads_sort.yaml mode\my_organizer.yaml
 ```
 
 **2. Edit Configuration File**
 
-Open `configs/my_organizer.yaml` in your editor:
+Open `mode/my_organizer.yaml` in your editor:
 
 ```cmd
-notepad configs\my_organizer.yaml
+notepad mode\my_organizer.yaml
 ```
 
 Customize these settings for your environment:
@@ -653,19 +679,19 @@ Select your configuration from the menu and execute!
 
 **1. Copy Sample Configuration**
 ```bash
-cp configs/samples/ai_image_sort.yaml configs/my_ai_sorter.yaml
-cp configs/samples/lora_map_sample.yaml configs/lora_map.yaml
+cp mode/samples/ai_image_sort.yaml mode/my_ai_sorter.yaml
+cp mode/samples/lora_map_sample.yaml mode/lora_map.yaml
 ```
 
 **Windows:**
 ```cmd
-copy configs\samples\ai_image_sort.yaml configs\my_ai_sorter.yaml
-copy configs\samples\lora_map_sample.yaml configs\lora_map.yaml
+copy mode\samples\ai_image_sort.yaml mode\my_ai_sorter.yaml
+copy mode\samples\lora_map_sample.yaml mode\lora_map.yaml
 ```
 
 **2. Edit Mapping File**
 
-Open `configs/lora_map.yaml` and register your LoRA names:
+Open `mode/lora_map.yaml` and register your LoRA names:
 
 ```yaml
 mappings:
@@ -676,14 +702,14 @@ mappings:
 
 **3. Edit Configuration File**
 
-Open `configs/my_ai_sorter.yaml` and update paths:
+Open `mode/my_ai_sorter.yaml` and update paths:
 
 ```yaml
 settings:
   source_directories:
     - "D:\\StableDiffusion\\outputs"  # Folder where AI images are saved
   output_directory: "D:\\AI_Images\\Sorted"  # Parent folder for sorted files
-  mapping_file: "configs/lora_map.yaml"
+  mapping_file: "mode/lora_map.yaml"
 ```
 
 **4. Run**
@@ -709,7 +735,7 @@ Destinations:
 - Documents (*.pdf, *.docx) → D:\Documents
 - Files over 10MB → D:\LargeFiles
 
-Use configs/samples/downloads_sort.yaml as reference.
+Use mode/samples/downloads_sort.yaml as reference.
 ```
 
 ### Example Prompt 2: AI Image Organization
@@ -723,7 +749,7 @@ I want to organize the following LoRA names into folders:
 - anime_style_v2 → Anime_Styles
 - realistic_face → Realistic_Faces
 
-Use the format from configs/samples/lora_map_sample.yaml.
+Use the format from mode/samples/lora_map_sample.yaml.
 ```
 
 ### Example Prompt 3: Delete Old Files
@@ -735,11 +761,11 @@ Create a Loot Organizer configuration to:
 - But exclude files containing "important"
 - Cleanup filenames containing emojis
 
-Use configs/samples/cleanup_files.yaml as reference.
+Use mode/samples/cleanup_files.yaml as reference.
 ```
 
 **Tips:**
-- Show sample files (`configs/samples/`) and ask "create based on this"
+- Show sample files (`mode/samples/`) and ask "create based on this"
 - Be specific about conditions (paths, extensions, sizes, etc.)
 - Ask "what's the recommended setting?" for unclear options
 
@@ -772,6 +798,30 @@ settings:
     log_success: true
     log_directory: "logs"
 ```
+
+### Pipeline Mode
+
+Pipeline runs multiple presets in order with one preview and confirmation. Later steps scan a virtual file state that includes renames, moves, copies, and deletions planned by earlier steps. Preview and dry-run never modify real files.
+
+```yaml
+meta:
+  name: "One-stop workflow"
+  icon: "🚀"
+  mode: "Pipeline"
+  description: "Rename, sort, then clean files"
+
+settings:
+  confirm_before_execute: true
+  dry_run_default: false
+
+steps:
+  - config: "mode/rename.yaml"
+    label: "1. Rename"
+  - config: "mode/sort.yaml"
+    label: "2. Sort"
+```
+
+Step-level `confirm_before_execute` and `dry_run_default` values are ignored; the Pipeline settings apply to the whole run. If an operation fails, later operations stop because they may depend on the failed result.
 
 ### Advanced Features in Clean Mode
 
@@ -853,7 +903,7 @@ sorting_rules:
 # 3. Next run: No files match (originals have no tag) ✅
 ```
 
-For complete examples and advanced filtering options, see `configs/samples/` directory.
+For complete examples and advanced filtering options, see `mode/samples/` directory.
 
 ---
 
@@ -969,7 +1019,7 @@ Once you answer these, I'll generate a ready-to-use configuration file for you."
 ### Problem: Preset not showing in menu
 
 **Solution:**
-- Check that the YAML file is in `configs/` (not `configs/samples/`)
+- Check that the YAML file is in `mode/` (not `mode/samples/`)
 - Verify the `meta` section exists and is correctly formatted
 - Check for YAML syntax errors (indentation, etc.)
 
@@ -1001,4 +1051,5 @@ Issues and pull requests are welcome!
 ---
 
 **👤 Author**: YoyogiPinball
-**📅 Last Updated**: 2025-12-14
+**📅 Last Updated**: 2026-08-14
+

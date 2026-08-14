@@ -5,10 +5,14 @@
 
 from pathlib import Path
 from datetime import datetime
-from typing import List, Dict, Any
+from typing import List, Dict, Any, TYPE_CHECKING
 from PIL import Image
 
 from ..utils.file_utils import parse_file_size
+from ..utils.path_utils import to_paths
+
+if TYPE_CHECKING:
+    from .planning_context import PlanningContext
 
 
 class FileScanner:
@@ -24,7 +28,12 @@ class FileScanner:
     - 除外パターン
     """
 
-    def __init__(self, target_directory, logger: 'LootLogger' = None):
+    def __init__(
+        self,
+        target_directory,
+        logger: 'LootLogger' = None,
+        planning_context: 'PlanningContext | None' = None,
+    ):
         """
         初期化
 
@@ -33,19 +42,20 @@ class FileScanner:
             logger: ロガー
         """
         self.logger = logger
+        self.planning_context = planning_context
 
         # 文字列でもリストでも受け取れるように正規化
-        if isinstance(target_directory, list):
-            self.target_directories = [Path(d) for d in target_directory]
-        else:
-            self.target_directories = [Path(target_directory)]
+        self.target_directories = to_paths(target_directory)
 
         # 存在チェック & 警告
         self.valid_dirs = []
         self.skipped_dirs = []
 
         for directory in self.target_directories:
-            if directory.exists():
+            if directory.exists() or (
+                self.planning_context
+                and self.planning_context.directory_exists(directory)
+            ):
                 self.valid_dirs.append(directory)
             else:
                 self.skipped_dirs.append(str(directory))
@@ -83,13 +93,29 @@ class FileScanner:
         all_matched_files = []
         for target_dir in self.valid_dirs:
             # パターンマッチングでファイル取得
-            if recursive:
-                matched_files = list(target_dir.rglob(pattern))
+            if target_dir.exists():
+                if recursive:
+                    matched_files = list(target_dir.rglob(pattern))
+                else:
+                    matched_files = list(target_dir.glob(pattern))
             else:
-                matched_files = list(target_dir.glob(pattern))
+                matched_files = []
 
             # ディレクトリを除外（ファイルのみ）
             matched_files = [f for f in matched_files if f.is_file()]
+
+            if self.planning_context:
+                matched_files = self.planning_context.active_disk_files(matched_files)
+                matched_files.extend(
+                    self.planning_context.matching_virtual_files(
+                        target_dir,
+                        pattern,
+                        recursive,
+                    )
+                )
+
+            # 実ファイルと仮想ファイルが同じパスを指す場合は1件にまとめる
+            matched_files = list(dict.fromkeys(matched_files))
             all_matched_files.extend(matched_files)
 
         # 除外パターンの適用
@@ -155,8 +181,12 @@ class FileScanner:
         filtered_files = []
 
         for file in files:
+            metadata_file = file
+            if self.planning_context:
+                metadata_file = self.planning_context.backing_path(file)
+
             # 全てのフィルタをパスする必要がある（AND条件）
-            if self._check_file_filters(file, filters):
+            if self._check_file_filters(metadata_file, filters):
                 filtered_files.append(file)
 
         return filtered_files

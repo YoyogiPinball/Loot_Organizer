@@ -7,7 +7,7 @@
 # 自動的に振り分ける高度な設定例です。
 #
 # 【使い方】
-# 1. このファイルを configs/my_photos.yaml にコピー
+# 1. このファイルを mode/my_photos.yaml にコピー
 # 2. target_directory を自分の写真フォルダに変更
 # 3. ルールの条件や振り分け先を調整
 #
@@ -262,3 +262,4 @@ exclusions:
 # - after: この日付以降（YYYY-MM-DD形式）
 # - before: この日付より前（YYYY-MM-DD形式）
 # - 注: ファイルの更新日時（mtime）を基準に判定
+

@@ -3,5 +3,5 @@
 バージョン情報
 """
 
-__version__ = "1.0.1"
-__commit__ = "rename_pattern を大文字小文字を区別しない置換に変更"
+__version__ = "2.0.1"
+__commit__ = "Pipeline の依存ステップを仮想計画で逐次処理"

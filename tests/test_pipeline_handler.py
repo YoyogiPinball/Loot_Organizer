@@ -166,6 +166,53 @@ class TestDependentSteps:
         assert len(ops) == 2
         assert ops[1].source == staging / "payload.bin"
 
+    def test_sort_processes_both_source_and_copy_created_by_clean(
+        self,
+        tmp_path,
+        nolog,
+    ):
+        src = tmp_path / "src"
+        original = make_files(src, "{tag}photo.png")[0]
+        copied = tmp_path / "copied"
+        final = tmp_path / "final"
+
+        copy_path = write_yaml(tmp_path / "copy.yaml", clean_config(
+            src,
+            sorting_rules=[{
+                "search": "*.png",
+                "destination": str(copied),
+                "action": "copy",
+                "rename_pattern": {"{tag}": ""},
+            }],
+        ))
+        sort_cfg = sort_config(src, [{
+            "pattern": "*.png",
+            "dest": str(final),
+            "description": "sort originals and copies",
+        }])
+        sort_cfg["settings"]["target_directory"] = [str(src), str(copied)]
+        sort_path = write_yaml(tmp_path / "sort.yaml", sort_cfg)
+
+        handler = _pipeline_handler(tmp_path, nolog, [
+            {"config": str(copy_path), "label": "Copy"},
+            {"config": str(sort_path), "label": "Sort"},
+        ])
+
+        operations = handler.plan_operations()
+
+        assert len(operations) == 3
+        assert operations[0].action == "copy"
+        assert operations[0].source == original
+        assert operations[0].destination == copied / "photo.png"
+        assert {operation.source for operation in operations[1:]} == {
+            original,
+            copied / "photo.png",
+        }
+        assert {operation.destination for operation in operations[1:]} == {
+            final / "{tag}photo.png",
+            final / "photo.png",
+        }
+
     def test_skip_if_exists_sees_planned_destination(self, tmp_path, nolog):
         src = tmp_path / "src"
         make_files(src, "file.txt")

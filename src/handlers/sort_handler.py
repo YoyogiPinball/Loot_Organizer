@@ -73,7 +73,7 @@ class SortModeHandler(BaseHandler):
         move_rules = self.config.get('move_rules', [])
         exclusions = self.config.get('exclusions', {})
 
-        # 処理済みの実体を追跡（リネーム後も最初のルールのみ適用）
+        # 処理済みの論理実体を追跡（move/rename は同一、copy は別実体）
         processed_files = set()
 
         for rule in move_rules:
@@ -97,7 +97,7 @@ class SortModeHandler(BaseHandler):
 
             # 未処理のファイルのみ追加
             for file in matched_files:
-                file_identity = self.planning_context.backing_path(file)
+                file_identity = self.planning_context.identity(file)
                 if file_identity not in processed_files:
                     # rename: random の場合、ファイル名をランダム文字列に置換
                     if rename == 'random':

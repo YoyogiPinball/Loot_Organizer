@@ -24,8 +24,13 @@ def to_path(path_value) -> Path:
     if os.name != "nt" and match:
         drive, rest = match.groups()
         rest_parts = [part for part in re.split(r"[\\/]+", rest) if part]
-        return Path("/mnt") / drive.lower() / Path(*rest_parts)
-    return Path(path_str)
+        path = Path("/mnt") / drive.lower() / Path(*rest_parts)
+    else:
+        path = Path(path_str)
+
+    # 保存先が未作成でも扱えるよう、実在確認やシンボリックリンク解決は行わず
+    # 相対パスと ``..`` だけを字句的に正規化する。
+    return Path(os.path.abspath(os.path.normpath(path)))
 
 
 def to_paths(path_values) -> list[Path]:

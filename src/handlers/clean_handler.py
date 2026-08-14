@@ -205,7 +205,7 @@ class CleanModeHandler(BaseHandler):
 
                 # rename_pattern 適用後のファイル名で存在チェックする
                 if rule.get('skip_if_exists', False) and destination:
-                    if self._destination_exists(file, destination):
+                    if self._destination_exists(destination):
                         continue
 
                 operation = FileOperation(
@@ -250,7 +250,7 @@ class CleanModeHandler(BaseHandler):
         destination = to_path(rule['destination'])
         rename_pattern = rule.get('rename_pattern')
         if not rename_pattern:
-            return destination
+            return destination / file.name
 
         new_name = self._apply_rename_pattern(file.name, rename_pattern)
         return destination / new_name
@@ -268,7 +268,6 @@ class CleanModeHandler(BaseHandler):
             )
         return clean_filename(new_name)
 
-    def _destination_exists(self, file, destination) -> bool:
-        """destination がディレクトリ/ファイルどちらでも存在確認する"""
-        dest_file = destination if destination.suffix else destination / file.name
-        return self.planning_context.is_file(dest_file)
+    def _destination_exists(self, destination) -> bool:
+        """最終 destination にファイルが存在するか確認する"""
+        return self.planning_context.is_file(destination)

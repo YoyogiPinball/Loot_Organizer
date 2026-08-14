@@ -107,11 +107,10 @@ class SortModeHandler(BaseHandler):
                         new_name = self._apply_rename_pattern(file.name, rename_pattern)
                         dest_path = dest / new_name
                     else:
-                        dest_path = dest
+                        dest_path = dest / file.name
 
                     if rule.get('skip_if_exists', False):
-                        dest_file = dest_path if dest_path.suffix else dest_path / file.name
-                        if self.planning_context.is_file(dest_file):
+                        if self.planning_context.is_file(dest_path):
                             continue
 
                     operation = FileOperation(

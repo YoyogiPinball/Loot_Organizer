@@ -9,6 +9,7 @@ after_sorting や skip_if_exists + rename_pattern の組み合わせを確認す
 import pytest
 
 from src.core.file_scanner import FileScanner
+from src.core.planning_context import PlanningConflictError
 from src.handlers.clean_handler import CleanModeHandler
 from src.utils.file_executor import execute_file_op
 from tests.conftest import make_files, clean_config
@@ -114,6 +115,38 @@ class TestCleanup:
 
         assert len(cleanup_ops) == 1
         assert "DRAFT" not in cleanup_ops[0].destination.name
+
+    def test_duplicate_cleanup_destination_raises_planning_conflict(self, tmp_path, nolog):
+        src = tmp_path / "src"
+        first, second = make_files(src, "photo😀.png", "photo😃.png")
+        handler = _handler(
+            src,
+            nolog,
+            cleanup={"enabled": True, "recursive": False, "custom_patterns": []},
+        )
+
+        with pytest.raises(PlanningConflictError) as exc_info:
+            handler.plan_operations()
+
+        conflict = exc_info.value
+        assert {conflict.first_source, conflict.second_source} == {first, second}
+        assert conflict.destination == src / "photo.png"
+
+    def test_planning_conflict_leaves_real_files_unchanged(self, tmp_path, nolog):
+        src = tmp_path / "src"
+        first, second = make_files(src, "photo😀.png", "photo😃.png")
+        handler = _handler(
+            src,
+            nolog,
+            cleanup={"enabled": True, "recursive": False, "custom_patterns": []},
+        )
+
+        with pytest.raises(PlanningConflictError):
+            handler.plan_operations()
+
+        assert first.exists()
+        assert second.exists()
+        assert not (src / "photo.png").exists()
 
 
 # ---------------------------------------------------------------------------

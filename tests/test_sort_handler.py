@@ -8,6 +8,7 @@ move_rules に基づいてファイルが正しく振り分けられることを
 import pytest
 
 from src.core.file_scanner import FileScanner
+from src.core.preview_generator import PreviewGenerator
 from src.handlers.sort_handler import SortModeHandler
 from src.utils.file_executor import execute_file_op
 from tests.conftest import make_files, sort_config
@@ -108,6 +109,30 @@ class TestBasicMove:
 
         assert not f.exists()
         assert (dest / "move_me.txt").exists()
+
+    def test_dot_named_destination_is_used_as_directory(self, tmp_path, nolog):
+        src = tmp_path / "src"
+        source = make_files(src, "photo.jpg")[0]
+        dest = tmp_path / "output" / "v2.0"
+
+        handler = _handler(
+            src,
+            [{"pattern": "*.jpg", "dest": str(dest), "description": "jpg"}],
+            nolog,
+        )
+        operations = handler.plan_operations()
+        preview = PreviewGenerator(preview_mode="all").generate_preview(
+            operations,
+            "Sort",
+        )
+
+        assert operations[0].destination == dest / source.name
+        assert str(dest) in preview
+
+        execute_file_op(operations[0])
+
+        assert not source.exists()
+        assert (dest / source.name).exists()
 
 
 # ---------------------------------------------------------------------------

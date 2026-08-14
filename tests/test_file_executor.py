@@ -17,14 +17,8 @@ from src.utils.file_executor import execute_file_op, resolve_destination
 # ---------------------------------------------------------------------------
 
 class TestResolveDestination:
-    def test_move_to_directory(self, tmp_path):
+    def test_move_returns_final_destination_as_is(self, tmp_path):
         src = tmp_path / "file.txt"
-        dest_dir = tmp_path / "out"
-        op = FileOperation(source=src, destination=dest_dir, action="move", reason="")
-        assert resolve_destination(op) == dest_dir / "file.txt"
-
-    def test_move_to_file_path(self, tmp_path):
-        src = tmp_path / "old.txt"
         dest_file = tmp_path / "out" / "new.txt"
         op = FileOperation(source=src, destination=dest_file, action="move", reason="")
         assert resolve_destination(op) == dest_file
@@ -45,17 +39,17 @@ class TestResolveDestination:
 # ---------------------------------------------------------------------------
 
 class TestExecuteFileOp:
-    def test_move_to_directory(self, tmp_path):
+    def test_move_to_final_file_path(self, tmp_path):
         src = tmp_path / "src" / "file.txt"
         src.parent.mkdir()
         src.write_text("data")
-        dest_dir = tmp_path / "dest"
+        dest = tmp_path / "dest" / src.name
 
-        op = FileOperation(source=src, destination=dest_dir, action="move", reason="")
+        op = FileOperation(source=src, destination=dest, action="move", reason="")
         execute_file_op(op)
 
         assert not src.exists()
-        assert (dest_dir / "file.txt").read_text() == "data"
+        assert dest.read_text() == "data"
 
     def test_move_to_file_path(self, tmp_path):
         src = tmp_path / "original.png"
@@ -71,13 +65,13 @@ class TestExecuteFileOp:
     def test_copy_keeps_source(self, tmp_path):
         src = tmp_path / "file.txt"
         src.write_text("hello")
-        dest_dir = tmp_path / "copy_dest"
+        dest = tmp_path / "copy_dest" / src.name
 
-        op = FileOperation(source=src, destination=dest_dir, action="copy", reason="")
+        op = FileOperation(source=src, destination=dest, action="copy", reason="")
         execute_file_op(op)
 
         assert src.exists()
-        assert (dest_dir / "file.txt").read_text() == "hello"
+        assert dest.read_text() == "hello"
 
     def test_delete(self, tmp_path):
         src = tmp_path / "remove_me.txt"
@@ -113,9 +107,9 @@ class TestExecuteFileOp:
     def test_move_creates_parent_dirs(self, tmp_path):
         src = tmp_path / "file.txt"
         src.touch()
-        dest = tmp_path / "a" / "b" / "c" / "dest"
+        dest = tmp_path / "a" / "b" / "c" / "file.txt"
 
         op = FileOperation(source=src, destination=dest, action="move", reason="")
         execute_file_op(op)
 
-        assert (dest / "file.txt").exists()
+        assert dest.exists()

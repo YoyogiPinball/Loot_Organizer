@@ -8,6 +8,24 @@ from .preview_generator import FileOperation
 from ..utils.file_executor import resolve_destination
 
 
+class PlanningConflictError(Exception):
+    """Raised when multiple planned operations share one destination."""
+
+    def __init__(
+        self,
+        first_source: Path,
+        second_source: Path,
+        destination: Path,
+    ):
+        self.first_source = Path(first_source)
+        self.second_source = Path(second_source)
+        self.destination = Path(destination)
+        super().__init__(
+            f"移動先が衝突しています: {self.first_source} / "
+            f"{self.second_source} -> {self.destination}"
+        )
+
+
 class PlanningContext:
     """
     Track the paths that will exist after each planned operation.
@@ -20,6 +38,7 @@ class PlanningContext:
     def __init__(self):
         self._virtual_files: dict[Path, Path] = {}
         self._removed_files: set[Path] = set()
+        self._planned_destinations: dict[Path, Path] = {}
 
     def is_file(self, path: Path) -> bool:
         """Return whether ``path`` exists in the planned state."""
@@ -91,13 +110,17 @@ class PlanningContext:
             )
 
         destination = Path(destination)
+        first_source = self._planned_destinations.get(destination)
+        if first_source is not None:
+            raise PlanningConflictError(first_source, source, destination)
+
         if operation.action == 'copy':
-            self._add(destination, backing)
+            self._add(destination, backing, source)
             return
 
         if operation.action in {'move', 'cleanup', 'rename'}:
             self._remove(source)
-            self._add(destination, backing)
+            self._add(destination, backing, source)
             return
 
         raise ValueError(f"未対応のファイル操作です: {operation.action}")
@@ -106,6 +129,7 @@ class PlanningContext:
         self._virtual_files.pop(path, None)
         self._removed_files.add(path)
 
-    def _add(self, path: Path, backing: Path) -> None:
+    def _add(self, path: Path, backing: Path, source: Path) -> None:
         self._removed_files.discard(path)
         self._virtual_files[path] = backing
+        self._planned_destinations[path] = source

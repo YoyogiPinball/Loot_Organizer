@@ -7,6 +7,7 @@ Pipeline モードの動作テスト
 
 import pytest
 
+from src.core.planning_context import PlanningConflictError
 from src.core.preview_generator import FileOperation
 from src.handlers.pipeline_handler import PipelineModeHandler
 from src.handlers.registry import build_handler
@@ -232,6 +233,39 @@ class TestDependentSteps:
         assert original.exists()
         assert not dest.exists()
 
+    def test_conflicting_destinations_across_steps_abort_before_execution(
+        self,
+        tmp_path,
+        nolog,
+    ):
+        src1 = tmp_path / "src1"
+        src2 = tmp_path / "src2"
+        first = make_files(src1, "same.txt")[0]
+        second = make_files(src2, "same.txt")[0]
+        dest = tmp_path / "dest"
+
+        first_path = write_yaml(tmp_path / "first.yaml", sort_config(src1, [
+            {"pattern": "*.txt", "dest": str(dest), "description": "first"},
+        ]))
+        second_path = write_yaml(tmp_path / "second.yaml", sort_config(src2, [
+            {"pattern": "*.txt", "dest": str(dest), "description": "second"},
+        ]))
+        handler = _pipeline_handler(tmp_path, nolog, [
+            {"config": str(first_path), "label": "First"},
+            {"config": str(second_path), "label": "Second"},
+        ])
+
+        with pytest.raises(PlanningConflictError) as exc_info:
+            handler.plan_operations()
+
+        conflict = exc_info.value
+        assert conflict.first_source == first
+        assert conflict.second_source == second
+        assert conflict.destination == dest / "same.txt"
+        assert first.exists()
+        assert second.exists()
+        assert not dest.exists()
+
 
 class TestPipelineExecution:
     def test_stops_after_first_failure(self, tmp_path, nolog, monkeypatch):
@@ -250,8 +284,8 @@ class TestPipelineExecution:
             raising=False,
         )
         ops = [
-            FileOperation(tmp_path / "one", tmp_path / "out", "move", "one"),
-            FileOperation(tmp_path / "two", tmp_path / "out", "move", "two"),
+            FileOperation(tmp_path / "one", tmp_path / "out" / "one", "move", "one"),
+            FileOperation(tmp_path / "two", tmp_path / "out" / "two", "move", "two"),
         ]
 
         success, failure = handler.execute_operations(ops)

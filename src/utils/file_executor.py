@@ -10,28 +10,14 @@ from ..core.preview_generator import FileOperation
 
 
 def resolve_destination(op: FileOperation) -> Path | None:
-    """
-    Return the final destination path for an operation.
-
-    Move/copy operations may store either a directory path or a full file path
-    in ``op.destination``. The existing YAML behavior uses a suffix check to
-    distinguish those cases, so that rule is centralized here.
-    """
+    """Return the final destination path stored in the operation."""
     if op.action == "delete":
         return None
 
     if op.destination is None:
         raise ValueError(f"{op.action} には destination が必要です: {op.source}")
 
-    if op.action in {"cleanup", "rename"}:
-        return op.destination
-
-    if op.action in {"move", "copy"}:
-        if op.destination.suffix:
-            return op.destination
-        return op.destination / op.source.name
-
-    raise ValueError(f"未対応のファイル操作です: {op.action}")
+    return op.destination
 
 
 def execute_file_op(op: FileOperation) -> Path | None:

@@ -14,7 +14,7 @@ from ..utils.colors import Colors
 class FileOperation:
     """ファイル操作を表すデータクラス"""
     source: Path
-    destination: Path | None
+    destination: Path | None  # delete 以外は最終ファイルパス
     action: str  # "move", "copy", "delete", "cleanup"
     reason: str  # ルールの説明
     step_label: str | None = None
@@ -179,13 +179,7 @@ class PreviewGenerator:
             elif op.action == "cleanup":
                 key = f"クリーンアップ（{op.reason}）"
             elif op.destination:
-                # copy/move の場合、destination が完全なファイルパスなら親ディレクトリでグループ化
-                if op.destination.suffix:
-                    # ファイルパス（拡張子あり）→ 親ディレクトリでグループ化
-                    key = str(op.destination.parent)
-                else:
-                    # ディレクトリパス → そのままグループ化
-                    key = str(op.destination)
+                key = str(op.destination.parent)
             else:
                 key = op.action
 

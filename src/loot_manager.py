@@ -25,6 +25,7 @@ from src.__version__ import __version__, __commit__
 from src.utils.colors import Colors
 from src.core.config_loader import ConfigLoader, PresetMeta
 from src.core.logger import LootLogger
+from src.core.planning_context import PlanningConflictError
 from src.core.preview_generator import PreviewGenerator
 from src.handlers.registry import build_handler, get_handler_modes
 
@@ -138,7 +139,16 @@ class LootManager:
             return
 
         # 操作を計画
-        operations = handler.plan_operations()
+        try:
+            operations = handler.plan_operations()
+        except PlanningConflictError as e:
+            print(f"{Colors.NEON_RED}[エラー] 移動先が衝突しています{Colors.RESET}")
+            print(f"{Colors.NEON_RED}  {e.first_source} -> {e.destination}{Colors.RESET}")
+            print(f"{Colors.NEON_RED}  {e.second_source} -> {e.destination}{Colors.RESET}")
+            print()
+            print(f"{Colors.NEON_YELLOW}YAML のルールを見直してください。{Colors.RESET}")
+            input(f"{Colors.NEON_CYAN}Enterキーで続行...{Colors.RESET}")
+            return
 
         if not operations:
             print(f"{Colors.NEON_YELLOW}処理対象のファイルがありません{Colors.RESET}")

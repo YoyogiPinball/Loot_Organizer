@@ -1,4 +1,4 @@
-> 最終更新: 2026-08-14（Fri）12:42
+> 最終更新: 2026-08-15（Sat）10:26
 
 # 📁 Loot Organizer
 
@@ -67,6 +67,8 @@ cd Loot_Organizer
 # 依存関係をインストール
 pip install -r requirements.txt
 ```
+
+依存関係には、削除対象をゴミ箱へ送るための `Send2Trash` が含まれます。
 
 ### 設定
 
@@ -294,9 +296,35 @@ steps:
 
 各ステップの `confirm_before_execute` と `dry_run_default` は使用せず、Pipeline側の設定を全体へ適用します。実行中に1件でも失敗した場合は、前段の結果に依存する後続操作を中止します。
 
+PNG_Prompt_Sort をステップに含める場合も、そのプリセットの `duplicate_handling` が機能します。`overwrite`（上書き）、`sequential`（連番）、`skip`（スキップ）を指定できます。`ask` は Pipeline では使用できず、ファイルを操作する前に設定エラーになります。PNG_Prompt_Sort を単独で実行する場合は、従来どおり `ask` を使用できます。
+
+同じ実行内の複数のファイルが同じ保存先を指すと、計画段階でエラーになり、ファイル操作を開始せずに停止します。エラーには衝突した両方のファイル名が表示されます。以前は無警告で上書きされていたため、保存先が重なる既存のプリセットは停止する可能性があります。
+
+### 保存先と実行時の安全確認
+
+Sort の `dest` と Clean の `destination` は、ドットを含む名前でも常にディレクトリとして扱われます。たとえば `dest: "D:\\Output\\v2.0"` はファイル名ではなくディレクトリを表し、元のファイル名がその後ろに追加されます。
+
+計画後のプレビュー確認中に対象ファイルが別のプロセスによって変更、置換、または削除された場合、そのファイルは操作されずにエラーになります。
+
 ### Clean モードの高度な機能
 
 Clean モードでは、以下の高度なオプションが使用できます：
+
+#### deletion の削除方式
+
+```yaml
+deletion:
+  enabled: true
+  delete_mode: "trash"
+  strings:
+    - ".tmp"
+```
+
+| 設定項目 | 値 | 既定値 | 説明 |
+|---|---|---|---|
+| `deletion.delete_mode` | `trash` / `permanent` | `trash` | `trash` は復元可能なゴミ箱へ移動し、`permanent` は完全に削除します。 |
+
+既定の削除方式は、以前の完全削除からゴミ箱への移動に変わりました。Windows から直接実行した場合は Windows のゴミ箱へ移動します。WSL から実行した場合は Windows のゴミ箱ではなく、対象ドライブ直下の `.Trash-1000/` フォルダーへ移動します。
 
 #### sorting_rules の拡張オプション
 
@@ -522,7 +550,7 @@ IssueやPull Requestを歓迎します！
 ---
 
 **👤 作成者**: YoyogiPinball
-**📅 最終更新**: 2025-12-14
+**📅 最終更新**: 2026-08-15
 
 ---
 ---
@@ -596,6 +624,8 @@ cd Loot_Organizer
 # Install dependencies
 pip install -r requirements.txt
 ```
+
+The dependencies include `Send2Trash`, which moves deleted files to the trash.
 
 ### Configuration
 
@@ -823,9 +853,35 @@ steps:
 
 Step-level `confirm_before_execute` and `dry_run_default` values are ignored; the Pipeline settings apply to the whole run. If an operation fails, later operations stop because they may depend on the failed result.
 
+When a Pipeline includes a PNG_Prompt_Sort step, that preset's `duplicate_handling` setting is honored. You can use `overwrite`, `sequential`, or `skip`. `ask` is not available in Pipeline and causes a configuration error before any file operation starts. Standalone PNG_Prompt_Sort runs can continue to use `ask` as before.
+
+If multiple files in the same run point to the same destination, planning fails and stops before any file operation starts. The error shows both conflicting filenames. Because previous versions overwrote such files without warning, existing presets with overlapping destinations may now stop.
+
+### Destinations and Execution-Time Safety
+
+Sort `dest` and Clean `destination` values are always treated as directories, even when their names contain dots. For example, `dest: "D:\\Output\\v2.0"` identifies a directory rather than a filename, and the source filename is appended to it.
+
+If another process modifies, replaces, or deletes a target file while you are reviewing the plan, Loot Organizer reports an error and does not operate on that file.
+
 ### Advanced Features in Clean Mode
 
 Clean mode supports the following advanced options:
+
+#### deletion Mode
+
+```yaml
+deletion:
+  enabled: true
+  delete_mode: "trash"
+  strings:
+    - ".tmp"
+```
+
+| Setting | Values | Default | Description |
+|---|---|---|---|
+| `deletion.delete_mode` | `trash` / `permanent` | `trash` | `trash` moves files to recoverable trash; `permanent` deletes them permanently. |
+
+The default changed from permanent deletion to moving files to the trash. When run directly on Windows, files go to the Windows Recycle Bin. When run from WSL, files go to the `.Trash-1000/` folder at the root of the target drive instead of the Windows Recycle Bin.
 
 #### sorting_rules Extended Options
 
@@ -1051,5 +1107,4 @@ Issues and pull requests are welcome!
 ---
 
 **👤 Author**: YoyogiPinball
-**📅 Last Updated**: 2026-08-14
-
+**📅 Last Updated**: 2026-08-15

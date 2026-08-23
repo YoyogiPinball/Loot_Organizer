@@ -65,16 +65,16 @@ settings:
     - "webp"
 
   # 重複ファイル処理方法
-  # overwrite: 上書き（デフォルト）
+  # overwrite: 上書き
   # sequential: 連番付与（xxx_1.png, xxx_2.png...）
   # ask: 毎回尋ねる
-  # skip: スキップ
-  duplicate_handling: "overwrite"
+  # skip: スキップ（デフォルト）
+  duplicate_handling: "skip"
 
   # 一般設定
   enable_logging: true
   confirm_before_execute: true
-  dry_run_default: false
+  dry_run_default: true  # まず true で結果を確認し、納得したら false にする
 
   # プレビュー表示設定
   preview:

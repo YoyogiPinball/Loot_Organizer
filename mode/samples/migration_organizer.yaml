@@ -3,7 +3,7 @@
 # ========================================
 #
 # 【使い方】
-# 1. このファイルを mode/my_organizer.yaml にコピー
+# 1. このファイルを mode/download_sort.yaml にコピー
 # 2. 旧 file_organizer/config.yaml の設定値をコピー＆ペースト
 # 3. すぐに使用開始できます
 #
@@ -39,7 +39,7 @@ settings:
   confirm_before_execute: true
 
   # ドライラン（プレビュー）をデフォルトで有効化
-  dry_run_default: false
+  dry_run_default: true  # まず true で結果を確認し、納得したら false にする
 
   # プレビュー表示設定（新機能、省略可）
   preview:

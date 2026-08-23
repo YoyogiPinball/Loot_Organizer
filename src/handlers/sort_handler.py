@@ -109,19 +109,15 @@ class SortModeHandler(BaseHandler):
                     else:
                         dest_path = dest / file.name
 
-                    if rule.get('skip_if_exists', False):
-                        if self.planning_context.is_file(dest_path):
-                            continue
-
                     operation = FileOperation(
                         source=file,
                         destination=dest_path,
                         action='move',
                         reason=description,
-                        skip_if_exists=rule.get('skip_if_exists', False),
+                        skip_if_exists=True,
+                        configured_skip_if_exists=rule.get('skip_if_exists'),
                     )
-                    operations.append(operation)
-                    self._record_planned_operations([operation])
+                    operations.extend(self._record_planned_operations([operation]))
                     processed_files.add(file_identity)
 
         return operations

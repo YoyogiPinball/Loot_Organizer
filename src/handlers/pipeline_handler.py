@@ -3,13 +3,13 @@
 Pipeline モードの処理ハンドラー
 """
 
-from typing import List, Tuple
+from typing import List
 
 from tqdm import tqdm
 
-from ..core.planning_context import PlanningContext
 from ..core.preview_generator import FileOperation
 from ..utils.file_executor import (
+    ExecutionResult,
     SkippedFileOperation,
     execute_file_op,
     operation_log_message,
@@ -67,7 +67,7 @@ class PipelineModeHandler(BaseHandler):
                 sub_config.get("meta", {}).get("mode") == "PNG_Prompt_Sort"
                 and sub_config.get("settings", {}).get(
                     "duplicate_handling",
-                    "overwrite",
+                    "skip",
                 ) == "ask"
             ):
                 raise PipelineAskDuplicateHandlingError(
@@ -78,8 +78,8 @@ class PipelineModeHandler(BaseHandler):
                 (step_config_path, step_label, sub_config)
             )
 
-        if not self._external_planning_context:
-            self.planning_context = PlanningContext()
+        self._start_planning()
+        initial_planning_state = self.planning_context.snapshot()
         operations = []
         self.skipped_dirs = []
 
@@ -106,24 +106,48 @@ class PipelineModeHandler(BaseHandler):
             if getattr(sub_handler, 'skipped_dirs', None):
                 self.skipped_dirs.extend(sub_handler.skipped_dirs)
 
+        cleanup_operations = [
+            operation for operation in operations
+            if operation.action == "cleanup"
+        ]
+        sorting_operations = [
+            operation for operation in operations
+            if operation.action in {"move", "copy"}
+        ]
+        self._propagate_cleanup_skips(
+            operations,
+            initial_planning_state,
+            cleanup_operations,
+            sorting_operations,
+        )
+
         return operations
 
     def execute_operations(
         self,
         operations: List[FileOperation],
         dry_run: bool = False,
-    ) -> Tuple[int, int]:
+    ) -> ExecutionResult:
         """Execute in order and stop when a dependency may have failed."""
         success_count = 0
         failure_count = 0
+        skipped_operations = []
+        not_attempted = []
+        aborted_step = None
 
-        for op in tqdm(operations, desc="処理中", unit="files"):
+        for index, op in enumerate(tqdm(operations, desc="処理中", unit="files")):
             try:
-                if not dry_run:
+                if op.planned_skip_reason is not None:
                     result = execute_file_op(op)
-                    if isinstance(result, SkippedFileOperation):
-                        self.logger.info(skipped_operation_log_message(op, result))
-                        continue
+                elif not dry_run:
+                    result = execute_file_op(op)
+                else:
+                    result = None
+
+                if isinstance(result, SkippedFileOperation):
+                    skipped_operations.append(result)
+                    self.logger.info(skipped_operation_log_message(op, result))
+                    continue
 
                 self.logger.info(operation_log_message(op, dry_run=dry_run))
                 success_count += 1
@@ -131,9 +155,20 @@ class PipelineModeHandler(BaseHandler):
             except Exception as e:
                 self.logger.error(f"[エラー] {op.source}: {e}")
                 failure_count += 1
+                # 後続は前段の結果に依存しているので、1件も手を付けずに残す。
+                not_attempted = list(operations[index + 1:])
+                aborted_step = op.step_label
                 self.logger.error(
                     "Pipeline の整合性を保つため、後続処理を中止します"
+                    f"（ステップ「{aborted_step or '不明'}」で中断、"
+                    f"未実行 {len(not_attempted)} 件）"
                 )
                 break
 
-        return success_count, failure_count
+        return ExecutionResult(
+            success_count,
+            failure_count,
+            skipped_operations,
+            not_attempted,
+            aborted_step,
+        )

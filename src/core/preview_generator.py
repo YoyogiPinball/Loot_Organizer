@@ -4,7 +4,7 @@
 """
 
 from pathlib import Path
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Hashable
 from dataclasses import dataclass, field
 
 from ..utils.colors import Colors
@@ -44,13 +44,26 @@ class FileOperation:
     reason: str  # ルールの説明
     step_label: str | None = None
     step_mode: str | None = None
-    skip_if_exists: bool = False
+    skip_if_exists: bool = True
+    configured_skip_if_exists: bool | None = None
     delete_mode: str = "trash"
+    planned_skip_reason: str | None = None
+    planned_skip_category: str | None = None
     source_fingerprint: SourceFingerprint | None = field(init=False, repr=False)
+    source_identity: Hashable | None = field(default=None, init=False, repr=False)
 
     def __post_init__(self) -> None:
         """計画時点で実在する source の指紋を保存する。"""
         self.source_fingerprint = SourceFingerprint.capture(Path(self.source))
+
+    @property
+    def skip_category(self) -> str:
+        """Return the user-facing category for a skipped operation."""
+        if self.planned_skip_category is not None:
+            return self.planned_skip_category
+        if self.configured_skip_if_exists is True:
+            return "explicit"
+        return "protected"
 
 
 class PreviewGenerator:
@@ -80,6 +93,40 @@ class PreviewGenerator:
         self.config = config or {}
         self.preview_mode = preview_mode
         self.preview_count = preview_count
+
+    @staticmethod
+    def _append_skip_summary(
+        preview_lines: List[str],
+        operations: List[FileOperation],
+    ) -> None:
+        """Append separate summaries for configured and protective skips."""
+        explicit_count = sum(
+            op.planned_skip_reason is not None and op.skip_category == "explicit"
+            for op in operations
+        )
+        protected_count = sum(
+            op.planned_skip_reason is not None and op.skip_category == "protected"
+            for op in operations
+        )
+        if explicit_count:
+            preview_lines.append(
+                f"{Colors.NEON_YELLOW}既に存在するため {explicit_count} 件を"
+                f"スキップ予定{Colors.RESET}"
+            )
+        same_path_count = sum(
+            op.planned_skip_reason is not None and op.skip_category == "same_path"
+            for op in operations
+        )
+        if protected_count:
+            preview_lines.append(
+                f"{Colors.NEON_YELLOW}保存先が埋まっていたため {protected_count} 件を"
+                f"スキップ予定{Colors.RESET}"
+            )
+        if same_path_count:
+            preview_lines.append(
+                f"{Colors.NEON_YELLOW}移動元と移動先が同じため {same_path_count} 件を"
+                f"スキップ予定{Colors.RESET}"
+            )
 
     def generate_preview(
         self,
@@ -137,10 +184,14 @@ class PreviewGenerator:
                 preview_lines.append("")
 
         total_count = 0
+        skipped_count = 0
 
         for group_key, group_ops in grouped.items():
             count = len(group_ops)
             total_count += count
+            skipped_count += sum(
+                op.planned_skip_reason is not None for op in group_ops
+            )
 
             # グループヘッダー
             if mode == "Sort":
@@ -156,14 +207,15 @@ class PreviewGenerator:
             files_to_show = self._select_files_to_show(group_ops)
 
             for op in files_to_show:
+                skip_label = "[スキップ] " if op.planned_skip_reason else ""
                 # 削除アクションは赤色で強調表示、その他は青色
                 if op.action == 'delete':
                     preview_lines.append(
-                        f"{Colors.NEON_RED}  ├─ {op.source.name}{Colors.RESET}"
+                        f"{Colors.NEON_RED}  ├─ {skip_label}{op.source.name}{Colors.RESET}"
                     )
                 else:
                     preview_lines.append(
-                        f"{Colors.NEON_BLUE}  ├─ {op.source.name}{Colors.RESET}"
+                        f"{Colors.NEON_BLUE}  ├─ {skip_label}{op.source.name}{Colors.RESET}"
                     )
 
             # 省略表示
@@ -182,7 +234,10 @@ class PreviewGenerator:
 
         # サマリー
         preview_lines.append(f"{Colors.CYAN}{'─' * 44}{Colors.RESET}")
-        preview_lines.append(f"{Colors.NEON_YELLOW}合計: {total_count}件{Colors.RESET}")
+        preview_lines.append(
+            f"{Colors.NEON_YELLOW}実行予定: {total_count - skipped_count}件{Colors.RESET}"
+        )
+        self._append_skip_summary(preview_lines, operations)
         preview_lines.append("")
 
         return "\n".join(preview_lines)
@@ -343,10 +398,12 @@ class PreviewGenerator:
             grouped[folder_name].append(op)
 
         total_count = 0
+        skipped_count = 0
 
         for folder_name, ops in grouped.items():
             count = len(ops)
             total_count += count
+            skipped_count += sum(op.planned_skip_reason is not None for op in ops)
 
             # フォルダヘッダー（LoRAワード表示）
             # 最初のoperationからLoRAワードを取得
@@ -373,15 +430,19 @@ class PreviewGenerator:
                         f"{Colors.NEON_BLUE}   ... 他{omitted}件{Colors.RESET}"
                     )
 
+                skip_label = "[スキップ] " if op.planned_skip_reason else ""
                 preview_lines.append(
-                    f"{Colors.NEON_BLUE}   ├─ {op.source.name}{Colors.RESET}"
+                    f"{Colors.NEON_BLUE}   ├─ {skip_label}{op.source.name}{Colors.RESET}"
                 )
 
             preview_lines.append("")
 
         # サマリー
         preview_lines.append(f"{Colors.CYAN}{'─' * 44}{Colors.RESET}")
-        preview_lines.append(f"{Colors.NEON_YELLOW}合計: {total_count}件{Colors.RESET}")
+        preview_lines.append(
+            f"{Colors.NEON_YELLOW}実行予定: {total_count - skipped_count}件{Colors.RESET}"
+        )
+        self._append_skip_summary(preview_lines, operations)
         preview_lines.append("")
 
         return "\n".join(preview_lines)
@@ -417,10 +478,17 @@ class PreviewGenerator:
             grouped_by_step.setdefault(step_label, []).append(op)
 
         total_count = 0
+        skipped_count = 0
         for step_label, step_ops in grouped_by_step.items():
             total_count += len(step_ops)
+            step_skipped_count = sum(
+                op.planned_skip_reason is not None for op in step_ops
+            )
+            skipped_count += step_skipped_count
             preview_lines.append(
-                f"{Colors.NEON_YELLOW}▶ {step_label} ({len(step_ops)}件){Colors.RESET}"
+                f"{Colors.NEON_YELLOW}▶ {step_label} "
+                f"(実行予定 {len(step_ops) - step_skipped_count}件、"
+                f"スキップ {step_skipped_count}件){Colors.RESET}"
             )
 
             grouped = self._group_operations(step_ops, "Clean")
@@ -431,7 +499,10 @@ class PreviewGenerator:
                 files_to_show = self._select_files_to_show(group_ops)
                 for op in files_to_show:
                     color = Colors.NEON_RED if op.action == 'delete' else Colors.NEON_BLUE
-                    preview_lines.append(f"{color}    ├─ {op.source.name}{Colors.RESET}")
+                    skip_label = "[スキップ] " if op.planned_skip_reason else ""
+                    preview_lines.append(
+                        f"{color}    ├─ {skip_label}{op.source.name}{Colors.RESET}"
+                    )
 
                 omitted = len(group_ops) - len(files_to_show)
                 if omitted > 0:
@@ -441,7 +512,10 @@ class PreviewGenerator:
             preview_lines.append("")
 
         preview_lines.append(f"{Colors.CYAN}{'─' * 44}{Colors.RESET}")
-        preview_lines.append(f"{Colors.NEON_YELLOW}合計: {total_count}件{Colors.RESET}")
+        preview_lines.append(
+            f"{Colors.NEON_YELLOW}実行予定: {total_count - skipped_count}件{Colors.RESET}"
+        )
+        self._append_skip_summary(preview_lines, operations)
         preview_lines.append("")
 
         return "\n".join(preview_lines)

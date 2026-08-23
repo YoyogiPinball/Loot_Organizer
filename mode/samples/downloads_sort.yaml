@@ -42,7 +42,7 @@ settings:
   confirm_before_execute: true
 
   # ドライラン（プレビューのみ、実際には実行しない）をデフォルトで有効化
-  dry_run_default: false
+  dry_run_default: true  # まず true で結果を確認し、納得したら false にする
 
   # プレビュー表示設定
   preview:

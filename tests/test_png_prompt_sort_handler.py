@@ -8,6 +8,8 @@ from PIL import Image
 from PIL.PngImagePlugin import PngInfo
 
 from src.core.config_loader import PresetMeta
+from src.core.planning_context import PlanningContext
+from src.core.preview_generator import PreviewGenerator
 from src.handlers.pipeline_handler import (
     PipelineAskDuplicateHandlingError,
     PipelineModeHandler,
@@ -29,8 +31,13 @@ def _write_mapping(path: Path) -> Path:
     return write_yaml(path, {"mappings": {"Example Lora": "portraits"}})
 
 
-def _png_config(source: Path, output: Path, mapping: Path, duplicate: str) -> dict:
-    return {
+def _png_config(
+    source: Path,
+    output: Path,
+    mapping: Path,
+    duplicate: str | None,
+) -> dict:
+    config = {
         "meta": {
             "name": "test-png",
             "icon": "I",
@@ -42,9 +49,11 @@ def _png_config(source: Path, output: Path, mapping: Path, duplicate: str) -> di
             "output_directory": str(output),
             "mapping_file": str(mapping),
             "target_extensions": ["png"],
-            "duplicate_handling": duplicate,
         },
     }
+    if duplicate is not None:
+        config["settings"]["duplicate_handling"] = duplicate
+    return config
 
 
 def _handler(tmp_path, nolog, duplicate: str):
@@ -63,6 +72,105 @@ def _handler(tmp_path, nolog, duplicate: str):
 
 
 class TestDuplicateHandling:
+    def test_duplicate_source_directories_are_scanned_only_once(
+        self,
+        tmp_path,
+        nolog,
+    ):
+        handler, source_dir, destination_dir = _handler(
+            tmp_path,
+            nolog,
+            "skip",
+        )
+        source = _write_png(source_dir / "image.png", "blue")
+        existing = _write_png(destination_dir / "image.png", "red")
+        handler.settings["source_directories"] = [
+            str(source_dir),
+            str(source_dir / ".." / source_dir.name),
+        ]
+
+        operations = handler.plan_operations()
+
+        assert len(operations) == 1
+        assert operations[0].source == source
+        assert operations[0].destination == existing
+
+    def test_source_directory_deduplication_uses_planning_path_rules(
+        self,
+        tmp_path,
+        nolog,
+        monkeypatch,
+    ):
+        handler, _source_dir, _destination_dir = _handler(
+            tmp_path,
+            nolog,
+            "skip",
+        )
+        handler.settings["source_directories"] = [
+            r"D:\Images",
+            "/mnt/d/images",
+        ]
+        scanned = []
+
+        class TrackingScanner:
+            def __init__(self, target_directory, _logger, planning_context=None):
+                scanned.append(Path(target_directory))
+
+            @staticmethod
+            def scan_files(**_kwargs):
+                return []
+
+        monkeypatch.setattr(PlanningContext, "directory_exists", lambda *_args: True)
+        monkeypatch.setattr(
+            "src.handlers.png_prompt_sort_handler.FileScanner",
+            TrackingScanner,
+        )
+
+        assert handler.plan_operations() == []
+        assert scanned == [Path("/mnt/d/Images")]
+
+    def test_default_skips_existing_destination(self, tmp_path, nolog):
+        handler, source_dir, destination_dir = _handler(tmp_path, nolog, None)
+        source = _write_png(source_dir / "image.png", "blue")
+        existing = _write_png(destination_dir / "image.png", "red")
+
+        operations = handler.plan_operations()
+        preview = PreviewGenerator(preview_mode="all").generate_preview(
+            operations,
+            "PNG_Prompt_Sort",
+        )
+        dry_result = handler.execute_operations(operations, dry_run=True)
+        execute_result = handler.execute_operations(operations)
+
+        assert operations[0].planned_skip_reason is not None
+        assert "[スキップ] image.png" in preview
+        assert "保存先が埋まっていたため 1 件をスキップ予定" in preview
+        assert dry_result.skipped_count == execute_result.skipped_count == 1
+        assert execute_result == (0, 0)
+        assert source.exists()
+        with Image.open(existing) as image:
+            assert image.getpixel((0, 0)) == (255, 0, 0)
+
+    def test_explicit_skip_is_reported_as_configured_skip(self, tmp_path, nolog):
+        handler, source_dir, destination_dir = _handler(tmp_path, nolog, "skip")
+        source = _write_png(source_dir / "image.png", "blue")
+        _write_png(destination_dir / "image.png", "red")
+
+        operations = handler.plan_operations()
+        preview = PreviewGenerator(preview_mode="all").generate_preview(
+            operations,
+            "PNG_Prompt_Sort",
+        )
+        result = handler.execute_operations(operations)
+
+        assert operations[0].configured_skip_if_exists is True
+        assert operations[0].skip_category == "explicit"
+        assert "既に存在するため 1 件をスキップ予定" in preview
+        assert "保存先が埋まっていたため" not in preview
+        assert result.explicit_skipped_count == 1
+        assert result.protected_skipped_count == 0
+        assert source.is_file()
+
     def test_overwrite_plans_original_name_and_replaces_existing_file(
         self,
         tmp_path,
@@ -175,8 +283,10 @@ class TestPipelineDuplicateHandling:
         operations = handler.plan_operations()
         result = handler.execute_operations(operations)
 
-        assert operations == []
+        assert len(operations) == 1
+        assert operations[0].planned_skip_reason is not None
         assert result == (0, 0)
+        assert result.skipped_count == 1
         assert original.exists()
         with Image.open(existing) as image:
             assert image.getpixel((0, 0)) == (255, 0, 0)

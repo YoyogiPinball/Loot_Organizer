@@ -44,7 +44,7 @@ settings:
   confirm_before_execute: true
 
   # ドライラン（プレビューのみ）をデフォルトで有効化
-  dry_run_default: false
+  dry_run_default: true  # まず true で結果を確認し、納得したら false にする
 
   # プレビュー表示設定
   preview:
@@ -70,7 +70,7 @@ move_rules:
   # -------------------------------
   # 4K以上の高解像度画像
   - pattern: "*.jpg"
-    dest: "C:\\Users\\username\\Pictures\\HighRes\\4K_Plus"
+    dest: "C:\\Users\\YOUR_USERNAME\\Pictures\\HighRes\\4K_Plus"
     description: "4K以上のJPG画像"
     enabled: true
     filters:
@@ -80,7 +80,7 @@ move_rules:
 
   # フルHD以上の画像
   - pattern: "*.png"
-    dest: "C:\\Users\\username\\Pictures\\HighRes\\FullHD_Plus"
+    dest: "C:\\Users\\YOUR_USERNAME\\Pictures\\HighRes\\FullHD_Plus"
     description: "フルHD以上のPNG画像"
     enabled: true
     filters:
@@ -90,7 +90,7 @@ move_rules:
 
   # 低解像度画像（サムネイルなど）
   - pattern: "*.*"
-    dest: "C:\\Users\\username\\Pictures\\LowRes\\Thumbnails"
+    dest: "C:\\Users\\YOUR_USERNAME\\Pictures\\LowRes\\Thumbnails"
     description: "低解像度画像（サムネイル）"
     enabled: true
     filters:
@@ -103,7 +103,7 @@ move_rules:
   # -------------------------------
   # 縦長画像（スマホスクショなど）
   - pattern: "*.png"
-    dest: "C:\\Users\\username\\Pictures\\Vertical\\Screenshots"
+    dest: "C:\\Users\\YOUR_USERNAME\\Pictures\\Vertical\\Screenshots"
     description: "縦長画像（スクショ等）"
     enabled: true
     filters:
@@ -112,7 +112,7 @@ move_rules:
 
   # 横長画像（風景写真など）
   - pattern: "*.jpg"
-    dest: "C:\\Users\\username\\Pictures\\Horizontal\\Landscape"
+    dest: "C:\\Users\\YOUR_USERNAME\\Pictures\\Horizontal\\Landscape"
     description: "横長画像（風景等）"
     enabled: true
     filters:
@@ -121,7 +121,7 @@ move_rules:
 
   # 正方形画像（SNSアイコンなど）
   - pattern: "*.*"
-    dest: "C:\\Users\\username\\Pictures\\Square\\Icons"
+    dest: "C:\\Users\\YOUR_USERNAME\\Pictures\\Square\\Icons"
     description: "正方形画像（アイコン等）"
     enabled: true
     filters:
@@ -133,7 +133,7 @@ move_rules:
   # -------------------------------
   # 大容量ファイル（10MB以上）
   - pattern: "*.*"
-    dest: "C:\\Users\\username\\Pictures\\Large\\10MB_Plus"
+    dest: "C:\\Users\\YOUR_USERNAME\\Pictures\\Large\\10MB_Plus"
     description: "大容量画像（10MB以上）"
     enabled: true
     filters:
@@ -142,7 +142,7 @@ move_rules:
 
   # 中容量ファイル（1MB～10MB）
   - pattern: "*.*"
-    dest: "C:\\Users\\username\\Pictures\\Medium\\1-10MB"
+    dest: "C:\\Users\\YOUR_USERNAME\\Pictures\\Medium\\1-10MB"
     description: "中容量画像（1-10MB）"
     enabled: true
     filters:
@@ -152,7 +152,7 @@ move_rules:
 
   # 小容量ファイル（1MB未満）
   - pattern: "*.*"
-    dest: "C:\\Users\\username\\Pictures\\Small\\Under1MB"
+    dest: "C:\\Users\\YOUR_USERNAME\\Pictures\\Small\\Under1MB"
     description: "小容量画像（1MB未満）"
     enabled: true
     filters:
@@ -164,7 +164,7 @@ move_rules:
   # -------------------------------
   # 2024年以降の新しいファイル
   - pattern: "*.*"
-    dest: "C:\\Users\\username\\Pictures\\Recent\\2024_Plus"
+    dest: "C:\\Users\\YOUR_USERNAME\\Pictures\\Recent\\2024_Plus"
     description: "2024年以降のファイル"
     enabled: true
     filters:
@@ -173,7 +173,7 @@ move_rules:
 
   # 2023年のファイル
   - pattern: "*.*"
-    dest: "C:\\Users\\username\\Pictures\\Archive\\2023"
+    dest: "C:\\Users\\YOUR_USERNAME\\Pictures\\Archive\\2023"
     description: "2023年のファイル"
     enabled: true
     filters:
@@ -183,7 +183,7 @@ move_rules:
 
   # 古いファイル（2023年より前）
   - pattern: "*.*"
-    dest: "C:\\Users\\username\\Pictures\\Archive\\Old"
+    dest: "C:\\Users\\YOUR_USERNAME\\Pictures\\Archive\\Old"
     description: "2023年より前のファイル"
     enabled: true
     filters:
@@ -195,7 +195,7 @@ move_rules:
   # -------------------------------
   # 高解像度 かつ 大容量 の画像
   - pattern: "*.jpg"
-    dest: "C:\\Users\\username\\Pictures\\Premium\\HighRes_Large"
+    dest: "C:\\Users\\YOUR_USERNAME\\Pictures\\Premium\\HighRes_Large"
     description: "高解像度＋大容量のJPG画像"
     enabled: true
     filters:
@@ -207,7 +207,7 @@ move_rules:
 
   # 縦長 かつ 高解像度 の画像（スマホスクショ等）
   - pattern: "*.png"
-    dest: "C:\\Users\\username\\Pictures\\Mobile\\HighRes_Screenshots"
+    dest: "C:\\Users\\YOUR_USERNAME\\Pictures\\Mobile\\HighRes_Screenshots"
     description: "高解像度の縦長PNG（スマホスクショ）"
     enabled: true
     filters:
@@ -222,7 +222,7 @@ move_rules:
   # -------------------------------
   # どのルールにもマッチしなかった画像
   - pattern: "*.*"
-    dest: "C:\\Users\\username\\Pictures\\Others"
+    dest: "C:\\Users\\YOUR_USERNAME\\Pictures\\Others"
     description: "その他の画像"
     enabled: true
 

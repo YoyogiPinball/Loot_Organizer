@@ -1,4 +1,4 @@
-> 最終更新: 2026-08-15（Sat）10:26
+> 最終更新: 2026-08-23（Sun）20:06
 
 # 📁 Loot Organizer
 
@@ -59,24 +59,55 @@ Loot Organizerは、ダウンロードフォルダなどに散らばったファ
 
 ### インストール
 
+Python 3.12 以上が必要です。
+
 ```bash
 # リポジトリをクローン
 git clone https://github.com/YoyogiPinball/Loot_Organizer.git
 cd Loot_Organizer
+```
 
-# 依存関係をインストール
-pip install -r requirements.txt
+**Windows:**
+```cmd
+py -3.12 -m pip install -r requirements.txt
+```
+
+**Linux/macOS:**
+```bash
+python3 -m pip install -r requirements.txt
 ```
 
 依存関係には、削除対象をゴミ箱へ送るための `Send2Trash` が含まれます。
 
 ### 設定
 
-サンプル設定をコピーして、自分の環境に合わせて編集します：
+サンプル設定をコピーします。
+初回は本番フォルダを指定せず、移動してもよいファイルのコピーだけを入れたテスト用フォルダで試してください。
 
+**Windows:**
+```cmd
+copy mode\samples\downloads_sort.yaml mode\my_sort.yaml
+```
+
+**Linux/macOS:**
 ```bash
-# サンプルをコピー
 cp mode/samples/downloads_sort.yaml mode/my_sort.yaml
+```
+
+テスト用の入力フォルダと振り分け先を作り、動画ファイルなどを数件コピーします。
+元ファイルそのものをテスト用フォルダへ移動しないでください。
+
+**Windows:**
+```cmd
+mkdir "%USERPROFILE%\loot-organizer-test\inbox"
+mkdir "%USERPROFILE%\loot-organizer-test\videos"
+copy "C:\path\to\sample.mp4" "%USERPROFILE%\loot-organizer-test\inbox\"
+```
+
+**Linux/macOS:**
+```bash
+mkdir -p "$HOME/loot-organizer-test/inbox" "$HOME/loot-organizer-test/videos"
+cp /path/to/sample.mp4 "$HOME/loot-organizer-test/inbox/"
 ```
 
 **Windows:**
@@ -84,10 +115,17 @@ cp mode/samples/downloads_sort.yaml mode/my_sort.yaml
 notepad mode\my_sort.yaml
 ```
 
-**Linux/Mac:**
+**Linux/macOS:**
 ```bash
 nano mode/my_sort.yaml
 ```
+
+`settings.target_directory` をテスト用の `inbox` に、試すルールの `dest` をテスト用の振り分け先に変更します。
+パス内の `YOUR_USERNAME` は実際のユーザー名に置き換えます。
+`dry_run_default: true` はそのままにしてください。
+
+> Clean モードの削除は、既定では `delete_mode: "trash"` によりゴミ箱へ送られます。
+> `delete_mode: "permanent"` を指定すると完全削除されるため、テストが終わるまで指定しないでください。
 
 ### 実行
 
@@ -96,47 +134,60 @@ nano mode/my_sort.yaml
 run.bat
 ```
 
-**Linux/Mac:**
+**Linux/macOS:**
 ```bash
-python -m src.loot_manager
+python3 -m src.loot_manager
 ```
+
+メニューから `my_sort.yaml` を選びます。
+**プレビュー**は、これから行う操作の一覧です。
+**dry-run** はその一覧を表示しても実際のファイル操作を行わない実行方式です。
+一覧が意図どおりなら `dry_run_default: false` に変更し、まずテスト用のコピーだけで実際の移動を確認してから本番用のパスへ変更してください。
 
 ---
 
 ## 🎯 初回セットアップガイド
 
+どのモードでも、初回は専用のテスト用フォルダにファイルのコピーを数件置き、`dry_run_default: true` で確認します。
+Clean モードの `deletion` は既定でゴミ箱へ送りますが、`delete_mode: "permanent"` は完全削除です。
+
 ### Sort/Cleanモードの場合（ファイル整理）
 
 **1. サンプル設定をコピー**
 ```bash
-cp mode/samples/downloads_sort.yaml mode/my_organizer.yaml
+cp mode/samples/downloads_sort.yaml mode/my_sort.yaml
 ```
 
 **Windows:**
 ```cmd
-copy mode\samples\downloads_sort.yaml mode\my_organizer.yaml
+copy mode\samples\downloads_sort.yaml mode\my_sort.yaml
 ```
 
 **2. 設定ファイルを編集**
 
-エディタで `mode/my_organizer.yaml` を開きます：
+エディタで `mode/my_sort.yaml` を開きます：
 
 ```cmd
-notepad mode\my_organizer.yaml
+notepad mode\my_sort.yaml
 ```
 
-以下の項目を自分の環境に合わせて変更：
+テスト用の入力フォルダに動画ファイルのコピーを置き、以下のようにテスト用のパスを指定します。
+`YOUR_USERNAME` は実際のユーザー名に置き換えてください。
+`move_rules` は1ルールにつき1つの `pattern` を指定します。
 
 ```yaml
 settings:
-  target_directory: "C:\\Users\\YOUR_NAME\\Downloads"  # 整理したいフォルダ
+  target_directory: "C:\\Users\\YOUR_USERNAME\\loot-organizer-test\\inbox"
+  dry_run_default: true
 
 move_rules:
-  - name: "Videos"
-    destination: "D:\\Videos"  # 移動先フォルダ
-    patterns:
-      - "*.mp4"
-      - "*.mkv"
+  - pattern: "*.mp4"
+    dest: "C:\\Users\\YOUR_USERNAME\\loot-organizer-test\\videos"
+    description: "MP4動画"
+
+  - pattern: "*.mkv"
+    dest: "C:\\Users\\YOUR_USERNAME\\loot-organizer-test\\videos"
+    description: "MKV動画"
 ```
 
 **3. 実行**
@@ -144,7 +195,9 @@ move_rules:
 run.bat
 ```
 
-メニューから設定ファイルを選択して実行！
+メニューから `my_sort.yaml` を選択します。
+プレビューは予定されている操作の一覧で、dry-run 中は一覧を確認しても実際のファイルは動きません。
+一覧に納得したら `dry_run_default: false` に変更し、テスト用のコピーで実行結果を確認してから本番フォルダへ切り替えます。
 
 ---
 
@@ -175,14 +228,16 @@ mappings:
 
 **3. 設定ファイルを編集**
 
-`mode/my_ai_sorter.yaml` を開いて、パスを変更：
+テスト用フォルダにAI画像のコピーを数件置きます。
+`mode/my_ai_sorter.yaml` を開いて、そのテスト用パスを指定します。
 
 ```yaml
 settings:
   source_directories:
-    - "D:\\StableDiffusion\\outputs"  # AI画像が保存されているフォルダ
-  output_directory: "D:\\AI_Images\\Sorted"  # 振り分け先の親フォルダ
+    - "C:\\Users\\YOUR_USERNAME\\loot-organizer-test\\ai-input"
+  output_directory: "C:\\Users\\YOUR_USERNAME\\loot-organizer-test\\ai-sorted"
   mapping_file: "mode/lora_map.yaml"
+  dry_run_default: true
 ```
 
 **4. 実行**
@@ -201,7 +256,7 @@ YAML設定ファイルの編集が難しい？**AIエージェント（Claude、
 ```
 Loot Organizerの設定ファイルを作成してください。
 
-目的：Downloadsフォルダ（C:\Users\YourName\Downloads）を整理
+目的：Downloadsフォルダ（C:\Users\YOUR_USERNAME\Downloads）を整理
 振り分け先：
 - 動画（*.mp4, *.mkv） → D:\Videos
 - 画像（*.jpg, *.png） → D:\Pictures
@@ -217,24 +272,24 @@ mode/samples/downloads_sort.yaml を参考にして作成してください。
 Loot Organizerの lora_map.yaml を作成してください。
 
 以下のLoRA名をフォルダに振り分けたいです：
-- pikachu → ピカチュウ
-- eevee → イーブイ
-- anime_style_v2 → アニメスタイル
-- realistic_face → リアル顔
+- character_alpha → キャラクター_アルファ
+- character_beta → キャラクター_ベータ
+- style_watercolor → スタイル_水彩
+- style_monochrome → スタイル_モノクロ
 
 mode/samples/lora_map_sample.yaml の形式で作成してください。
 ```
 
-### プロンプト例3: 古いファイル削除
+### プロンプト例3: 日付でファイルをアーカイブ
 
 ```
-Loot Organizerの設定で、以下を実現してください：
+Loot OrganizerのSortモード設定で、以下を実現してください：
 
-- 30日以上前のファイルを削除
+- 更新日時が2026-01-01より前のファイルを D:\Archive に移動
 - ただし "important" が含まれるファイルは除外
-- ファイル名に絵文字が含まれるものはクリーンアップ
+- `filters` の日付条件は `date: {before: "2026-01-01"}` と絶対日付で指定
 
-mode/samples/cleanup_files.yaml を参考にしてください。
+mode/samples/downloads_sort.yaml を参考にしてください。
 ```
 
 **コツ：**
@@ -261,7 +316,7 @@ settings:
   target_directory: "/path/to/folder"
   enable_logging: true
   confirm_before_execute: true
-  dry_run_default: false
+  dry_run_default: true  # 初回は true で結果を確認し、納得したら false に変更
 
   preview:
     mode: "both"  # head / tail / both / all
@@ -285,7 +340,7 @@ meta:
 
 settings:
   confirm_before_execute: true
-  dry_run_default: false
+  dry_run_default: true  # 初回は true で結果を確認し、納得したら false に変更
 
 steps:
   - config: "mode/rename.yaml"
@@ -296,11 +351,40 @@ steps:
 
 各ステップの `confirm_before_execute` と `dry_run_default` は使用せず、Pipeline側の設定を全体へ適用します。実行中に1件でも失敗した場合は、前段の結果に依存する後続操作を中止します。
 
-PNG_Prompt_Sort をステップに含める場合も、そのプリセットの `duplicate_handling` が機能します。`overwrite`（上書き）、`sequential`（連番）、`skip`（スキップ）を指定できます。`ask` は Pipeline では使用できず、ファイルを操作する前に設定エラーになります。PNG_Prompt_Sort を単独で実行する場合は、従来どおり `ask` を使用できます。
+PNG_Prompt_Sort をステップに含める場合も、そのプリセットの `duplicate_handling` が機能します。`overwrite`（上書き）、`sequential`（連番）、`skip`（スキップ）を指定でき、未指定時の既定値は `skip` です。既定では実ディスク上の既存ファイルを保護しますが、`overwrite` を明示した場合は上書きします。`ask` は Pipeline では使用できず、ファイルを操作する前に設定エラーになります。PNG_Prompt_Sort を単独で実行する場合は従来どおり `ask` を使用でき、確認時に「上書き」を選ぶと既存ファイルを上書きします。
 
-同じ実行内の複数のファイルが同じ保存先を指すと、計画段階でエラーになり、ファイル操作を開始せずに停止します。エラーには衝突した両方のファイル名が表示されます。以前は無警告で上書きされていたため、保存先が重なる既存のプリセットは停止する可能性があります。
+同じ実行内の複数の操作が同じ保存先を指す場合、先に計画された操作だけを実行し、後の操作はスキップして処理を続行します。実ファイルが保存先に既に存在する場合も既定ではスキップします。ただし PNG_Prompt_Sort で `duplicate_handling: overwrite` を明示した場合は上書きします。
+
+### パスの書き方
+
+設定に書くパスは Windows 形式のまま書けます。WSL / Linux から実行した場合は、起動時に自動で変換されます。
+
+| 書き方 | Windows で実行 | WSL / Linux で実行 |
+|---|---|---|
+| `D:\Videos` | そのまま | `/mnt/d/Videos` に変換 |
+| `/mnt/d/Videos` | そのまま | そのまま |
+| `\\wsl.localhost\Ubuntu\home\me\x` | そのまま | `/home/me/x` に変換（v2.2.2〜） |
+| `\\wsl$\Ubuntu\home\me\x` | そのまま | 同上（v2.2.2〜） |
+| `\\server\share\x`（ネットワーク共有） | そのまま | **非対応** |
+
+YAML では `\` をエスケープして `"D:\\Videos"` と書きます。`/` 区切りで `"D:/Videos"` と書いても構いません。
+
+`\\wsl.localhost\...` と `\\wsl$\...` は、`\` の直後のディストリビューション名が実行中の WSL（環境変数 `WSL_DISTRO_NAME`）と一致する場合だけ変換します。大文字小文字は区別しません。別のディストリビューションを指している場合は、推測して変換せず設定エラーで停止します。他のディストリビューションのファイルシステムは、WSL の中からは同じパスで見えないためです。
+
+Pipeline の `steps[].config`（次に読むプリセットのパス）にも同じ変換が働きます（v2.2.2〜）。
 
 ### 保存先と実行時の安全確認
+
+v2.1.0 以降の主な安全策は次のとおりです。
+
+| 安全策 | 動作 |
+|---|---|
+| 保存先が埋まっている場合 | 既定では、実ファイルまたは同一実行内の予約先が存在すると、その操作をスキップして続行します。PNG_Prompt_Sort で `duplicate_handling: overwrite` を明示した場合は、実ファイルを上書きします |
+| 保存先パス | delete 以外は最終ファイルパスとして計画し、設定の `dest` / `destination` はディレクトリとして扱います |
+| 実行直前の検査 | source の指紋と保存先の存在を再確認し、計画後に状態が変わっていれば操作しません |
+| 削除 | `deletion.delete_mode` の既定値は、復元可能な `trash` です |
+
+`skip_if_exists: true` を明示したルールと、PNG_Prompt_Sort で `duplicate_handling: skip` を明示した設定は、既存ファイルを繰り返し検出することを想定した正常系として件数だけを結果表示します。未指定または `false` のルールで既定の保護が働いた場合は、手動確認が必要なスキップとしてファイル名を表示します。
 
 Sort の `dest` と Clean の `destination` は、ドットを含む名前でも常にディレクトリとして扱われます。たとえば `dest: "D:\\Output\\v2.0"` はファイル名ではなくディレクトリを表し、元のファイル名がその後ろに追加されます。
 
@@ -420,7 +504,7 @@ sorting_rules:
 
 ### ケース3: 動画管理
 
-ファイルサイズ、長さ、またはコンテンツタグで動画を整理できます。
+ファイル名パターン、ファイルサイズ、または絶対日付で動画を整理できます。
 
 ### ケース4: 自動化ワークフロー
 
@@ -535,6 +619,22 @@ AI: 「設定ファイルの作成をお手伝いしますね！いくつか質�
 - Windows: コマンドプロンプトではなくWindows Terminalを使用
 - 絵文字対応フォント（Cascadia Code等）を使用
 
+### 問題: 「UNC パスには別のディストリビューション名が指定されているため変換できません」と出る
+
+WSL から実行したとき、設定に書いた `\\wsl.localhost\<名前>\...` の `<名前>` が、いま動いている WSL と違う場合に出ます。
+
+**解決方法:**
+- `wsl -l -v` で実行中のディストリビューション名を確認し、設定の綴りを合わせる（大文字小文字は区別しません）
+- 別のディストリビューションのファイルを扱いたい場合は、そのディストリビューションから実行する
+- WSL 以外の環境（素の Linux 等）では、そもそも UNC ではなく通常のパスを書く
+
+### 問題: 対象ファイルが 0 件のまま何も起きない
+
+**解決方法:**
+- パスの綴りを確認する。特にネットワーク共有（`\\server\share\...`）は WSL から実行すると解決できません
+- `recursive: true` が必要なのに指定されていないか確認する
+- パターンの大文字小文字を確認する。**Windows は区別しませんが、WSL は区別します。** 両方で使う設定なら `*.[jJ][pP][gG]` のように書くか、実際の拡張子に合わせてください
+
 ---
 
 ## ライセンス
@@ -550,7 +650,6 @@ IssueやPull Requestを歓迎します！
 ---
 
 **👤 作成者**: YoyogiPinball
-**📅 最終更新**: 2026-08-15
 
 ---
 ---
@@ -569,17 +668,17 @@ English | [日本語](#-loot-organizer)
 
 - [What is Loot Organizer?](#what-is-loot-organizer)
 - [Key Features](#key-features)
-- [Quick Start](#quick-start-1)
-  - [Installation](#installation-1)
-  - [Configuration](#configuration-1)
-  - [Run](#run-1)
+- [Quick Start](#quick-start)
+  - [Installation](#installation)
+  - [Configuration](#configuration)
+  - [Run](#run)
 - [🎯 Initial Setup Guide](#-initial-setup-guide)
 - [🤖 Using AI to Create YAML Configs](#-using-ai-to-create-yaml-configs)
-- [Configuration Guide](#configuration-guide-1)
+- [Configuration Guide](#configuration-guide)
 - [Common Use Cases](#common-use-cases)
 - [For AI Agents](#for-ai-agents)
-- [Troubleshooting](#troubleshooting-1)
-- [License](#license-1)
+- [Troubleshooting](#troubleshooting)
+- [License](#license)
 
 ---
 
@@ -616,24 +715,55 @@ Loot Organizer is a CLI tool that helps you efficiently organize scattered files
 
 ### Installation
 
+Python 3.12 or later is required.
+
 ```bash
 # Clone the repository
 git clone https://github.com/YoyogiPinball/Loot_Organizer.git
 cd Loot_Organizer
+```
 
-# Install dependencies
-pip install -r requirements.txt
+**Windows:**
+```cmd
+py -3.12 -m pip install -r requirements.txt
+```
+
+**Linux/macOS:**
+```bash
+python3 -m pip install -r requirements.txt
 ```
 
 The dependencies include `Send2Trash`, which moves deleted files to the trash.
 
 ### Configuration
 
-Copy a sample configuration and edit it for your environment:
+Copy a sample configuration.
+For the first run, use a dedicated test folder containing only copies of files you can safely move; do not point the configuration at a production folder.
 
+**Windows:**
+```cmd
+copy mode\samples\downloads_sort.yaml mode\my_sort.yaml
+```
+
+**Linux/macOS:**
 ```bash
-# Copy sample
 cp mode/samples/downloads_sort.yaml mode/my_sort.yaml
+```
+
+Create a test input folder and destination, then copy in a few files such as a video.
+Do not move the originals into the test folder.
+
+**Windows:**
+```cmd
+mkdir "%USERPROFILE%\loot-organizer-test\inbox"
+mkdir "%USERPROFILE%\loot-organizer-test\videos"
+copy "C:\path\to\sample.mp4" "%USERPROFILE%\loot-organizer-test\inbox\"
+```
+
+**Linux/macOS:**
+```bash
+mkdir -p "$HOME/loot-organizer-test/inbox" "$HOME/loot-organizer-test/videos"
+cp /path/to/sample.mp4 "$HOME/loot-organizer-test/inbox/"
 ```
 
 **Windows:**
@@ -641,10 +771,16 @@ cp mode/samples/downloads_sort.yaml mode/my_sort.yaml
 notepad mode\my_sort.yaml
 ```
 
-**Linux/Mac:**
+**Linux/macOS:**
 ```bash
 nano mode/my_sort.yaml
 ```
+
+Set `settings.target_directory` to the test `inbox`, change the `dest` of the rule you are testing to the test destination, and leave `dry_run_default: true` unchanged.
+Replace `YOUR_USERNAME` in paths with your actual user name.
+
+> Clean mode sends deletions to the trash by default with `delete_mode: "trash"`.
+> `delete_mode: "permanent"` deletes files permanently, so do not enable it while testing.
 
 ### Run
 
@@ -653,47 +789,60 @@ nano mode/my_sort.yaml
 run.bat
 ```
 
-**Linux/Mac:**
+**Linux/macOS:**
 ```bash
-python -m src.loot_manager
+python3 -m src.loot_manager
 ```
+
+Select `my_sort.yaml` from the menu.
+A **preview** is the list of operations that are about to run.
+A **dry-run** displays that list but performs no file operations.
+If the list is correct, set `dry_run_default: false`, test the real move using only the copied files, and only then change the paths to production folders.
 
 ---
 
 ## 🎯 Initial Setup Guide
 
+For every mode, start with a dedicated test folder containing a few copied files and keep `dry_run_default: true` for the first run.
+Clean mode sends `deletion` targets to the trash by default, while `delete_mode: "permanent"` deletes them permanently.
+
 ### For Sort/Clean Mode (File Organization)
 
 **1. Copy Sample Configuration**
 ```bash
-cp mode/samples/downloads_sort.yaml mode/my_organizer.yaml
+cp mode/samples/downloads_sort.yaml mode/my_sort.yaml
 ```
 
 **Windows:**
 ```cmd
-copy mode\samples\downloads_sort.yaml mode\my_organizer.yaml
+copy mode\samples\downloads_sort.yaml mode\my_sort.yaml
 ```
 
 **2. Edit Configuration File**
 
-Open `mode/my_organizer.yaml` in your editor:
+Open `mode/my_sort.yaml` in your editor:
 
 ```cmd
-notepad mode\my_organizer.yaml
+notepad mode\my_sort.yaml
 ```
 
-Customize these settings for your environment:
+Put copies of a few video files in the test input folder, then use test-only paths as shown below.
+Replace `YOUR_USERNAME` with your actual user name.
+Each `move_rules` entry accepts one `pattern`.
 
 ```yaml
 settings:
-  target_directory: "C:\\Users\\YOUR_NAME\\Downloads"  # Folder to organize
+  target_directory: "C:\\Users\\YOUR_USERNAME\\loot-organizer-test\\inbox"
+  dry_run_default: true
 
 move_rules:
-  - name: "Videos"
-    destination: "D:\\Videos"  # Destination folder
-    patterns:
-      - "*.mp4"
-      - "*.mkv"
+  - pattern: "*.mp4"
+    dest: "C:\\Users\\YOUR_USERNAME\\loot-organizer-test\\videos"
+    description: "MP4 videos"
+
+  - pattern: "*.mkv"
+    dest: "C:\\Users\\YOUR_USERNAME\\loot-organizer-test\\videos"
+    description: "MKV videos"
 ```
 
 **3. Run**
@@ -701,7 +850,9 @@ move_rules:
 run.bat
 ```
 
-Select your configuration from the menu and execute!
+Select `my_sort.yaml` from the menu.
+The preview lists the planned operations; during a dry-run, the files do not move.
+After the list looks correct, set `dry_run_default: false`, verify the result with the copied test files, and only then switch to production folders.
 
 ---
 
@@ -732,14 +883,16 @@ mappings:
 
 **3. Edit Configuration File**
 
-Open `mode/my_ai_sorter.yaml` and update paths:
+Put copies of a few AI-generated images in a test folder.
+Open `mode/my_ai_sorter.yaml` and point it to test-only paths:
 
 ```yaml
 settings:
   source_directories:
-    - "D:\\StableDiffusion\\outputs"  # Folder where AI images are saved
-  output_directory: "D:\\AI_Images\\Sorted"  # Parent folder for sorted files
+    - "C:\\Users\\YOUR_USERNAME\\loot-organizer-test\\ai-input"
+  output_directory: "C:\\Users\\YOUR_USERNAME\\loot-organizer-test\\ai-sorted"
   mapping_file: "mode/lora_map.yaml"
+  dry_run_default: true
 ```
 
 **4. Run**
@@ -758,7 +911,7 @@ Finding YAML configuration difficult? **Use AI agents (Claude, ChatGPT, etc.) to
 ```
 Create a Loot Organizer configuration file.
 
-Purpose: Organize Downloads folder (C:\Users\YourName\Downloads)
+Purpose: Organize Downloads folder (C:\Users\YOUR_USERNAME\Downloads)
 Destinations:
 - Videos (*.mp4, *.mkv) → D:\Videos
 - Images (*.jpg, *.png) → D:\Pictures
@@ -774,24 +927,24 @@ Use mode/samples/downloads_sort.yaml as reference.
 Create a lora_map.yaml file for Loot Organizer.
 
 I want to organize the following LoRA names into folders:
-- pikachu → Pikachu
-- eevee → Eevee
-- anime_style_v2 → Anime_Styles
-- realistic_face → Realistic_Faces
+- character_alpha → Characters_Alpha
+- character_beta → Characters_Beta
+- style_watercolor → Styles_Watercolor
+- style_monochrome → Styles_Monochrome
 
 Use the format from mode/samples/lora_map_sample.yaml.
 ```
 
-### Example Prompt 3: Delete Old Files
+### Example Prompt 3: Archive Files by Date
 
 ```
-Create a Loot Organizer configuration to:
+Create a Loot Organizer Sort mode configuration to:
 
-- Delete files older than 30 days
+- Move files last modified before 2026-01-01 to D:\Archive
 - But exclude files containing "important"
-- Cleanup filenames containing emojis
+- Express the `filters` date condition as the absolute value `date: {before: "2026-01-01"}`
 
-Use mode/samples/cleanup_files.yaml as reference.
+Use mode/samples/downloads_sort.yaml as reference.
 ```
 
 **Tips:**
@@ -818,7 +971,7 @@ settings:
   target_directory: "/path/to/folder"
   enable_logging: true
   confirm_before_execute: true
-  dry_run_default: false
+  dry_run_default: true  # Keep true for the first run; set false after reviewing the result
 
   preview:
     mode: "both"  # head / tail / both / all
@@ -842,7 +995,7 @@ meta:
 
 settings:
   confirm_before_execute: true
-  dry_run_default: false
+  dry_run_default: true  # Keep true for the first run; set false after reviewing the result
 
 steps:
   - config: "mode/rename.yaml"
@@ -853,11 +1006,40 @@ steps:
 
 Step-level `confirm_before_execute` and `dry_run_default` values are ignored; the Pipeline settings apply to the whole run. If an operation fails, later operations stop because they may depend on the failed result.
 
-When a Pipeline includes a PNG_Prompt_Sort step, that preset's `duplicate_handling` setting is honored. You can use `overwrite`, `sequential`, or `skip`. `ask` is not available in Pipeline and causes a configuration error before any file operation starts. Standalone PNG_Prompt_Sort runs can continue to use `ask` as before.
+When a Pipeline includes a PNG_Prompt_Sort step, that preset's `duplicate_handling` setting is honored. You can use `overwrite`, `sequential`, or `skip`; the default is `skip` when omitted. Existing files on disk are protected by default, but explicitly setting `overwrite` replaces them. `ask` is not available in Pipeline and causes a configuration error before any file operation starts. Standalone PNG_Prompt_Sort runs can continue to use `ask`; choosing “Overwrite” at the prompt replaces the existing file.
 
-If multiple files in the same run point to the same destination, planning fails and stops before any file operation starts. The error shows both conflicting filenames. Because previous versions overwrote such files without warning, existing presets with overlapping destinations may now stop.
+If multiple operations in the same run point to the same destination, only the first planned operation runs; later operations are skipped and processing continues. When a real file already occupies the destination, the operation is also skipped by default. PNG_Prompt_Sort is the exception: explicitly setting `duplicate_handling: overwrite` replaces the real file.
+
+### Writing Paths
+
+Paths in your configuration can stay in Windows form. When you run from WSL / Linux, they are converted automatically at startup.
+
+| Written as | Run on Windows | Run on WSL / Linux |
+|---|---|---|
+| `D:\Videos` | as-is | converted to `/mnt/d/Videos` |
+| `/mnt/d/Videos` | as-is | as-is |
+| `\\wsl.localhost\Ubuntu\home\me\x` | as-is | converted to `/home/me/x` (v2.2.2+) |
+| `\\wsl$\Ubuntu\home\me\x` | as-is | same as above (v2.2.2+) |
+| `\\server\share\x` (network share) | as-is | **not supported** |
+
+In YAML, escape backslashes as `"D:\\Videos"`, or use forward slashes: `"D:/Videos"`.
+
+`\\wsl.localhost\...` and `\\wsl$\...` are converted only when the distribution name matches the running WSL distribution (environment variable `WSL_DISTRO_NAME`). The comparison ignores case. If it names a different distribution, the tool stops with a configuration error rather than guessing — another distribution's filesystem is not reachable at the same path from inside WSL.
+
+The same conversion applies to `steps[].config` in Pipeline mode (v2.2.2+).
 
 ### Destinations and Execution-Time Safety
+
+The main safety measures in v2.1.0 and later are:
+
+| Safety measure | Behavior |
+|---|---|
+| Occupied destination | By default, an operation is skipped if a real file or an earlier in-run reservation exists. PNG_Prompt_Sort overwrites a real file when `duplicate_handling: overwrite` is explicitly set |
+| Destination paths | Every non-delete operation plans a final file path; configured `dest` / `destination` values are treated as directories |
+| Pre-execution checks | Source fingerprints and destination existence are checked again, and changed state is not operated on |
+| Deletion | `deletion.delete_mode` defaults to recoverable `trash` |
+
+Rules with `skip_if_exists: true` and PNG_Prompt_Sort settings with an explicit `duplicate_handling: skip` treat repeated existing files as an expected condition and show only a count in the result. When default protection applies to an omitted or `false` rule setting, those skips include filenames for manual review.
 
 Sort `dest` and Clean `destination` values are always treated as directories, even when their names contain dots. For example, `dest: "D:\\Output\\v2.0"` identifies a directory rather than a filename, and the source filename is appended to it.
 
@@ -977,7 +1159,7 @@ Filter by resolution, aspect ratio, or date to organize your photos efficiently.
 
 ### Case 3: Video Management
 
-Organize videos by file size, duration, or content tags.
+Organize videos by filename pattern, file size, or an absolute date.
 
 ### Case 4: Automated Workflow
 
@@ -1092,6 +1274,22 @@ Once you answer these, I'll generate a ready-to-use configuration file for you."
 - Windows: Use Windows Terminal instead of Command Prompt
 - Use an emoji-compatible font (Cascadia Code, etc.)
 
+### Problem: "UNC パスには別のディストリビューション名が指定されているため変換できません"
+
+Raised when running from WSL if the `<name>` in a configured `\\wsl.localhost\<name>\...` path does not match the running WSL distribution.
+
+**Solution:**
+- Run `wsl -l -v` to see the running distribution name and match the spelling (case is ignored)
+- To work with another distribution's files, run the tool from that distribution
+- Outside WSL (plain Linux, etc.), use ordinary paths rather than UNC
+
+### Problem: Nothing happens — zero files matched
+
+**Solution:**
+- Check the path. Network shares (`\\server\share\...`) cannot be resolved when running from WSL
+- Check whether the rule needs `recursive: true`
+- Check the case of your pattern. **Windows is case-insensitive; WSL is case-sensitive.** For a config used on both, write `*.[jJ][pP][gG]` or match the actual extension
+
 ---
 
 ## License
@@ -1107,4 +1305,3 @@ Issues and pull requests are welcome!
 ---
 
 **👤 Author**: YoyogiPinball
-**📅 Last Updated**: 2026-08-15

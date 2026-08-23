@@ -70,7 +70,10 @@ class CleanModeHandler(BaseHandler):
             ファイル操作のリスト
         """
         self._start_planning()
+        initial_planning_state = self.planning_context.snapshot()
         operations = []
+        cleanup_operations = []
+        sorting_operations = []
 
         # ステップ1: 削除
         if self.config.get('deletion', {}).get('enabled', False):
@@ -86,16 +89,26 @@ class CleanModeHandler(BaseHandler):
         if cleanup_enabled and not cleanup_after_sorting:
             cleanup_ops = self._plan_cleanup()
             operations.extend(self._record_planned_operations(cleanup_ops))
+            cleanup_operations.extend(cleanup_ops)
 
         # ステップ3: 振り分け
         if 'sorting_rules' in self.config:
             sorting_ops = self._plan_sorting()
             operations.extend(sorting_ops)
+            sorting_operations.extend(sorting_ops)
 
         # ステップ4: クリーンアップ（after_sorting が true の場合）
         if cleanup_enabled and cleanup_after_sorting:
             cleanup_ops = self._plan_cleanup()
             operations.extend(self._record_planned_operations(cleanup_ops))
+            cleanup_operations.extend(cleanup_ops)
+
+        self._propagate_cleanup_skips(
+            operations,
+            initial_planning_state,
+            cleanup_operations,
+            sorting_operations,
+        )
 
         return operations
 
@@ -210,20 +223,15 @@ class CleanModeHandler(BaseHandler):
             for file in self._match_sorting_files(rule):
                 destination = self._build_sort_destination(file, rule)
 
-                # rename_pattern 適用後のファイル名で存在チェックする
-                if rule.get('skip_if_exists', False) and destination:
-                    if self._destination_exists(destination):
-                        continue
-
                 operation = FileOperation(
                     source=file,
                     destination=destination,
                     action=rule['action'],
                     reason=f"パターン '{search}'",
-                    skip_if_exists=rule.get('skip_if_exists', False),
+                    skip_if_exists=True,
+                    configured_skip_if_exists=rule.get('skip_if_exists'),
                 )
-                operations.append(operation)
-                self._record_planned_operations([operation])
+                operations.extend(self._record_planned_operations([operation]))
 
         return operations
 

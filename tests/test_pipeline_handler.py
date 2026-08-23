@@ -7,8 +7,7 @@ Pipeline モードの動作テスト
 
 import pytest
 
-from src.core.planning_context import PlanningConflictError
-from src.core.preview_generator import FileOperation
+from src.core.preview_generator import FileOperation, PreviewGenerator
 from src.handlers.pipeline_handler import PipelineModeHandler
 from src.handlers.registry import build_handler
 from tests.conftest import make_files, sort_config, clean_config, pipeline_config, write_yaml
@@ -51,17 +50,16 @@ class TestOperationCollection:
         assert filenames == {"a.jpg", "b.png"}
 
     def test_ops_in_step_order(self, tmp_path, nolog):
-        src = tmp_path / "src"
-        make_files(src, "file.txt")
+        src1 = tmp_path / "src1"
+        src2 = tmp_path / "src2"
+        make_files(src1, "a.txt", "b.txt")
+        make_files(src2, "c.txt", "d.txt")
         dest1 = tmp_path / "d1"
         dest2 = tmp_path / "d2"
 
-        step1_path = write_yaml(tmp_path / "step1.yaml", sort_config(src, [
+        step1_path = write_yaml(tmp_path / "step1.yaml", sort_config(src1, [
             {"pattern": "*.txt", "dest": str(dest1), "description": "step1"},
         ]))
-        # step2 は src に何もないので 0 件になる（順序の確認のみ）
-        src2 = tmp_path / "src2"
-        src2.mkdir()
         step2_path = write_yaml(tmp_path / "step2.yaml", sort_config(src2, [
             {"pattern": "*.txt", "dest": str(dest2), "description": "step2"},
         ]))
@@ -72,8 +70,12 @@ class TestOperationCollection:
         ])
         ops = handler.plan_operations()
 
-        # step1 の操作が先に来る
-        assert ops[0].step_label == "First"
+        assert [op.step_label for op in ops] == [
+            "First",
+            "First",
+            "Second",
+            "Second",
+        ]
 
     def test_empty_step_contributes_zero_ops(self, tmp_path, nolog):
         src = tmp_path / "src"
@@ -145,6 +147,7 @@ class TestDependentSteps:
         src = tmp_path / "src"
         file_path = make_files(src, "payload.bin")[0]
         file_path.write_bytes(b"1234")
+        make_files(src, "empty.bin")
         staging = tmp_path / "staging"
         final = tmp_path / "final"
 
@@ -161,13 +164,17 @@ class TestDependentSteps:
         ]))
 
         handler = _pipeline_handler(tmp_path, nolog, [
-            {"config": str(stage_path)},
-            {"config": str(filtered_path)},
+            {"config": str(stage_path), "label": "Stage"},
+            {"config": str(filtered_path), "label": "Filtered"},
         ])
         ops = handler.plan_operations()
 
-        assert len(ops) == 2
-        assert ops[1].source == staging / "payload.bin"
+        # 後段は仮想パス（staging/ 配下。まだディスクには無い）を走査し、
+        # サイズフィルタは元ファイル（src/ 配下の実体）を見る。
+        # source が staging/ でなければ、そもそも仮想走査が働いていない。
+        assert [op.source for op in ops if op.step_label == "Filtered"] == [
+            staging / "payload.bin"
+        ]
 
     def test_sort_processes_both_source_and_copy_created_by_clean(
         self,
@@ -239,8 +246,63 @@ class TestDependentSteps:
         ])
         ops = handler.plan_operations()
 
-        assert len(ops) == 1
+        assert len(ops) == 2
         assert ops[0].step_label == "First"
+        assert ops[1].step_label == "Second"
+        assert ops[1].planned_skip_reason is not None
+
+    def test_skipped_sorting_in_prior_step_also_skips_later_cleanup(
+        self,
+        tmp_path,
+        nolog,
+    ):
+        """別プリセットでも同じ論理 source の cleanup だけを実行しない。"""
+        src = tmp_path / "src"
+        original = make_files(src, "photo_DRAFT.png")[0]
+        cleaned = src / "photo.png"
+        blocked = tmp_path / "blocked"
+        make_files(blocked, original.name)
+        sorting_path = write_yaml(
+            tmp_path / "sorting.yaml",
+            clean_config(src, sorting_rules=[{
+                "search": "*.png",
+                "destination": str(blocked),
+                "action": "copy",
+            }]),
+        )
+        cleanup_path = write_yaml(
+            tmp_path / "cleanup.yaml",
+            clean_config(src, cleanup={
+                "enabled": True,
+                "recursive": False,
+                "custom_patterns": [r"_DRAFT"],
+            }),
+        )
+        handler = _pipeline_handler(tmp_path, nolog, [
+            {"config": str(sorting_path), "label": "Sorting"},
+            {"config": str(cleanup_path), "label": "Cleanup"},
+        ])
+
+        operations = handler.plan_operations()
+        preview = PreviewGenerator(handler.config).generate_preview(
+            operations,
+            mode="Pipeline",
+        )
+        result = handler.execute_operations(operations)
+
+        assert [operation.action for operation in operations] == [
+            "copy",
+            "cleanup",
+        ]
+        assert preview.count("[スキップ]") == 2
+        assert all(
+            operation.planned_skip_reason is not None
+            for operation in operations
+        )
+        assert result == (0, 0)
+        assert result.skipped_count == 2
+        assert original.exists()
+        assert not cleaned.exists()
 
     def test_skip_if_exists_sees_earlier_file_in_same_step(self, tmp_path, nolog):
         src1 = tmp_path / "src1"
@@ -263,7 +325,9 @@ class TestDependentSteps:
         ])
         ops = handler.plan_operations()
 
-        assert len(ops) == 1
+        assert len(ops) == 2
+        assert ops[0].planned_skip_reason is None
+        assert ops[1].planned_skip_reason is not None
 
     def test_dry_run_keeps_real_files_unchanged(self, tmp_path, nolog):
         src = tmp_path / "src"
@@ -283,7 +347,7 @@ class TestDependentSteps:
         assert original.exists()
         assert not dest.exists()
 
-    def test_conflicting_destinations_across_steps_abort_before_execution(
+    def test_conflicting_destinations_skip_second_and_pipeline_completes(
         self,
         tmp_path,
         nolog,
@@ -291,30 +355,39 @@ class TestDependentSteps:
         src1 = tmp_path / "src1"
         src2 = tmp_path / "src2"
         first = make_files(src1, "same.txt")[0]
-        second = make_files(src2, "same.txt")[0]
+        second, later = make_files(src2, "same.txt", "later.txt")
         dest = tmp_path / "dest"
 
         first_path = write_yaml(tmp_path / "first.yaml", sort_config(src1, [
             {"pattern": "*.txt", "dest": str(dest), "description": "first"},
         ]))
         second_path = write_yaml(tmp_path / "second.yaml", sort_config(src2, [
-            {"pattern": "*.txt", "dest": str(dest), "description": "second"},
+            {"pattern": "same.txt", "dest": str(dest), "description": "second"},
+            {"pattern": "later.txt", "dest": str(dest), "description": "later"},
         ]))
         handler = _pipeline_handler(tmp_path, nolog, [
             {"config": str(first_path), "label": "First"},
             {"config": str(second_path), "label": "Second"},
         ])
 
-        with pytest.raises(PlanningConflictError) as exc_info:
-            handler.plan_operations()
+        operations = handler.plan_operations()
+        dry_result = handler.execute_operations(operations, dry_run=True)
+        execute_result = handler.execute_operations(operations)
 
-        conflict = exc_info.value
-        assert conflict.first_source == first
-        assert conflict.second_source == second
-        assert conflict.destination == dest / "same.txt"
-        assert first.exists()
+        assert len(operations) == 3
+        assert operations[0].source == first
+        assert operations[1].source == second
+        assert operations[1].planned_skip_reason is not None
+        assert operations[2].source == later
+        assert dry_result.skipped_count == 1
+        assert execute_result.skipped_count == 1
+        assert execute_result == (2, 0)
+        assert execute_result.skipped_operations[0].source == second
+        assert execute_result.skipped_operations[0].destination == dest / "same.txt"
+        assert (dest / "same.txt").exists()
+        assert (dest / "later.txt").exists()
         assert second.exists()
-        assert not dest.exists()
+        assert not later.exists()
 
 
 class TestPipelineExecution:
@@ -342,6 +415,75 @@ class TestPipelineExecution:
 
         assert (success, failure) == (0, 1)
         assert calls == [ops[0]]
+
+    def test_abort_reports_which_step_stopped_and_what_was_not_run(
+        self, tmp_path, nolog, monkeypatch
+    ):
+        """中断時に「どこで止まり、何件が未実行か」を結果から取り出せる。"""
+        handler = _pipeline_handler(tmp_path, nolog, [
+            {"config": "unused.yaml"},
+        ])
+
+        def fail_on_second(op):
+            if op.source.name == "two":
+                raise OSError("boom")
+            return op.destination
+
+        monkeypatch.setattr(
+            "src.handlers.pipeline_handler.execute_file_op",
+            fail_on_second,
+            raising=False,
+        )
+
+        def _op(name, label):
+            operation = FileOperation(
+                tmp_path / name, tmp_path / "out" / name, "move", name
+            )
+            operation.step_label = label
+            return operation
+
+        ops = [
+            _op("one", "1. 前段"),
+            _op("two", "2. 落ちる段"),
+            _op("three", "3. 後段"),
+            _op("four", "3. 後段"),
+        ]
+
+        result = handler.execute_operations(ops)
+
+        assert (result.success_count, result.failure_count) == (1, 1)
+        assert result.aborted is True
+        assert result.aborted_step == "2. 落ちる段"
+        assert result.not_attempted_count == 2
+        assert result.not_attempted_by_step() == [("3. 後段", 2)]
+        # 成功・失敗・スキップ・未実行の合計が計画件数に一致する。
+        assert (
+            result.success_count
+            + result.failure_count
+            + result.skipped_count
+            + result.not_attempted_count
+        ) == len(ops)
+
+    def test_completed_run_reports_nothing_left_unattempted(
+        self, tmp_path, nolog, monkeypatch
+    ):
+        handler = _pipeline_handler(tmp_path, nolog, [
+            {"config": "unused.yaml"},
+        ])
+        monkeypatch.setattr(
+            "src.handlers.pipeline_handler.execute_file_op",
+            lambda op: op.destination,
+            raising=False,
+        )
+        ops = [
+            FileOperation(tmp_path / "one", tmp_path / "out" / "one", "move", "one"),
+        ]
+
+        result = handler.execute_operations(ops)
+
+        assert result.aborted is False
+        assert result.not_attempted == ()
+        assert result.aborted_step is None
 
 
 # ---------------------------------------------------------------------------
@@ -404,8 +546,20 @@ class TestMetadataOnOps:
 # ---------------------------------------------------------------------------
 
 class TestValidation:
-    def test_rejects_missing_steps(self, tmp_path, nolog):
+    def test_rejects_missing_steps_key(self, tmp_path, nolog):
         cfg = pipeline_config([])
+        del cfg["steps"]
+        with pytest.raises(ValueError, match="steps"):
+            PipelineModeHandler.validate_config(cfg)
+
+    def test_rejects_empty_steps(self, tmp_path, nolog):
+        cfg = pipeline_config([])
+        with pytest.raises(ValueError, match="steps"):
+            PipelineModeHandler.validate_config(cfg)
+
+    def test_rejects_non_list_steps(self, tmp_path, nolog):
+        cfg = pipeline_config([])
+        cfg["steps"] = ({"config": "step.yaml"},)
         with pytest.raises(ValueError, match="steps"):
             PipelineModeHandler.validate_config(cfg)
 
@@ -413,3 +567,28 @@ class TestValidation:
         cfg = pipeline_config([{"label": "no config key"}])
         with pytest.raises(ValueError):
             PipelineModeHandler.validate_config(cfg)
+
+
+class TestAbortReportingEdgeCase:
+    def test_failure_on_the_last_operation_still_reports_the_step(
+        self, tmp_path, nolog, monkeypatch
+    ):
+        """最後の操作で落ちたら未実行は 0 件だが、中断であることは残す。"""
+        handler = _pipeline_handler(tmp_path, nolog, [
+            {"config": "unused.yaml"},
+        ])
+        monkeypatch.setattr(
+            "src.handlers.pipeline_handler.execute_file_op",
+            lambda op: (_ for _ in ()).throw(OSError("boom")),
+            raising=False,
+        )
+        operation = FileOperation(
+            tmp_path / "one", tmp_path / "out" / "one", "move", "one"
+        )
+        operation.step_label = "最終段"
+
+        result = handler.execute_operations([operation])
+
+        assert result.not_attempted_count == 0
+        assert result.aborted_step == "最終段"
+        assert result.aborted is True

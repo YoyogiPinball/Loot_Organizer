@@ -28,6 +28,77 @@ class SkippedFileOperation:
     """失敗として扱わない実行時スキップ。"""
 
     reason: str
+    source: Path
+    destination: Path | None
+    category: str = "protected"
+
+
+class ExecutionResult(tuple):
+    """成功数と失敗数の互換性を保ちつつスキップ詳細も返す。"""
+
+    skipped_operations: tuple
+    not_attempted: tuple
+    aborted_step: str | None
+
+    def __new__(
+        cls,
+        success_count: int,
+        failure_count: int,
+        skipped_operations=(),
+        not_attempted=(),
+        aborted_step: str | None = None,
+    ):
+        instance = super().__new__(cls, (success_count, failure_count))
+        instance.skipped_operations = tuple(skipped_operations)
+        # 中断で1件も手を付けなかった操作。どこまで実行されたかの表示に使う。
+        instance.not_attempted = tuple(not_attempted)
+        instance.aborted_step = aborted_step
+        return instance
+
+    @property
+    def success_count(self) -> int:
+        return self[0]
+
+    @property
+    def failure_count(self) -> int:
+        return self[1]
+
+    @property
+    def skipped_count(self) -> int:
+        return len(self.skipped_operations)
+
+    @property
+    def explicit_skipped_count(self) -> int:
+        return sum(skip.category == "explicit" for skip in self.skipped_operations)
+
+    @property
+    def protected_skipped_count(self) -> int:
+        return sum(skip.category == "protected" for skip in self.skipped_operations)
+
+    @property
+    def same_path_skipped_count(self) -> int:
+        return sum(skip.category == "same_path" for skip in self.skipped_operations)
+
+    @property
+    def not_attempted_count(self) -> int:
+        return len(self.not_attempted)
+
+    @property
+    def aborted(self) -> bool:
+        """Return whether execution stopped on an error instead of finishing.
+
+        最後の操作で落ちた場合は未実行が 0 件になるが、それでも中断は中断
+        なので not_attempted ではなく aborted_step で判定する。
+        """
+        return self.aborted_step is not None
+
+    def not_attempted_by_step(self) -> list[tuple[str, int]]:
+        """Return (ステップ名, 未実行件数) in plan order."""
+        counts: dict[str, int] = {}
+        for operation in self.not_attempted:
+            label = operation.step_label or "(ステップ指定なし)"
+            counts[label] = counts.get(label, 0) + 1
+        return list(counts.items())
 
 
 def resolve_destination(op: FileOperation) -> Path | None:
@@ -62,8 +133,17 @@ def execute_file_op(op: FileOperation) -> Path | None | SkippedFileOperation:
     """
     Execute one file operation and return its final destination when applicable.
     """
-    _verify_source_fingerprint(op)
     destination = resolve_destination(op)
+
+    if op.planned_skip_reason is not None:
+        return SkippedFileOperation(
+            op.planned_skip_reason,
+            Path(op.source),
+            destination,
+            op.skip_category,
+        )
+
+    _verify_source_fingerprint(op)
 
     if op.action == "delete":
         if op.delete_mode == "trash":
@@ -82,7 +162,10 @@ def execute_file_op(op: FileOperation) -> Path | None | SkippedFileOperation:
 
     if op.skip_if_exists and destination.exists():
         return SkippedFileOperation(
-            f"実行直前に保存先が存在したためスキップしました: {destination}"
+            f"実行直前に保存先が存在したためスキップしました: {destination}",
+            Path(op.source),
+            destination,
+            op.skip_category,
         )
 
     destination.parent.mkdir(parents=True, exist_ok=True)

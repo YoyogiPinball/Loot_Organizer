@@ -5,6 +5,8 @@ Sort モードの動作テスト
 move_rules に基づいてファイルが正しく振り分けられることを確認する。
 """
 
+import string
+
 import pytest
 
 from src.core.file_scanner import FileScanner
@@ -62,7 +64,7 @@ class TestBasicMove:
         src = tmp_path / "src"
         make_files(src, "photo.jpg")
         dest1 = tmp_path / "d1"
-        dest2 = tmp_path / "d2"
+        dest2 = tmp_path / "d10"
 
         rules = [
             {"pattern": "*.jpg", "dest": str(dest1), "description": "rule1"},
@@ -72,7 +74,47 @@ class TestBasicMove:
         ops = handler.plan_operations()
 
         assert len(ops) == 1
-        assert str(dest1) in str(ops[0].destination)
+        assert ops[0].destination == dest1 / "photo.jpg"
+
+    def test_skipped_first_rule_does_not_fall_through_to_later_rule(
+        self,
+        tmp_path,
+        nolog,
+    ):
+        """保存先が埋まっていても first-match の契約を維持する。"""
+        src = tmp_path / "src"
+        source = make_files(src, "capture_screenshot.jpg")[0]
+        screenshot_dest = tmp_path / "screenshots"
+        generic_dest = tmp_path / "images"
+        existing = make_files(screenshot_dest, source.name)[0]
+
+        handler = _handler(
+            src,
+            [
+                {
+                    "pattern": "*screenshot*",
+                    "dest": str(screenshot_dest),
+                    "description": "screenshots",
+                },
+                {
+                    "pattern": "*.jpg",
+                    "dest": str(generic_dest),
+                    "description": "generic images",
+                },
+            ],
+            nolog,
+        )
+
+        operations = handler.plan_operations()
+        result = handler.execute_operations(operations)
+
+        assert len(operations) == 1
+        assert operations[0].destination == existing
+        assert operations[0].planned_skip_reason is not None
+        assert result == (0, 0)
+        assert source.exists()
+        assert existing.exists()
+        assert not (generic_dest / source.name).exists()
 
     def test_first_rule_still_wins_after_in_place_rename(self, tmp_path, nolog):
         """仮想リネーム後の名前が後続ルールに一致しても同じ実体は再処理しない"""
@@ -211,7 +253,8 @@ class TestSkipIfExists:
         }], nolog)
         ops = handler.plan_operations()
 
-        assert ops == []
+        assert len(ops) == 1
+        assert ops[0].planned_skip_reason is not None
 
     def test_moves_when_renamed_dest_absent(self, tmp_path, nolog):
         """rename 後のファイルが未存在 → 処理される"""
@@ -281,7 +324,34 @@ class TestSkipIfExists:
         }], nolog)
         ops = handler.plan_operations()
 
-        assert ops == []
+        assert len(ops) == 1
+        assert ops[0].planned_skip_reason is not None
+
+    def test_false_keeps_default_destination_protection(
+        self,
+        tmp_path,
+        nolog,
+    ):
+        src = tmp_path / "src"
+        source = make_files(src, "file.png")[0]
+        dest = tmp_path / "dest"
+        existing = make_files(dest, source.name)[0]
+        handler = _handler(src, [{
+            "pattern": "*.png",
+            "dest": str(dest),
+            "skip_if_exists": False,
+            "description": "default protection remains enabled",
+        }], nolog)
+
+        operations = handler.plan_operations()
+        result = handler.execute_operations(operations)
+
+        assert operations[0].configured_skip_if_exists is False
+        assert operations[0].planned_skip_reason is not None
+        assert result.explicit_skipped_count == 0
+        assert result.protected_skipped_count == 1
+        assert source.exists()
+        assert existing.exists()
 
 
 # ---------------------------------------------------------------------------
@@ -291,20 +361,32 @@ class TestSkipIfExists:
 class TestRandomRename:
     def test_generates_hex_name_with_correct_extension(self, tmp_path, nolog):
         src = tmp_path / "src"
-        make_files(src, "image (1).jpg")
+        sources = make_files(src, "image (1).jpg", "image (2).png")
         dest = tmp_path / "dest"
 
-        handler = _handler(src, [{
-            "pattern": "image (*).jpg",
-            "dest": str(dest),
-            "rename": "random",
-            "description": "random rename",
-        }], nolog)
+        handler = _handler(src, [
+            {
+                "pattern": "image (*).jpg",
+                "dest": str(dest),
+                "rename": "random",
+                "description": "random jpg",
+            },
+            {
+                "pattern": "image (*).png",
+                "dest": str(dest),
+                "rename": "random",
+                "description": "random png",
+            },
+        ], nolog)
         ops = handler.plan_operations()
 
-        assert len(ops) == 1
-        name = ops[0].destination.name
-        stem, ext = ops[0].destination.stem, ops[0].destination.suffix
-        assert ext == ".jpg"
-        assert len(stem) == 10
-        assert stem.isalnum()
+        assert len(ops) == 2
+        assert {
+            op.source: op.destination.suffix for op in ops
+        } == {
+            source: source.suffix for source in sources
+        }
+        stems = [op.destination.stem for op in ops]
+        assert all(len(stem) == 10 for stem in stems)
+        assert all(set(stem) <= set(string.hexdigits.lower()) for stem in stems)
+        assert len(set(stems)) == len(stems)

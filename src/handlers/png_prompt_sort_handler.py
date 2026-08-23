@@ -4,18 +4,24 @@ PNG_Prompt_Sort モードの処理ハンドラー
 AI生成画像をメタデータのLoRA情報で振り分け
 """
 
-import os
 import re
 import yaml
 import questionary
 from pathlib import Path
-from typing import List, Dict, Tuple, Optional
+from typing import List, Dict, Optional
 from tqdm import tqdm
 from PIL import Image
 
 from ..core.file_scanner import FileScanner
 from ..core.preview_generator import FileOperation
-from ..utils.file_executor import execute_file_op, operation_log_message
+from ..utils.file_executor import (
+    ExecutionResult,
+    SkippedFileOperation,
+    execute_file_op,
+    operation_log_message,
+    skipped_operation_log_message,
+)
+from ..utils.file_utils import get_sequential_path
 from ..utils.path_utils import to_path
 from .base_handler import BaseHandler
 
@@ -179,21 +185,7 @@ class PngPromptSortModeHandler(BaseHandler):
             destination_exists = self.planning_context.is_file
         else:
             destination_exists = Path.exists
-
-        if not destination_exists(dest_path):
-            return filename
-
-        # 拡張子を分離
-        name_part, ext_part = os.path.splitext(filename)
-
-        # 連番を付与
-        counter = 1
-        while True:
-            new_filename = f"{name_part}_{counter}{ext_part}"
-            new_path = dest_dir / new_filename
-            if not destination_exists(new_path):
-                return new_filename
-            counter += 1
+        return get_sequential_path(dest_path, destination_exists).name
 
     def _append_planned_operation(
         self,
@@ -201,26 +193,44 @@ class PngPromptSortModeHandler(BaseHandler):
         operation: FileOperation,
     ) -> None:
         """重複方針を確定してから仮想状態へ反映する。"""
-        duplicate_handling = self.settings.get('duplicate_handling', 'overwrite')
+        duplicate_handling = self.settings.get('duplicate_handling', 'skip')
         destination = operation.destination
         operation.skip_if_exists = duplicate_handling == 'skip'
+        operation.configured_skip_if_exists = (
+            duplicate_handling == 'skip'
+            if 'duplicate_handling' in self.settings
+            else None
+        )
+
+        if (
+            destination is not None
+            and self.planning_context.paths_equal(operation.source, destination)
+        ):
+            self.logger.info(
+                f"スキップ: {operation.source} (保存先と現在地が同じです)"
+            )
+            return
 
         if destination is not None and self.planning_context.is_file(destination):
-            if duplicate_handling == 'skip':
-                self.logger.info(
-                    f"スキップ: {operation.source} "
-                    f"(保存先が既に存在します: {destination})"
-                )
-                return
             if duplicate_handling == 'sequential':
                 unique_filename = self._get_unique_filename(
                     destination.parent,
                     destination.name,
                 )
                 operation.destination = destination.parent / unique_filename
+            elif (
+                duplicate_handling == 'skip'
+                or self.planning_context.is_planned_destination(destination)
+            ):
+                operation.planned_skip_reason = (
+                    f"保存先が既に存在するためスキップしました: {destination}"
+                )
 
         operations.append(operation)
-        self._record_planned_operations([operation])
+        self._record_planned_operations(
+            [operation],
+            allow_disk_overwrite=duplicate_handling in {'overwrite', 'ask'},
+        )
 
     def plan_operations(self) -> List[FileOperation]:
         """
@@ -241,6 +251,15 @@ class PngPromptSortModeHandler(BaseHandler):
         source_dirs = self.settings.get('source_directories', [])
         if isinstance(source_dirs, str):
             source_dirs = [source_dirs]
+        unique_source_dirs = []
+        for source_dir in source_dirs:
+            normalized = to_path(source_dir)
+            if any(
+                self.planning_context.paths_equal(normalized, existing)
+                for existing in unique_source_dirs
+            ):
+                continue
+            unique_source_dirs.append(normalized)
 
         # 出力親ディレクトリ
         output_dir = to_path(self.settings['output_directory'])
@@ -257,9 +276,7 @@ class PngPromptSortModeHandler(BaseHandler):
         )
 
         # 各入力ディレクトリを処理
-        for source_dir_str in source_dirs:
-            source_dir = to_path(source_dir_str)
-
+        for source_dir in unique_source_dirs:
             if not self.planning_context.directory_exists(source_dir):
                 self.logger.warning(f"入力ディレクトリが存在しません: {source_dir}")
                 continue
@@ -343,7 +360,7 @@ class PngPromptSortModeHandler(BaseHandler):
         self,
         operations: List[FileOperation],
         dry_run: bool = False
-    ) -> Tuple[int, int]:
+    ) -> ExecutionResult:
         """
         ask の単独実行だけ、従来どおり実行時に選択する。
 
@@ -354,16 +371,22 @@ class PngPromptSortModeHandler(BaseHandler):
         Returns:
             (成功数, 失敗数)
         """
-        duplicate_handling = self.settings.get('duplicate_handling', 'overwrite')
+        duplicate_handling = self.settings.get('duplicate_handling', 'skip')
         if duplicate_handling != 'ask':
             return super().execute_operations(operations, dry_run=dry_run)
 
         success_count = 0
         failure_count = 0
-        skip_count = 0
+        skipped_operations = []
 
         for op in tqdm(operations, desc="処理中", unit="files"):
             try:
+                if op.planned_skip_reason is not None:
+                    skipped = execute_file_op(op)
+                    skipped_operations.append(skipped)
+                    self.logger.info(skipped_operation_log_message(op, skipped))
+                    continue
+
                 if not dry_run:
                     final_dest = op.destination
 
@@ -381,10 +404,14 @@ class PngPromptSortModeHandler(BaseHandler):
                             )
                             final_dest = op.destination.parent / unique_filename
                         elif answer != "上書き":
-                            self.logger.info(
-                                f"スキップ: {op.source.name} (ユーザー選択)"
+                            skipped_operations.append(
+                                SkippedFileOperation(
+                                    "ユーザー選択によりスキップしました",
+                                    Path(op.source),
+                                    final_dest,
+                                    "explicit",
+                                )
                             )
-                            skip_count += 1
                             continue
 
                     planned_destination = op.destination
@@ -403,7 +430,7 @@ class PngPromptSortModeHandler(BaseHandler):
                 self.logger.error(f"移動失敗 ({op.source.name}): {e}")
                 failure_count += 1
 
-        if skip_count > 0:
-            self.logger.info(f"スキップ: {skip_count}件")
+        if skipped_operations:
+            self.logger.info(f"スキップ: {len(skipped_operations)}件")
 
-        return success_count, failure_count
+        return ExecutionResult(success_count, failure_count, skipped_operations)

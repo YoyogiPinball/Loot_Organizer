@@ -17,24 +17,19 @@
 #   "lora名": "フォルダ名"
 #
 # 【注意点】
-# - LoRA名の大文字小文字は無視されます（pikachu = PIKACHU = Pikachu）
+# - LoRA名の大文字小文字は無視されます（character_alpha = CHARACTER_ALPHA = Character_Alpha）
 # - LoRA名に含まれる空白は無視されます
 # - フォルダ名は自由に設定可能（日本語OK）
 #
 # ========================================
 
 mappings:
-  # 初代ポケモンサンプル（架空のLoRA名）
-  "pikachu": "ピカチュウ"
-  "fushigidane": "フシギダネ"
-  "hitokage": "ヒトカゲ"
-  "zenigame": "ゼニガメ"
-  "butterfree": "バタフリー"
-  "pidgey": "ポッポ"
-  "rattata": "コラッタ"
-  "spear": "オニスズメ"
-  "ekans": "アーボ"
-  "eevee": "イーブイ"
+  # 中立的なLoRA名の例
+  "character_alpha": "キャラクター_アルファ"
+  "character_beta": "キャラクター_ベータ"
+  "style_watercolor": "スタイル_水彩"
+  "style_monochrome": "スタイル_モノクロ"
+  "pose_sitting": "ポーズ_座り"
 
   # 実際の使用例:
   # "my_custom_lora_v1": "カスタムキャラクター"

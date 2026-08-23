@@ -20,13 +20,9 @@ Thumbs.db
 desktop.ini
 *Zone.Identifier*
 
-# ユーザーの実行モードファイル（mode直下のみ除外、samplesは含める）
+# ユーザーの実行モードファイル（mode 直下のみ除外）
+# `*` は `/` に一致しないので mode/samples/ 配下は元から対象外
 mode/*.yaml
-!mode/samples/
-!mode/samples/*.yaml
-
-# samples のうち個人用のもの（実際の保存先パスを含む）
-mode/samples/kozuya_copy.yaml
 
 # 開発用ドキュメント（GitHubには含めない）
 CLAUDE.md
@@ -63,3 +59,10 @@ venv/
 env/
 ENV/
 .venv/
+
+# 各自の好きなツールを使う方針のため、フック設定はリポジトリに含めない
+lefthook.yml
+
+# 本番プリセット（mode/ 直下・git 管理外）を読む個人用の結合テスト。
+# 実在するフォルダ構成を含み、クローン先では実行できないためリポジトリに含めない。
+tests/test_my_pipeline_integration.py

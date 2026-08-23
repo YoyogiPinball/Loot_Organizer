@@ -239,6 +239,20 @@ class TestTimeOfCheckToTimeOfUse:
         assert src.exists()
         assert destination.read_text(encoding="utf-8") == "created after planning"
 
+    @pytest.mark.parametrize("action", ["move", "copy", "rename"])
+    def test_existing_destination_is_skipped_by_default(self, tmp_path, action):
+        source = tmp_path / f"source-{action}.txt"
+        destination = tmp_path / f"destination-{action}.txt"
+        source.write_text("source", encoding="utf-8")
+        destination.write_text("preserved", encoding="utf-8")
+        operation = FileOperation(source, destination, action, "duplicate")
+
+        result = execute_file_op(operation)
+
+        assert isinstance(result, SkippedFileOperation)
+        assert source.read_text(encoding="utf-8") == "source"
+        assert destination.read_text(encoding="utf-8") == "preserved"
+
 
 class TestDeleteDisplay:
     def test_log_distinguishes_trash_and_permanent_delete(self, tmp_path):

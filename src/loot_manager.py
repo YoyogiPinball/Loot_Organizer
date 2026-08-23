@@ -9,6 +9,7 @@ License: Free to use for personal and commercial purposes
 """
 
 import sys
+import traceback
 
 # サードパーティライブラリ
 try:
@@ -159,6 +160,18 @@ class LootManager:
             )
             input(f"{Colors.NEON_CYAN}Enterキーで続行...{Colors.RESET}")
             return
+        except Exception as e:
+            error_type = type(e).__name__
+            print(
+                f"{Colors.NEON_RED}エラー: 操作の計画に失敗: "
+                f"{preset.name} ({error_type}): {e}{Colors.RESET}"
+            )
+            logger.error(
+                f"プリセット「{preset.name}」の操作計画に失敗 "
+                f"({error_type}): {e}\n{traceback.format_exc()}"
+            )
+            input(f"{Colors.NEON_CYAN}Enterキーで続行...{Colors.RESET}")
+            return
 
         if not operations:
             print(f"{Colors.NEON_YELLOW}処理対象のファイルがありません{Colors.RESET}")
@@ -197,13 +210,69 @@ class LootManager:
         if dry_run:
             print(f"{Colors.NEON_YELLOW}[ドライランモード] 実際にはファイル操作を行いません{Colors.RESET}")
 
-        success, failure = handler.execute_operations(operations, dry_run=dry_run)
+        result = handler.execute_operations(operations, dry_run=dry_run)
+        success, failure = result
 
         # 結果サマリー
         print()
         print(f"{Colors.NEON_GREEN}完了: {success}件成功{Colors.RESET}")
         if failure > 0:
             print(f"{Colors.NEON_RED}失敗: {failure}件{Colors.RESET}")
+
+        # 中断したときは「どこまで実行されたか」を必ず出す。
+        # これが無いと、途中で止まったのか全部通ったのか画面から判断できない。
+        if result.aborted:
+            step = result.aborted_step or "不明"
+            print(
+                f"{Colors.NEON_RED}中断: ステップ「{step}」でエラーが起きたため、"
+                f"以降の処理を止めました{Colors.RESET}"
+            )
+            if result.not_attempted_count > 0:
+                print(
+                    f"{Colors.NEON_RED}  残り {result.not_attempted_count} 件は"
+                    f"実行していません{Colors.RESET}"
+                )
+                for label, count in result.not_attempted_by_step():
+                    print(
+                        f"{Colors.NEON_RED}  - {label}: {count}件 未実行"
+                        f"{Colors.RESET}"
+                    )
+
+        if result.explicit_skipped_count > 0:
+            print(
+                f"{Colors.NEON_YELLOW}既に存在するため "
+                f"{result.explicit_skipped_count} 件を"
+                f"スキップしました{Colors.RESET}"
+            )
+        if result.protected_skipped_count > 0:
+            print(
+                f"{Colors.NEON_YELLOW}保存先が埋まっていたため "
+                f"{result.protected_skipped_count} 件を"
+                f"スキップしました{Colors.RESET}"
+            )
+            for skipped in result.skipped_operations:
+                if skipped.category != "protected":
+                    continue
+                print(
+                    f"{Colors.NEON_YELLOW}  - {skipped.source.name} -> "
+                    f"{skipped.destination}{Colors.RESET}"
+                )
+
+        if result.same_path_skipped_count > 0:
+            print(
+                f"{Colors.NEON_YELLOW}移動元と移動先が同じため "
+                f"{result.same_path_skipped_count} 件を"
+                f"スキップしました{Colors.RESET}"
+            )
+
+        # 成功件数だけでは計画件数と合わないので、合算できる内訳を出す。
+        if failure > 0 or result.skipped_count > 0 or result.aborted:
+            print(
+                f"{Colors.NEON_CYAN}内訳: 計画 {len(operations)}件 = "
+                f"成功 {success} / 失敗 {failure} / "
+                f"スキップ {result.skipped_count} / "
+                f"未実行 {result.not_attempted_count}{Colors.RESET}"
+            )
 
         # スキップされたディレクトリがあれば通知
         scanner = getattr(handler, 'scanner', None)

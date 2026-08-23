@@ -6,7 +6,8 @@
 import os
 import re
 import logging
-from typing import List
+from pathlib import Path
+from typing import Callable, List
 
 
 def parse_file_size(size_str: str) -> int:
@@ -112,3 +113,21 @@ def clean_filename(filename: str, custom_patterns: List[str] = None) -> str:
         name_part = "cleaned_file"
 
     return name_part + ext_part
+
+
+def get_sequential_path(
+    destination: Path,
+    exists: Callable[[Path], bool] = Path.exists,
+) -> Path:
+    """Return ``destination`` or the first free ``name_N.ext`` path."""
+    destination = Path(destination)
+    if not exists(destination):
+        return destination
+
+    name_part, ext_part = os.path.splitext(destination.name)
+    counter = 1
+    while True:
+        candidate = destination.parent / f"{name_part}_{counter}{ext_part}"
+        if not exists(candidate):
+            return candidate
+        counter += 1

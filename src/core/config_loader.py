@@ -9,6 +9,8 @@ from pathlib import Path
 from typing import List, Dict, Any
 from dataclasses import dataclass
 
+from ..utils.path_utils import to_path
+
 
 @dataclass
 class PresetMeta:
@@ -58,7 +60,7 @@ class ConfigLoader:
             yaml.YAMLError: YAML形式が不正
             ValueError: 必須フィールドが不足
         """
-        config_path = Path(config_path)
+        config_path = to_path(config_path)
 
         if not config_path.exists():
             raise FileNotFoundError(f"設定ファイルが見つかりません: {config_path}")

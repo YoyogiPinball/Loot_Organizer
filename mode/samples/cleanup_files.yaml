@@ -7,7 +7,7 @@
 # 削除 → クリーンアップ → 振り分けの3ステップでファイルを整理します。
 #
 # 【使い方】
-# 1. このファイルを mode/my_cleanup.yaml にコピー
+# 1. このファイルを mode/tmp_cleanup.yaml にコピー
 # 2. target_directory を自分の環境に合わせて変更
 # 3. 削除したい文字列、振り分けルールを追加・編集
 #
@@ -45,7 +45,7 @@ settings:
   confirm_before_execute: true
 
   # ドライラン（プレビューのみ、実際には実行しない）をデフォルトで有効化
-  dry_run_default: false
+  dry_run_default: true  # まず true で結果を確認し、納得したら false にする
 
   # プレビュー表示設定
   preview:

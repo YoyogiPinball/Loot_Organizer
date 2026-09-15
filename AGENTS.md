@@ -1,4 +1,4 @@
-> 最終更新: 2026-08-23（Sun）17:56
+> 最終更新: 2026-08-24（Mon）00:46
 
 # Loot Organizer
 
@@ -24,7 +24,7 @@ python3 -m src.loot_manager
 .venv/bin/python -m pytest -q
 ```
 
-現在 121 passed（v2.2.2）。**件数が減る変更は入れない。**
+現在 136 passed（v2.2.3）。**件数が減る変更は入れない。**
 
 ## 開発は WSL、本番実行は Windows
 

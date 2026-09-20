@@ -16,7 +16,7 @@ from src.handlers.pipeline_handler import (
 )
 from src.handlers.png_prompt_sort_handler import PngPromptSortModeHandler
 from src.loot_manager import LootManager
-from tests.conftest import pipeline_config, sort_config, write_yaml
+from tests.conftest import posix_only, pipeline_config, sort_config, write_yaml
 
 
 def _write_png(path: Path, color: str = "red") -> Path:
@@ -95,6 +95,7 @@ class TestDuplicateHandling:
         assert operations[0].source == source
         assert operations[0].destination == existing
 
+    @posix_only
     def test_source_directory_deduplication_uses_planning_path_rules(
         self,
         tmp_path,

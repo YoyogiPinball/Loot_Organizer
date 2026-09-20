@@ -1,4 +1,4 @@
-> 最終更新: 2026-08-24（Mon）00:46
+> 最終更新: 2026-09-19（Sat）
 
 # Loot Organizer
 
@@ -24,7 +24,9 @@ python3 -m src.loot_manager
 .venv/bin/python -m pytest -q
 ```
 
-現在 136 passed（v2.2.3）。**件数が減る変更は入れない。**
+現在 WSL で 139 passed（v2.3.0）。**件数が減る変更は入れない。**
+
+Windows ネイティブ（`python -m pytest -q`）でも全件通る。Linux のパス規則を前提にしたテストには `tests/conftest.py` の `posix_only`（`os.name == "nt"` でスキップするマーカー）を付けてあり、Windows では 125 passed / 14 skipped になる。
 
 ## 開発は WSL、本番実行は Windows
 
@@ -34,7 +36,9 @@ python3 -m src.loot_manager
 - パス区切り: Windows の `Path.glob` は `\` も区切りとして解釈する。Linux は `/` のみ
 - 仮想 glob 側はこの差を `platform_glob_rules()`（`src/core/planning_context.py`。実行中の OS から大小文字と区切りの規則を取る関数）で吸収している
 
-環境差に依存するテストは `os.name` と関連する環境変数を monkeypatch する。実環境依存にしない。
+環境差に依存するテストは `os.name` と関連する環境変数を monkeypatch する。実環境依存にしない。ただし `os.name` を `posix` に差し替えるテストは Windows で実行すると `Path` が生成できず落ちるので、`posix_only` を付けて Windows 側は別テストで担保する。
+
+Windows から実行したとき、先頭が `/` の設定パス（`/mnt/d/...` など）は設定エラーで止める（v2.3.0〜）。Windows では先頭の `/` が現在のドライブのルートを指し、黙って `C:\mnt\d\...` として解決されるため。
 
 ## モード
 

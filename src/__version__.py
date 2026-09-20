@@ -3,5 +3,5 @@
 バージョン情報
 """
 
-__version__ = "2.2.3"
-__commit__ = "計画再生・仮想 glob・UNC パス検証の不整合を修正"
+__version__ = "2.3.0"
+__commit__ = "Windows で Linux 形式の絶対パスを設定エラーにし、テストを Windows でも通るようにした"

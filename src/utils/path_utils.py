@@ -47,6 +47,14 @@ def to_path(path_value) -> Path:
             "WSL からはネットワーク共有パスを解決できません: "
             f"{path_str}"
         )
+    elif os.name == "nt" and re.match(r"^[\\/](?![\\/])", path_str):
+        # Windows では先頭の / は「現在のドライブのルート」を指すので、
+        # /mnt/d/x のような WSL 形式のパスが黙って C:\mnt\d\x になる。
+        # 保存先なら別の場所へ作られ、走査元ならエラーも出ず対象0件で終わる。
+        raise ValueError(
+            "Windows からは Linux 形式の絶対パスを解決できません: "
+            f"{path_str}（D:\\Foo\\Bar のようにドライブ文字で書いてください）"
+        )
     elif os.name != "nt" and drive_match:
         drive, rest = drive_match.groups()
         rest_parts = [part for part in re.split(r"[\\/]+", rest) if part]

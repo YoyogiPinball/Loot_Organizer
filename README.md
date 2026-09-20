@@ -362,7 +362,7 @@ PNG_Prompt_Sort をステップに含める場合も、そのプリセットの 
 | 書き方 | Windows で実行 | WSL / Linux で実行 |
 |---|---|---|
 | `D:\Videos` | そのまま | `/mnt/d/Videos` に変換 |
-| `/mnt/d/Videos` | そのまま | そのまま |
+| `/mnt/d/Videos` | **設定エラーで停止**（v2.3.0〜） | そのまま |
 | `\\wsl.localhost\Ubuntu\home\me\x` | そのまま | `/home/me/x` に変換（v2.2.2〜） |
 | `\\wsl$\Ubuntu\home\me\x` | そのまま | 同上（v2.2.2〜） |
 | `\\server\share\x`（ネットワーク共有） | そのまま | **非対応** |
@@ -372,6 +372,10 @@ YAML では `\` をエスケープして `"D:\\Videos"` と書きます。`/` �
 `\\wsl.localhost\...` と `\\wsl$\...` は、`\` の直後のディストリビューション名が実行中の WSL（環境変数 `WSL_DISTRO_NAME`）と一致する場合だけ変換します。大文字小文字は区別しません。別のディストリビューションを指している場合は、推測して変換せず設定エラーで停止します。他のディストリビューションのファイルシステムは、WSL の中からは同じパスで見えないためです。
 
 Pipeline の `steps[].config`（次に読むプリセットのパス）にも同じ変換が働きます（v2.2.2〜）。
+
+Windows から実行したとき、`/mnt/d/Videos` や `/home/me/x` のような先頭が `/` のパスは設定エラーで停止します（v2.3.0〜）。Windows では先頭の `/` が「いま使っているドライブのルート」を意味するため、`C:\mnt\d\Videos` のような別の場所として黙って解決されてしまうからです。WSL で作った設定を Windows でも使う場合は、`D:\Videos` のようにドライブ文字で書いてください。
+
+**大文字小文字の扱い:** パスが同じ場所を指すかどうかの判定は、実行中の OS の規則に従います。Windows から実行した場合は常に区別しません。そのため Windows から `\\wsl.localhost\...` を指定して、リンク先の Linux 側に `Foo` と `foo` のように大文字小文字だけが違うファイルやフォルダーがあると、同じものとして扱われ、片方がスキップされます。この組み合わせは非対応です（WSL 側のファイルは WSL から実行してください）。
 
 ### 保存先と実行時の安全確認
 
@@ -627,6 +631,14 @@ WSL から実行したとき、設定に書いた `\\wsl.localhost\<名前>\...`
 - `wsl -l -v` で実行中のディストリビューション名を確認し、設定の綴りを合わせる（大文字小文字は区別しません）
 - 別のディストリビューションのファイルを扱いたい場合は、そのディストリビューションから実行する
 - WSL 以外の環境（素の Linux 等）では、そもそも UNC ではなく通常のパスを書く
+
+### 問題: 「Windows からは Linux 形式の絶対パスを解決できません」と出る
+
+Windows から実行したとき、設定に `/mnt/d/...` や `/home/...` のような先頭が `/` のパスが書かれている場合に出ます（v2.3.0〜）。
+
+**解決方法:**
+- `D:\Videos` のようにドライブ文字で書き直す（WSL から実行したときは自動で `/mnt/d/Videos` に変換されます）
+- WSL の中のファイルを扱いたい場合は、WSL から実行する
 
 ### 問題: 対象ファイルが 0 件のまま何も起きない
 
@@ -1017,7 +1029,7 @@ Paths in your configuration can stay in Windows form. When you run from WSL / Li
 | Written as | Run on Windows | Run on WSL / Linux |
 |---|---|---|
 | `D:\Videos` | as-is | converted to `/mnt/d/Videos` |
-| `/mnt/d/Videos` | as-is | as-is |
+| `/mnt/d/Videos` | **configuration error** (v2.3.0+) | as-is |
 | `\\wsl.localhost\Ubuntu\home\me\x` | as-is | converted to `/home/me/x` (v2.2.2+) |
 | `\\wsl$\Ubuntu\home\me\x` | as-is | same as above (v2.2.2+) |
 | `\\server\share\x` (network share) | as-is | **not supported** |
@@ -1027,6 +1039,10 @@ In YAML, escape backslashes as `"D:\\Videos"`, or use forward slashes: `"D:/Vide
 `\\wsl.localhost\...` and `\\wsl$\...` are converted only when the distribution name matches the running WSL distribution (environment variable `WSL_DISTRO_NAME`). The comparison ignores case. If it names a different distribution, the tool stops with a configuration error rather than guessing — another distribution's filesystem is not reachable at the same path from inside WSL.
 
 The same conversion applies to `steps[].config` in Pipeline mode (v2.2.2+).
+
+When running on Windows, a path that starts with `/` (such as `/mnt/d/Videos` or `/home/me/x`) stops with a configuration error (v2.3.0+). On Windows a leading `/` means "the root of the current drive", so such a path would silently resolve to somewhere else, for example `C:\mnt\d\Videos`. Use a drive letter (`D:\Videos`) for configurations shared between WSL and Windows.
+
+**Case sensitivity:** whether two paths point at the same place is decided by the rules of the running OS, so a run on Windows never distinguishes case. If you point Windows at `\\wsl.localhost\...` and the Linux side holds names differing only in case (`Foo` and `foo`), they are treated as one location and one of them is skipped. That combination is not supported — run the tool from WSL for files that live inside WSL.
 
 ### Destinations and Execution-Time Safety
 
@@ -1282,6 +1298,14 @@ Raised when running from WSL if the `<name>` in a configured `\\wsl.localhost\<n
 - Run `wsl -l -v` to see the running distribution name and match the spelling (case is ignored)
 - To work with another distribution's files, run the tool from that distribution
 - Outside WSL (plain Linux, etc.), use ordinary paths rather than UNC
+
+### Problem: "Windows からは Linux 形式の絶対パスを解決できません"
+
+Raised when running on Windows with a configured path that starts with `/`, such as `/mnt/d/...` or `/home/...` (v2.3.0+).
+
+**Solution:**
+- Rewrite it with a drive letter (`D:\Videos`); running from WSL converts it to `/mnt/d/Videos` automatically
+- To work with files inside WSL, run the tool from WSL
 
 ### Problem: Nothing happens — zero files matched
 

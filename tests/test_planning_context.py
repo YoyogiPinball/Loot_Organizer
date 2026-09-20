@@ -6,6 +6,7 @@ from pathlib import Path
 
 import pytest
 
+from tests.conftest import posix_only
 from src.core.file_scanner import FileScanner
 from src.core.planning_context import PlanningContext, _compile_glob
 from src.core.preview_generator import FileOperation
@@ -15,6 +16,7 @@ def _operation(source: Path, destination: Path, action: str = "move"):
     return FileOperation(source, destination, action, "test")
 
 
+@posix_only
 def test_wsl_drive_paths_with_different_case_share_one_virtual_file():
     context = PlanningContext()
     backing = Path("/real/Original.dat")
@@ -45,6 +47,7 @@ def test_wsl_drive_paths_with_different_case_share_one_virtual_file():
     ) == []
 
 
+@posix_only
 def test_native_linux_paths_with_different_case_remain_distinct():
     context = PlanningContext()
     upper = Path("/home/user/Foo/a.txt")
@@ -79,6 +82,7 @@ def test_parent_segments_are_normalized_at_planning_context_boundaries(tmp_path)
     ) == [normalized_destination]
 
 
+@posix_only
 def test_released_planned_destination_can_be_used_again():
     context = PlanningContext()
     first = Path("/source/A.txt")
@@ -120,6 +124,7 @@ def _virtual_glob(context, root, pattern, recursive):
     )
 
 
+@posix_only
 def test_virtual_glob_matches_real_glob_for_patterns_with_separators(tmp_path):
     """パターンに `/` や `**` を含むとき、仮想側と実側の結果が一致する。
 

@@ -3,6 +3,7 @@
 共通フィクスチャとヘルパー
 """
 
+import os
 from pathlib import Path
 from typing import Any
 
@@ -10,6 +11,14 @@ import pytest
 import yaml
 
 from src.core.logger import LootLogger
+
+# 本番は Windows、開発は WSL。Linux のパス規則（先頭 / の絶対パス・大文字小文字の
+# 区別）を前提にしたテストは Windows ネイティブでは成立しないので、そこだけ外す。
+# 製品コードの Windows 側の振る舞いは、対になる Windows 用テストで確認する。
+posix_only = pytest.mark.skipif(
+    os.name == "nt",
+    reason="Linux のパス規則を前提にしたテスト（Windows ネイティブでは別テストで確認）",
+)
 
 
 @pytest.fixture
